@@ -1,4 +1,4 @@
-import { NextFunction, type Request, type Response } from "express";
+import { NextFunction, type Request, type Response } from 'express'
 
 function Auth(req: Request, res: Response, next: NextFunction) {
     if (req.session.user != null) {
