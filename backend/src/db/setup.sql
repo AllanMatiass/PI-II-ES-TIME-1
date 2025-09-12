@@ -43,7 +43,6 @@ CREATE TABLE IF NOT EXISTS subject (
     name VARCHAR(255) NOT NULL,
     acronym VARCHAR(20),
     period VARCHAR(50),
-    formula VARCHAR(255),
     courseId VARCHAR(36),
     FOREIGN KEY (courseId) REFERENCES course(id)
 );
