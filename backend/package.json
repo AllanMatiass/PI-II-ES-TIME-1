@@ -8,7 +8,8 @@
   "main": "./backend/server.js",
   "scripts": {
     "build": "tsc --project ./tsconfig.json & npm run dev",
-    "dev": "node ./dist/src/server.js"
+    "dev": "node ./dist/src/server.js",
+    "seed": "node ./src/db/seed.js"
   },
   "dependencies": {
     "@types/cors": "^2.8.19",
@@ -18,7 +19,10 @@
     "dotenv": "^17.2.2",
     "express": "^5.1.0",
     "express-session": "^1.18.2",
-    "typescript": "^5.9.2"
+    "mathjs": "^14.7.0",
+    "mysql2": "^3.14.5",
+    "typescript": "^5.9.2",
+    "uuid": "^13.0.0"
   },
   "devDependencies": {
     "@types/node": "^24.3.1"
