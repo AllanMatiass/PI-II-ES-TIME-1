@@ -9,7 +9,7 @@
   "scripts": {
     "build": "tsc --project ./tsconfig.json & npm run dev",
     "dev": "node ./dist/src/server.js",
-    "test-db-finalGrade": "tsc --project ./tsconfig.json & node ./dist/src/db/calculateFinalGrade.js"
+    "seed": "node ./src/db/seed.js"
   },
   "dependencies": {
     "@types/cors": "^2.8.19",
