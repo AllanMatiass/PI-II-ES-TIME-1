@@ -1,0 +1,82 @@
+---
+config:
+  theme: dark
+---
+erDiagram
+	direction TB
+	PROFESSOR {
+		string id PK ""  
+		string name  ""  
+		string email  ""  
+		string phone  ""  
+		string password  ""  
+	}
+	INSTITUTION {
+		string id PK ""  
+		string name  ""  
+	}
+	COURSE {
+		string id PK ""  
+		string name  ""  
+		string code  ""  
+	}
+	SUBJECT {
+		string id PK ""  
+		string name  ""  
+		string acronym  ""  
+		string period  ""  
+		string formula  ""  
+	}
+	CLASSGROUP {
+		string id PK ""  
+		string name  ""  
+		string code  ""  
+	}
+	STUDENT {
+		string id PK ""  
+		string registration  ""  
+		string name  ""  
+	}
+	STUDENT_GRADE_SUMMARY {
+		string id PK ""  
+		string studentId FK ""  
+		string subjectId FK ""  
+		float finalGrade  ""  
+		float adjustedGrade  ""  
+		datetime updatedAt  ""  
+	}
+	GRADECOMPONENT {
+		string id PK ""  
+		string subjectId FK ""  
+		string name  ""  
+		string acronym  ""  
+		string description  ""  
+		float weight  ""  
+	}
+	GRADE {
+		string id PK ""  
+		string studentId FK ""  
+		string componentId FK ""  
+		float value  ""  
+		datetime timestamp  ""  
+	}
+	AUDITLOG {
+		string id PK ""  
+		string gradeId FK ""  
+		string oldValue  ""  
+		string newValue  ""  
+		string message  ""  
+		datetime timestamp  ""  
+	}
+
+	PROFESSOR||--|{INSTITUTION:"manages"
+	INSTITUTION||--|{COURSE:"offers"
+	COURSE||--|{SUBJECT:"contains"
+	SUBJECT||--|{CLASSGROUP:"organizes"
+	CLASSGROUP||--|{STUDENT:"has_enrolled"
+	SUBJECT||--|{GRADECOMPONENT:"defines"
+	STUDENT||--|{GRADE:"receives"
+	GRADE||--o{AUDITLOG:"has_audit"
+	GRADE}|--||GRADECOMPONENT:"belongs_to"
+	STUDENT||--o{STUDENT_GRADE_SUMMARY:"has"
+	SUBJECT||--|{STUDENT_GRADE_SUMMARY:"summarizes"

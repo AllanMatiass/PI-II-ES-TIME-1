@@ -1,0 +1,34 @@
+:root {
+    --form-background: transparent;
+    --main-background: #f3f3f3;
+    --foreground: #000;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+ul {
+    list-style: none;
+}
+
+body {
+    width: 100%;
+    min-height: 100dvh;
+    color: var(--foreground);
+}
+
+main {
+    width: 100%;
+    min-height: 100dvh;
+    padding: 0 2rem;
+    background: var(--main-background);
+}
+
+@media screen and (max-width: 768px) {
+    main {
+        padding: 0;
+    }
+}
