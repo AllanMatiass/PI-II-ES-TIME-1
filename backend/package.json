@@ -9,7 +9,8 @@
   "scripts": {
     "build": "tsc --project ./tsconfig.json & npm run dev",
     "dev": "node ./dist/src/server.js",
-    "seed": "node ./src/db/seed.js"
+    "seed": "node ./src/db/seed.js",
+    "crudTest": "node ./dist/src/tests/common/db/crud.js"
   },
   "dependencies": {
     "@types/cors": "^2.8.19",
