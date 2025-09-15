@@ -1,47 +1,42 @@
 import express from 'express'
 import session from 'express-session'
 import cors from 'cors'
-import fs from 'fs';
+import PublicRoutes from './routes/public';
 
 import { config } from 'dotenv'
-import { DatabaseClient } from './db/DBClient';
-import { ProfessorDataModel } from 'dataModels';
-import { config } from 'dotenv';
 
 // Arquivo env
 config();
 
-const db = new DatabaseClient();
-const professorClient = db.table<ProfessorDataModel>("professor");
 // Servidor
 const app = express();
 
 // PORTAS
 const BACKEND_PORT = process.env.BACKEND_PORT ?? 3000;
-const FRONTEND_PORT = process.env.FRONTEND_PORT ?? 5000;
+const FRONTEND_PORT = process.env.FRONTEND_PORT ?? 5500;
 
 // Função para criar as rotas da API
-async function CreateRoutes(base: string) {
-	const entries = fs.readdirSync(base, { withFileTypes: true });
+// async function CreateRoutes(base: string) {
+// 	const entries = fs.readdirSync(base, { withFileTypes: true });
 
-	for (const entry of entries) {
-		const entryPath = `${base}/${entry}`;
+// 	for (const entry of entries) {
+// 		const entryPath = `${base}/${entry}`;
 
-		if (entry.isDirectory()) {
-			CreateRoutes(entryPath);
-		} else {
-			const file = await import(entryPath);
-			const route = entryPath.slice(0, -3);
+// 		if (entry.isDirectory()) {
+// 			CreateRoutes(entryPath);
+// 		} else {
+// 			const file = await import(entryPath);
+// 			const route = entryPath.slice(0, -3);
 
-			app.use(route, file.default);
-		}
-	}
+// 			app.use(route, file.default);
+// 		}
+// 	}
 
-}
+// }
 
 // CORS para conexão com front-end
 app.use(cors({
-	origin: `http://localhost:${FRONTEND_PORT}/`,
+	origin: `http://localhost:${FRONTEND_PORT}`,
 	credentials: true,
 }));
 
@@ -61,7 +56,11 @@ app.use(session({
 app.use(express.json());
 
 // Cria as rotas da API
-CreateRoutes("./controllers");
+// CreateRoutes("./controllers");
+
+// rotas
+app.use('/api', PublicRoutes);
+
 
 // Inicializa o servidor
 app.listen(BACKEND_PORT, () => {

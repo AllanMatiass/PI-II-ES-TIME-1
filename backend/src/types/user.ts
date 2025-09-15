@@ -1,12 +1,12 @@
 export interface UserLoginDTO {
     email: string;
-    senha: string;
+    password: string;
 }
 
 export interface UserCadDTO {
-    nome: string;
-    telefone: string;
+    name: string;
+    phone: string;
     email: string;
-    senha: string;
-    confirmaSenha: string;
+    password: string;
+    confirmPassword: string;
 }
