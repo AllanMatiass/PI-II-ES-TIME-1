@@ -1,12 +1,15 @@
 import express from 'express'
 import session from 'express-session'
 import cors from 'cors'
-
+import { DatabaseClient } from './db/DBClient';
+import { ProfessorDataModel } from 'dataModels';
 import { config } from 'dotenv';
 
 // Arquivo env
 config();
 
+const db = new DatabaseClient();
+const professorClient = db.table<ProfessorDataModel>("professor");
 // Servidor
 const app = express();
 
@@ -49,6 +52,10 @@ app.get('/health', (req, res) => {
 });
 
 // Inicializa o servidor
-app.listen(3000, () => {
-    console.log('Server running!')
+app.listen(3000, async () => {
+	const professor = await professorClient.findUnique({
+		email: "joao@exemplo.co",
+	});
+	console.log("Professor encontrado:", professor);
+	console.log("Server running!");
 })
