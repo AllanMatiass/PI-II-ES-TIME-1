@@ -1,0 +1,70 @@
+<!--Autor: Cristian Fava-->
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <!-- Define o padrão do documento HTML5 -->
+    <meta charset="UTF-8">
+    <!-- Faz o layout se ajustar ao tamanho da tela (responsivo) -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Título da aba/navegador -->
+    <title>Cadastre-se - Nota10</title>
+
+    <!-- Importa os estilos principais -->
+    <link rel="stylesheet" href="/frontend/styles/base.css" type="text/css" />
+    <link rel="stylesheet" href="/frontend/styles/conta/auth.css" type="text/css" />
+</head>
+<body>
+    <!-- Conteúdo principal da página -->
+    <main class="wrapper">
+        <!-- Formulário de login -->
+        <form id="cadForm">
+            
+            <!-- Campo de nome -->
+            <label for="nomeTxt">Nome: </label>
+            <input type="text" name="nome" id="nomeTxt" required />
+
+            <!-- Campo de telefone -->
+            <label for="telefoneTxt">Telefone: </label>
+            <input type="tel" name="telefone" id="telefoneTxt" required />
+            
+            <!-- Campo de e-mail -->
+            <label for="emailTxt">E-mail: </label>
+            <input type="text" name="email" id="emailTxt" required />
+
+            <!-- Campo de senha -->
+            <label for="senhaTxt">Senha: </label>
+            <div class="input-senha">   
+                <input type="password" name="senha" id="senhaTxt" />
+                
+                <!-- Botão para mostrar/ocultar senha -->
+                <button id="mostrarSenha" type="button">
+                    <img src="/frontend/icons/olho.png" alt="mostrar senha" id="iconeSenha" />
+                </button>
+            </div>
+
+            <!-- Campo de confimação de senha -->
+            <label for="confirmaSenhaTxt">Confirme a senha: </label>
+            <div class="input-senha">   
+                <input type="password" name="confirmaSenha" id="confirmaSenhaTxt" />
+                
+                <!-- Botão para mostrar/ocultar senha -->
+                <button id="mostrarConfirmaSenha" type="button">
+                    <img src="/frontend/icons/olho.png" alt="mostrar senha" id="iconeConfirmaSenha" />
+                </button>
+            </div>
+
+            <!-- Botão de envio do formulário -->
+            <button type="submit" class="entrarBtn">CADASTRAR-SE</button>
+
+            <!-- Links extras: cadastro e recuperação de senha -->
+            <ul class="links">
+                <li><a href="/frontend/pages/conta/entrar.html">Já possui conta?</a></li>
+            </ul>
+        </form>
+    </main>
+
+    <!-- Script para mostrar e esconder senha -->
+    <script type="module" src="/frontend/scripts/conta/cadastrar.js"></script>
+</body>
+</html>
