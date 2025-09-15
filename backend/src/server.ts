@@ -4,10 +4,15 @@ import cors from 'cors'
 import fs from 'fs';
 
 import { config } from 'dotenv'
+import { DatabaseClient } from './db/DBClient';
+import { ProfessorDataModel } from 'dataModels';
+import { config } from 'dotenv';
 
 // Arquivo env
 config();
 
+const db = new DatabaseClient();
+const professorClient = db.table<ProfessorDataModel>("professor");
 // Servidor
 const app = express();
 

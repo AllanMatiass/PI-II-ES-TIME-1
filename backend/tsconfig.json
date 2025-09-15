@@ -17,7 +17,11 @@
     "sourceMap": false,
     "declarationMap": false
   },
+  // "include": [
+  //   "./*/**.ts",
+  //   "src/db/seed.js"
+  // ],
   "include": [
-    "./*/**.ts"
+    "src/**/*.ts"
   ]
 }
