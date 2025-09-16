@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { UserLoginDTO, UserCadDTO } from '../../types/user';
+import { UserLoginDTO, UserCadDTO } from 'UserTypes';
 
 
 type Error = {
