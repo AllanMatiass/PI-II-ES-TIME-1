@@ -1,82 +1,121 @@
----
-config:
-  theme: dark
----
 erDiagram
-	direction TB
-	PROFESSOR {
-		string id PK ""  
-		string name  ""  
-		string email  ""  
-		string phone  ""  
-		string password  ""  
-	}
-	INSTITUTION {
-		string id PK ""  
-		string name  ""  
-	}
-	COURSE {
-		string id PK ""  
-		string name  ""  
-		string code  ""  
-	}
-	SUBJECT {
-		string id PK ""  
-		string name  ""  
-		string acronym  ""  
-		string period  ""  
-		string formula  ""  
-	}
-	CLASSGROUP {
-		string id PK ""  
-		string name  ""  
-		string code  ""  
-	}
-	STUDENT {
-		string id PK ""  
-		string registration  ""  
-		string name  ""  
-	}
-	STUDENT_GRADE_SUMMARY {
-		string id PK ""  
-		string studentId FK ""  
-		string subjectId FK ""  
-		float finalGrade  ""  
-		float adjustedGrade  ""  
-		datetime updatedAt  ""  
-	}
-	GRADECOMPONENT {
-		string id PK ""  
-		string subjectId FK ""  
-		string name  ""  
-		string acronym  ""  
-		string description  ""  
-		float weight  ""  
-	}
-	GRADE {
-		string id PK ""  
-		string studentId FK ""  
-		string componentId FK ""  
-		float value  ""  
-		datetime timestamp  ""  
-	}
-	AUDITLOG {
-		string id PK ""  
-		string gradeId FK ""  
-		string oldValue  ""  
-		string newValue  ""  
-		string message  ""  
-		datetime timestamp  ""  
-	}
+    professors {
+        int id PK
+        varchar name "not null"
+        varchar email "unique, not null"
+        varchar phone
+        varchar password "not null"
+        timestamp created_at "default: now(), not null"
+        timestamp updated_at "default: now(), not null"
+    }
 
-	PROFESSOR||--|{INSTITUTION:"manages"
-	INSTITUTION||--|{COURSE:"offers"
-	COURSE||--|{SUBJECT:"contains"
-	SUBJECT||--|{CLASSGROUP:"organizes"
-	CLASSGROUP||--|{STUDENT:"has_enrolled"
-	SUBJECT||--|{GRADECOMPONENT:"defines"
-	STUDENT||--|{GRADE:"receives"
-	GRADE||--o{AUDITLOG:"has_audit"
-	GRADE}|--||GRADECOMPONENT:"belongs_to"
-	STUDENT||--o{STUDENT_GRADE_SUMMARY:"has"
-	SUBJECT||--|{STUDENT_GRADE_SUMMARY:"summarizes"
+    institutions {
+        int id PK
+        varchar name "unique, not null"
+        int professor_id FK
+        timestamp created_at "default: now(), not null"
+        timestamp updated_at "default: now(), not null"
+    }
+
+    courses {
+        int id PK
+        varchar name "not null"
+        varchar code "unique, not null"
+        int institution_id FK
+        timestamp created_at "default: now(), not null"
+        timestamp updated_at "default: now(), not null"
+    }
+
+    subjects {
+        int id PK
+        varchar name "not null"
+        varchar acronym "unique, not null"
+        varchar code "unique, not null"
+        varchar period "not null"
+        text formula
+        int professor_id FK
+        int course_id FK
+        timestamp created_at "default: now(), not null"
+        timestamp updated_at "default: now(), not null"
+    }
+
+    classes {
+        int id PK
+        varchar code "unique, not null"
+        varchar name "not null"
+        varchar nickname
+        int subject_id FK
+        timestamp created_at "default: now(), not null"
+        timestamp updated_at "default: now(), not null"
+    }
+
+    students {
+        int id PK
+        varchar enrollment_number "unique, not null"
+        varchar full_name "not null"
+        timestamp created_at "default: now(), not null"
+        timestamp updated_at "default: now(), not null"
+    }
+
+    students_classes {
+        int student_id PK, FK
+        int class_id PK, FK
+        timestamp created_at "default: now(), not null"
+        timestamp updated_at "default: now(), not null"
+    }
+
+    grade_components {
+        int id PK
+        varchar name "not null"
+        varchar acronym "not null"
+        text description
+        decimal weight "not null, default: 1.00"
+        int subject_id FK
+        timestamp created_at "default: now(), not null"
+        timestamp updated_at "default: now(), not null"
+    }
+
+    individual_grades {
+        int id PK
+        decimal value "not null"
+        int student_id FK
+        int grade_component_id FK
+        timestamp grade_entry_date "default: now(), not null"
+        timestamp created_at "default: now(), not null"
+        timestamp updated_at "default: now(), not null"
+    }
+
+    grade_audits {
+        int id PK
+        timestamp datetime "default: now(), not null"
+        decimal old_value
+        decimal new_value
+        text message "not null"
+        int individual_grade_id FK
+        int professor_id FK
+        timestamp created_at "default: now(), not null"
+        timestamp updated_at "default: now(), not null"
+    }
+
+    student_grade_summaries {
+        int id PK
+        int student_id FK
+        int subject_id FK
+        decimal final_grade "not null"
+        decimal adjusted_grade
+        timestamp created_at "default: now(), not null"
+        timestamp updated_at "default: now(), not null"
+    }
+
+    professors ||--o{ institutions : manages
+    professors ||--o{ subjects : teaches
+    institutions ||--o{ courses : offers
+    courses ||--o{ subjects : contains
+    subjects ||--o{ classes : has
+    subjects ||--o{ grade_components : defines
+    classes ||--o{ students_classes : enrolls
+    students ||--o{ students_classes : attends
+    students ||--o{ individual_grades : receives
+    students ||--o{ student_grade_summaries : summarized
+    grade_components ||--o{ individual_grades : assigned
+    individual_grades ||--o{ grade_audits : tracked
