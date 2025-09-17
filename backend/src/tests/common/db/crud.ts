@@ -2,11 +2,11 @@
 
 
 import { DatabaseClient } from '../../../db/DBClient';
-import { ProfessorDataModel } from 'dataModels';
+import { InstitutionDataModel, ProfessorDataModel } from 'dataModels';
 
+const db = new DatabaseClient();
 async function testProfessorCRUD() {
     // Instância do client
-    const db = new DatabaseClient();
 
     // Podem ver os tipos em: types/data-models.d.ts
     // db.table<TipoDataModel>("tipo");
@@ -59,7 +59,34 @@ async function testProfessorCRUD() {
     console.log("\n✅ CRUD finalizado com sucesso!");
 }
 
+async function testInstitutionCRUD(){
+    const institutionClient = db.table<InstitutionDataModel>('institution');
+
+    await institutionClient.insert({name: 'Instituicao1'});
+
+    const findINstitutionByName = await institutionClient.findUnique({name: 'Instituicao1'});
+    console.log(findINstitutionByName);
+
+    await institutionClient.update({name: 'InstituicaoAtualizada'}, {name: 'Instituicao1'});
+    const findInstitutionUpdated = await institutionClient.findUnique({name:'InstituicaoAtualizada'});
+
+    console.log(findInstitutionUpdated);
+
+    await institutionClient.deleteMany({name: 'InstituicaoAtualizada'});
+
+
+    const tryFindInstitution = await institutionClient.findUnique({name:'InstituicaoAtualizada'});
+    console.log("deve ser null", tryFindInstitution);
+    
+    
+}
+
 // Executa o teste
 testProfessorCRUD().catch((err) => {
     console.error("Erro no teste de CRUD:", err);
 });
+
+
+testInstitutionCRUD().catch((err) => {
+    console.error('Erro no teste de instituição');
+})
