@@ -22,10 +22,16 @@ cadForm.addEventListener("submit", async (ev) => {
 
     try {
         // Passa os dados para JSON
-        const json = JSON.stringify(data);
+        const json = JSON.stringify({
+            name: data.nome,
+            phone: data.telefone,
+            email: data.email,
+            password: data.senha,
+            confirmPassword: data.confirmaSenha
+        });
 
         // Efetua a requisição de login e aguarda a resposta
-        const res = await fetch(`${API_URL}/conta/cadastrar`, {
+        const res = await fetch(`${API_URL}/api/register`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -38,7 +44,7 @@ cadForm.addEventListener("submit", async (ev) => {
         
         // Em caso de erro no servidor, mostra a mensagem.
         if (res.status != 200) {
-            throw new Error(`Não foi possível cadastrar a conta. Erros: ${body.erros.join(", ")}`);
+            throw new errors(`Não foi possível cadastrar a conta. Erros: ${body.errors.join(", ")}`);
         }
 
         // Depois de criar a conta, redireciona para a página de login
