@@ -35,9 +35,16 @@ const FRONTEND_PORT = process.env.FRONTEND_PORT ?? 5500;
 // }
 
 // CORS para conexão com front-end
+// CORS para conexão com front-end
+const allowedOrigins = [
+	`http://localhost:${FRONTEND_PORT}`,
+	`http://127.0.0.1:${FRONTEND_PORT}`
+];
+
+
 app.use(cors({
-	origin: `http://localhost:${FRONTEND_PORT}`,
-	credentials: true,
+	origin: allowedOrigins,
+	credentials: true,
 }));
 
 // Inicializa o express-session

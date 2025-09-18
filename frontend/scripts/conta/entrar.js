@@ -1,5 +1,5 @@
 // Autor: Cristian Fava
-import { API_URL } from "../utils/config";
+import { API_URL } from "../utils/config.js";
 
 const loginForm = document.querySelector("#loginForm");
 const mostrarSenhaBtn = document.querySelector("#mostrarSenha");
@@ -16,10 +16,13 @@ loginForm.addEventListener("submit", async (ev) => {
 
     try {
         // Passa os dados para JSON
-        const json = JSON.stringify(data);
+        const json = JSON.stringify({
+            email: data.email,
+            password: data.senha
+        });
 
         // Efetua a requisição de login e aguarda a resposta
-        const res = await fetch(`${API_URL}/conta/entrar`, {
+        const res = await fetch(`${API_URL}/api/login`, {
             method: "POST",
             credentials: "include",
             headers: {
@@ -33,7 +36,7 @@ loginForm.addEventListener("submit", async (ev) => {
         
         // Em caso de erro no servidor, mostra a mensagem.
         if (res.status != 200) {
-            throw new Error(`Não foi possível fazer login. Erros: ${body.erros.join(", ")}`);
+            throw new errors(`Não foi possível fazer login. Erros: ${body.errors.join(", ")}`);
         }
 
         // Depois de efetuar login, redireciona para a dashboard
