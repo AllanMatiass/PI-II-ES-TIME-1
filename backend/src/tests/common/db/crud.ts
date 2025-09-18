@@ -80,24 +80,31 @@ async function testProfessorCRUD() {
 
 async function testInstitutionCRUD() {
     const institutionClient = db.table<InstitutionDataModel>('institution');
+    console.log("Conexão com a tabela 'institution' criada.");
 
-    await institutionClient.insert({ name: 'Instituicao1' });
+    console.log("Inserindo instituição...");
+    const inserted = await institutionClient.insert({ name: 'Instituicao1' });
+    console.log("Instituição inserida:", inserted);
 
-    const findINstitutionByName = await institutionClient.findUnique({ name: 'Instituicao1' });
-    console.log(findINstitutionByName);
+    console.log("Buscando instituição por nome...");
+    const findInstitutionByName = await institutionClient.findUnique({ name: 'Instituicao1' });
+    console.log("Resultado da busca:", findInstitutionByName);
 
-    await institutionClient.update({ name: 'InstituicaoAtualizada' }, { name: 'Instituicao1' });
+    console.log("Atualizando nome da instituição...");
+    const updated = await institutionClient.update({ name: 'InstituicaoAtualizada' }, { name: 'Instituicao1' });
+    console.log("Resultado da atualização:", updated);
+
+    console.log("Buscando instituição atualizada...");
     const findInstitutionUpdated = await institutionClient.findUnique({ name: 'InstituicaoAtualizada' });
+    console.log("Instituição após atualização:", findInstitutionUpdated);
 
-    console.log(findInstitutionUpdated);
+    console.log("Deletando instituição...");
+    const deleted = await institutionClient.deleteMany({ name: 'InstituicaoAtualizada' });
+    console.log("Resultado da deleção:", deleted);
 
-    await institutionClient.deleteMany({ name: 'InstituicaoAtualizada' });
-
-
+    console.log("Tentando buscar instituição após deletar...");
     const tryFindInstitution = await institutionClient.findUnique({ name: 'InstituicaoAtualizada' });
-    console.log("instituicao deve ser null", tryFindInstitution);
-
-
+    console.log("Deve ser null:", tryFindInstitution);
 }
 
 // Executa o teste
