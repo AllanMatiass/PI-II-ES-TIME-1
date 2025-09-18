@@ -1,7 +1,7 @@
 // Autor: Allan Giovanni Matias Paes
 
 
-import { ProfessorDataModel } from 'dataModels';
+import { InstitutionDataModel, ProfessorDataModel } from 'dataModels';
 import { DatabaseClient } from '../../../db/DBClient';
 import { InstitutionRegisterRequestDTO, ProfessorRegisterRequestDTO, ProfessorResponseDTO } from 'dtos';
 
@@ -79,7 +79,7 @@ async function testProfessorCRUD() {
 }
 
 async function testInstitutionCRUD() {
-    const institutionClient = db.table<InstitutionRegisterRequestDTO>('institution');
+    const institutionClient = db.table<InstitutionDataModel>('institution');
 
     await institutionClient.insert({ name: 'Instituicao1' });
 
