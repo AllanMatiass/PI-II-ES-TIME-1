@@ -7,7 +7,9 @@ declare module 'dataModels' {
         phone: string;
         password: string;
     }
+
     interface InstitutionDataModel {
-        name: string
+        id: string;
+        name: string;
     }
 }
