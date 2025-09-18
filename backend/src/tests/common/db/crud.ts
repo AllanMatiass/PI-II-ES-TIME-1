@@ -1,8 +1,9 @@
 // Autor: Allan Giovanni Matias Paes
 
 
+import { ProfessorDataModel } from 'dataModels';
 import { DatabaseClient } from '../../../db/DBClient';
-import { InstitutionDataModel, ProfessorDataModel } from 'dataModels';
+import { InstitutionRegisterRequestDTO, ProfessorRegisterRequestDTO, ProfessorResponseDTO } from 'dtos';
 
 const db = new DatabaseClient();
 async function testProfessorCRUD() {
@@ -15,13 +16,31 @@ async function testProfessorCRUD() {
     console.log("=== TESTE DE CRUD PROFESSOR ===");
 
     // INSERT
-    console.log("\nInserindo professor (Não pode colocar numa variavel igual os selects)...");
-    await professorClient.insert({
+    console.log("\nInserindo professor (Retorna o ID)");
+    // Simulando o que seria o body da requisição
+    const requestBody: ProfessorRegisterRequestDTO = {
         name: "ProfTeste",
-        email: "joao@exemplo.co",
         phone: "11999999999",
+        email: "joao@exemplo.co",
         password: "senha123",
+        confirmPassword: "senha123"
+    };
+
+    if (requestBody.password !== requestBody.confirmPassword) {
+        throw new Error("As senhas não conferem");
+    }
+
+    // INSERT (não passa ID porque DatabaseClient gera sozinho)
+    console.log("\nInserindo professor...");
+    const newProfessorId = await professorClient.insert({
+        name: requestBody.name,
+        email: requestBody.email,
+        phone: requestBody.phone,
+        password: requestBody.password
     });
+
+    console.log("ID do professor inserido: ", newProfessorId);
+
 
     // FIND UNIQUE
     console.log("\nBuscando professor por email...");
@@ -59,26 +78,26 @@ async function testProfessorCRUD() {
     console.log("\n✅ CRUD finalizado com sucesso!");
 }
 
-async function testInstitutionCRUD(){
-    const institutionClient = db.table<InstitutionDataModel>('institution');
+async function testInstitutionCRUD() {
+    const institutionClient = db.table<InstitutionRegisterRequestDTO>('institution');
 
-    await institutionClient.insert({name: 'Instituicao1'});
+    await institutionClient.insert({ name: 'Instituicao1' });
 
-    const findINstitutionByName = await institutionClient.findUnique({name: 'Instituicao1'});
+    const findINstitutionByName = await institutionClient.findUnique({ name: 'Instituicao1' });
     console.log(findINstitutionByName);
 
-    await institutionClient.update({name: 'InstituicaoAtualizada'}, {name: 'Instituicao1'});
-    const findInstitutionUpdated = await institutionClient.findUnique({name:'InstituicaoAtualizada'});
+    await institutionClient.update({ name: 'InstituicaoAtualizada' }, { name: 'Instituicao1' });
+    const findInstitutionUpdated = await institutionClient.findUnique({ name: 'InstituicaoAtualizada' });
 
     console.log(findInstitutionUpdated);
 
-    await institutionClient.deleteMany({name: 'InstituicaoAtualizada'});
+    await institutionClient.deleteMany({ name: 'InstituicaoAtualizada' });
 
 
-    const tryFindInstitution = await institutionClient.findUnique({name:'InstituicaoAtualizada'});
-    console.log("deve ser null", tryFindInstitution);
-    
-    
+    const tryFindInstitution = await institutionClient.findUnique({ name: 'InstituicaoAtualizada' });
+    console.log("instituicao deve ser null", tryFindInstitution);
+
+
 }
 
 // Executa o teste

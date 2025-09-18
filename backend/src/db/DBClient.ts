@@ -36,7 +36,7 @@ export class DatabaseClient {
 
     table<T extends Record<string, any>>(tableName: string) {
         return {
-            insert: async (data: T) => {
+            insert: async (data: Omit<T, "id">) => {
                 const keys = Object.keys(data);
                 const values = Object.values(data);
                 const placeholders = keys.map(() => "?").join(", ");
@@ -44,7 +44,8 @@ export class DatabaseClient {
 
                 const sql = `INSERT INTO ${tableName} (id, ${keys.join(", ")})
                  VALUES (?, ${placeholders})`;
-                return this.query(sql, [id, ...values]);
+                this.query(sql, [id, ...values]);
+                return id;
             },
 
             update: async (data: Partial<T>, where: Where<T>) => {
