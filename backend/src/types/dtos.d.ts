@@ -20,6 +20,7 @@ declare module 'dtos' {
 
     // responses
     interface ProfessorResponseDTO {
+        id: string;
         name: string;
         phone: string;
         email: string;

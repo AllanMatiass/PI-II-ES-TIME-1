@@ -54,9 +54,9 @@ mostrarSenhaBtn.addEventListener("click", () => {
     // Esconde e mostra a senha no input
     if (inputSenha.type == "password") {
         inputSenha.type = "text";
-        icone.src = "../icons/olho-cortado.png";
+        icone.src = "/frontend/icons/olho-cortado.png";
     } else {
         inputSenha.type = "password";
-        icone.src = "../icons/olho.png";
+        icone.src = "/frontend/icons/olho.png";
     }
 });
