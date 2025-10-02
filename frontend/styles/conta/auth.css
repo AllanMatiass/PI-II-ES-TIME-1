@@ -49,9 +49,10 @@ form input, .input-senha {
 }
 
 /* Efeito ao passar o mouse nos inputs e senha */
-form input:hover, .input-senha:hover {
-    border-width: 2px 6px;
+form input:focus, .input-senha:focus {
+    border: 2px #164581 solid;
 }
+
 
 /* Container da senha (input + botão) */
 .input-senha {
@@ -83,7 +84,7 @@ form input:hover, .input-senha:hover {
     display: block;
     border: none;
     border-radius: 15px;
-    width: 50%; 
+    /* width: 50%;  */
     background:#164581;
     color: #fff;
     margin: 2rem auto 1rem;
@@ -93,8 +94,8 @@ form input:hover, .input-senha:hover {
     font-weight: 500;
     text-transform: none; 
 
-    text-align: center; 
-    line-height: 1.2; 
+    text-align: start; 
+    line-height: 1; 
     
     cursor: pointer;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
@@ -129,16 +130,38 @@ form input:hover, .input-senha:hover {
     text-decoration: underline;
 }
 
-.loginInfo {
+.wrapper-login {
+    
+    font-family: "Josefin Sans", sans-serif;
+    width: 100dvw;
+    margin: 0;
+    padding: 0;
+}
+
+.login-info {
   font-family: "Josefin Sans", sans-serif;
   background-color: #eef4fc; 
   padding: 40px;
-  width: 40%;
-  height: 100vh;
+  width: 100dvw;
+  height:100vh;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  border-radius: 10x;
+  border-radius: 20px;
+  
+}
+.login-form
+{
+  background-color: #ffffff; 
+  padding: 40px;
+  width: 100dvw;
+  height:100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border-radius: 20px;
+
 }
 
 .logo {
@@ -179,4 +202,3 @@ p {
   color: #9ca3af;
 
 }
-
