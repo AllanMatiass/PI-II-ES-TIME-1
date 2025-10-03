@@ -7,7 +7,7 @@
   "type": "commonjs",
   "main": "./backend/server.js",
   "scripts": {
-    "build": "tsc --project ./tsconfig.json & npm run dev",
+    "build": "tsc --project ./tsconfig.json",
     "dev": "node ./dist/src/server.js",
     "seed": "node ./src/db/seed.js",
     "crudTest": "node ./dist/src/tests/common/db/crud.js"
@@ -27,6 +27,7 @@
     "uuid": "^13.0.0"
   },
   "devDependencies": {
+    "@types/bcrypt": "^6.0.0",
     "@types/node": "^24.3.1"
   }
 }

@@ -2,8 +2,8 @@
 -- ===============================
 -- SETUP: Criação de tabelas e índices
 -- ===============================
-
-CREATE DATABASE IF NOT EXISTS nota_dez_db;
+DROP DATABASE IF EXISTS nota_dez_db;
+CREATE DATABASE nota_dez_db;
 USE nota_dez_db;
 
 -- Tabela de usuários
