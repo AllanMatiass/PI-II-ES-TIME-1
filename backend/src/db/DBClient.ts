@@ -95,9 +95,7 @@ export class DatabaseClient {
                     .map((key) => `${key} = ?`)
                     .join(" AND ");
 
-                const sql = tableName.toLowerCase().trim() !== 'professor' ?
-                    `SELECT * FROM ${tableName} WHERE ${conditions} LIMIT 1` :
-                    `SELECT ${professorQuery} FROM ${tableName} WHERE ${conditions} LIMIT 1`;
+                const sql = `SELECT * FROM ${tableName} WHERE ${conditions} LIMIT 1`;
 
                 const rows = (await this.query(sql, Object.values(where))) as T[];
 
