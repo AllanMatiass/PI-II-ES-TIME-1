@@ -10,7 +10,8 @@ type Error = {
 export async function loginController(req: Request, res: Response) {
 	const body = req.body as ProfessorLoginRequestDTO;
 	let errors: Error[] = [];
-
+	
+	// Verifica se tem campos faltantes, caso tenha, dá erro.
 	if (!body['email'] || !body['password']) {
 		errors.push({
 			code: 400,
@@ -18,6 +19,7 @@ export async function loginController(req: Request, res: Response) {
 		});
 	}
 
+	// Montando a resposta do erro e lançando-o.
 	if (errors.length > 0) {
 		const code = errors[0]?.code;
 		return res.status(code ?? 500).json({
@@ -25,9 +27,10 @@ export async function loginController(req: Request, res: Response) {
 		});
 	}
 
-	// Perfil
+	// Chamando serviço para fazer o login.
 	const userProfile = await Login(body['email'], body['password']);
 
+	// Retorna com êxito caso tudo no Login ocorra bem.
 	res.status(200).json({
 		message: 'Login successful',
 		data: userProfile,
@@ -38,6 +41,7 @@ export async function registerController(req: Request, res: Response) {
 	const body = req.body as ProfessorRegisterRequestDTO;
 	let errors: Error[] = [];
 
+	// Verifica se tem campos faltantes, caso tenha, lança erro.
 	if (
 		!body['name'] ||
 		!body['phone'] ||
@@ -52,6 +56,7 @@ export async function registerController(req: Request, res: Response) {
 		});
 	}
 
+	// Compara se a senha e a senha de confirmação, caso sejam diferentes, lança erro.
 	if (body['password'] != body['confirmPassword']) {
 		errors.push({
 			code: 400,
@@ -66,8 +71,10 @@ export async function registerController(req: Request, res: Response) {
 		});
 	}
 
+	// Chama o serviço de regstro.
 	await Register(body['email'], body['password'], body['name'], body['phone']);
 
+	// Caso tudo ocorra bem, retorna com êxito.
 	res.status(200).json({
 		message: 'Register successful',
 	});
