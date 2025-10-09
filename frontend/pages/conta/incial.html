@@ -1,0 +1,48 @@
+<!--Autor: Emilly Morelatto -->
+<!DOCTYPE html>
+<html lang="pt-br">
+    <head>
+        <meta charset="UTF-8">
+        <title>Área do Professor</title>
+        <link rel="stylesheet" href="/frontend/styles/base.css" type="text/css" />
+        <link rel="stylesheet" href="/frontend/styles/conta/auth.css" type="text/css" />
+    </head>
+    <body>
+        <div class="wrapper">
+            <div class="header">
+                <span class="logo-icon">N</span>
+                <span class="logo-text">Nota Dez</span>
+                <span class="setup">Área do Professor</span>
+                <hr>
+            </div>
+            <div class="sideBar">
+                <h2>Selecione sua Instituição</h2>
+                <p>Bem-vindo, Professor! Para concluir seu primeiro acesso, 
+                escolha a instituição em que você trabalha. Você poderá adicionar mais depois em Configurações.</p>
+                <label for="pesqInt">Pesquisar Instituições</label>
+                <input type="text" name="Instituição" id="pesqInt" required/>
+            </div>
+            <div class="form">
+                <p class="ajudaTxt">Não consegue achar sua instituição?</p>
+                <input type="text" name="pesquisar" placeholder="Adicionar uma nova Instituição" required/>
+                <div class="btnInst">
+                    <button class="btnVoltar">⤺Voltar</button>
+                    <button class="btnContinuar">✓Continuar</button>
+                    
+                    <hr>
+                </div>
+            </div>
+            <div class="topBar">
+                <p>Depois de selecionar uma Instituição</p>
+                <p>Selecione pelo menos um curso que você ensina. Você pode adicionar mais depois.</p>
+                <label for="pesqCurso">Pesquisar Cursos</label>
+                <input type="text" name="Curso" id="pesqCurso" placeholder="Pesquise por Código ou Nome" required/>
+                <p>Selecione ao menor um curso para continuar.</p>
+                <div class="btnInst">
+                    <button class="btnVoltar">X Deixar para Depois</button>
+                    <button class="btnContinuar">✓Confirmar Cursos</button>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
