@@ -1,0 +1,68 @@
+---
+config:
+  theme: dark
+---
+erDiagram
+	direction TB
+
+	PROFESSOR {
+		uuid id PK
+		string name
+		string email
+		string phone
+		string password
+	}
+
+	INSTITUTION {
+		uuid id PK
+		string name UNIQUE
+	}
+
+	COURSE {
+		uuid id PK
+		string name
+	}
+
+	SUBJECT {
+		uuid id PK
+		string acronym UNIQUE
+		integer period
+		string code UNIQUE
+	}
+
+	TURMA {
+		uuid id PK
+		string nome
+	}
+
+	SUBJECT_TURMA {
+		uuid subject_id PK FK
+		uuid turma_id PK FK
+	}
+
+	ALUNOS {
+		string id PK UNIQUE
+		string nome
+	}
+
+	COURSE_PROFESSOR {
+		uuid professor_id PK FK
+		uuid course_id PK FK
+	}
+
+	INSTITUTION_PROFESSOR {
+		uuid professor_id PK FK
+		uuid institution_id PK FK
+	}
+
+	%% Relacionamentos (opcionais)
+	INSTITUTION ||--o{ PROFESSOR : "employs"
+	COURSE ||--o{ SUBJECT : "has"
+	SUBJECT ||--o{ TURMA : "offers"
+	SUBJECT_TURMA }|..|{ SUBJECT : "link"
+	SUBJECT_TURMA }|..|{ TURMA : "link"
+	COURSE ||--o{ COURSE_PROFESSOR : "assigns"
+	PROFESSOR ||--o{ COURSE_PROFESSOR : "teaches"
+	INSTITUTION ||--o{ INSTITUTION_PROFESSOR : "employs"
+	PROFESSOR ||--o{ INSTITUTION_PROFESSOR : "works_at"
+	TURMA ||--o{ ALUNOS : "has_students"
