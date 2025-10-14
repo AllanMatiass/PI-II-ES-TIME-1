@@ -1,3 +1,4 @@
+// Autor: Cristian Eduardo Fava
 import bcrypt from "bcrypt";
 
 import { ProfessorResponseDTO } from "dtos";
@@ -9,13 +10,17 @@ import { DatabaseClient } from "../db/DBClient";
 const SALT_ROUNDS = 10;
 
 export async function Login(email: string, password: string): Promise<ProfessorResponseDTO> {
+
+    // Instanciando o objeto do banco de dados e pegando a tabela do professor.
     const db = new DatabaseClient();
     const professorTable = db.table<ProfessorDataModel>("professor");
 
+    // Tentando encontrar um único professor.
     const professor = await professorTable.findUnique({
         email
     });
 
+    // Verificando se existe professor e Comparando a senha vindo do body com a registrada (criptografada) no banco de dados. 
     if (!professor || !bcrypt.compareSync(password, professor.password)) {
         throw new Error("Invalid email or password!")
     }
@@ -29,20 +34,28 @@ export async function Login(email: string, password: string): Promise<ProfessorR
 }
 
 export async function Register(email: string, password: string, name: string, phone: string) {
+    // Instanciando o objeto do banco de dados e pegando a tabela do professor.
     const db = new DatabaseClient();
     const professorTable = db.table<ProfessorDataModel>("professor");
 
+
+    
+    // Tentando encontrar um único professor.
     const professor = await professorTable.findUnique({
         email
     });
 
+
+    // Se já existir professor, lança um erro.
     if (professor != null) {
         throw new Error("Invalid email!");
     }
 
+    // Criptografando a senha fornecida.
     const salt = bcrypt.genSaltSync(SALT_ROUNDS);
     const hash = bcrypt.hashSync(password, salt);
 
+    // Inserindo o dado.
     professorTable.insert({
         email,
         name,
