@@ -1,25 +1,32 @@
+/* Autor: Cristian Fava */
+
+/* Variáveis globais (cores e fundo do formulário) */
 :root {
     --form-background: transparent;
     --main-background: #f3f3f3;
     --foreground: #000;
 }
 
+/* Reset básico: remove margem/padding e define box-sizing */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
+/* Remove bolinhas das listas */
 ul {
     list-style: none;
 }
 
+/* Estilos gerais do body */
 body {
     width: 100%;
-    min-height: 100dvh;
+    min-height: 100dvh; /* ocupa altura total da tela */
     color: var(--foreground);
 }
 
+/* Área principal */
 main {
     width: 100%;
     min-height: 100dvh;
@@ -27,6 +34,7 @@ main {
     background: var(--main-background);
 }
 
+/* Responsividade: remove padding em telas menores que 768px */
 @media screen and (max-width: 768px) {
     main {
         padding: 0;

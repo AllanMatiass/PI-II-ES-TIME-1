@@ -1,0 +1,79 @@
+<!-- Autor: Cristian Fava -->
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <!-- Define o padrão do documento HTML5 -->
+    <meta charset="UTF-8">
+    <!-- Faz o layout se ajustar ao tamanho da tela (responsivo) -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Título da aba/navegador -->
+    <title>Entrar - Nota10</title>
+
+    <!-- Importa os estilos principais -->
+    <link rel="stylesheet" href="/frontend/styles/base.css" type="text/css" />
+    <link rel="stylesheet" href="/frontend/styles/conta/auth.css" type="text/css" />
+</head>
+<body>
+    <!-- Conteúdo principal da página -->
+    <main class="wrapper wrapper-login">
+        
+            
+            <!-- Coluna de informações -->
+            <div class="login-info">
+                <div class="logo">
+                    <span class="logo-icon">N</span>
+                    <span class="logo-text">NotaDez</span>
+                </div>
+
+                <h1>Bem-Vindo de Volta!</h1>
+                <p>
+                    Entre para gerenciar suas anotações e continuar de onde parou.
+                    É novo por aqui? Cadastre-se em segundos
+                </p>
+                <p class="note">
+                    <hr>
+                    Use um endereço de e-mail profissional ou pessoal. 
+                    As senhas devem ter no mínimo 8 caracteres
+                </p>
+            </div>
+
+            <!-- Coluna do formulário -->
+            <div class="login-form">
+                <form id="loginForm">
+                    <!-- Campo de e-mail -->
+                    <label for="emailTxt">E-mail: </label>
+
+                    <div>
+                        
+                        <input type="text" name="email" id="emailTxt" required />
+                    </div>
+
+                    <!-- Campo de senha -->
+                    <label for="senhaTxt">Senha: </label>
+                    <div>   
+                        <input type="password" name="senha" id="senhaTxt" />
+                        
+                        <!-- Botão para mostrar/ocultar senha -->
+                        <!-- <button id="mostrarSenha" type="button">
+                            <img src="/frontend/icons/olho.png" alt="mostrar senha" id="iconeSenha" />
+                        </button> -->
+                    </div>
+
+                    <!-- Botão de envio do formulário -->
+                    <button type="submit" class="entrarBtn">ENTRAR</button>
+
+                    <!-- Links extras: cadastro e recuperação de senha -->
+                    <ul class="links">
+                        <li><a href="/frontend/pages/conta/cadastrar.html">Criar conta</a></li>
+                        <li><a href="/frontend/pages/conta/esqueci_a_senha.html">Esqueceu a senha?</a></li>
+                    </ul>
+                </form>
+            </div>
+
+    </main>
+
+    <!-- Script para mostrar e esconder senha -->
+    <script type="module" src="/frontend/scripts/conta/entrar.js"></script>
+</body>
+</html>

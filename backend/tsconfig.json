@@ -22,6 +22,7 @@
   //   "src/db/seed.js"
   // ],
   "include": [
-    "src/**/*.ts"
+    "src/**/*.ts",
+    "src/**/*.d.ts"
   ]
 }
