@@ -10,14 +10,18 @@ import { DatabaseClient } from "../db/DBClient";
 const SALT_ROUNDS = 10;
 
 export async function Login(email: string, password: string): Promise<ProfessorResponseDTO> {
-
+    console.log('ta vindo aqui o');
     // Instanciando o objeto do banco de dados e pegando a tabela do professor.
     const db = new DatabaseClient();
-    const professorTable = db.table<ProfessorDataModel>("Professor");
+    const professorTable = db.table<ProfessorDataModel>("professor");
+    
+    
+    console.log('Ta vino no login?');
+    console.log(await professorTable.findMany()); 
 
     // Tentando encontrar um único professor.
     const professor = await professorTable.findUnique({
-        email
+        email: email
     });
 
     // Verificando se existe professor e Comparando a senha vindo do body com a registrada (criptografada) no banco de dados. 
@@ -36,9 +40,9 @@ export async function Login(email: string, password: string): Promise<ProfessorR
 export async function Register(email: string, password: string, name: string, phone: string) {
     // Instanciando o objeto do banco de dados e pegando a tabela do professor.
     const db = new DatabaseClient();
-    const professorTable = db.table<ProfessorDataModel>("Professor");
+    const professorTable = db.table<ProfessorDataModel>("professor");
 
-
+    console.log('Ta vino no registro?');
     
     // Tentando encontrar um único professor.
     const professor = await professorTable.findUnique({

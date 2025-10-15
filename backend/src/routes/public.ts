@@ -5,7 +5,6 @@ const router = Router();
 
 router.post("/login",  async (req, res) => {
     console.log("POST /api/login received");
-
     await loginController(req, res);
 });
 

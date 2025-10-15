@@ -4,249 +4,242 @@
 -- ===============================
 
 DROP DATABASE IF EXISTS nota_dez_db;
-DROP PROCEDURE IF EXISTS GetStudentGrades;
-DROP PROCEDURE IF EXISTS  GetStudentsByClass;
-DROP PROCEDURE IF EXISTS  GetClassesByCourse;
-DROP PROCEDURE IF EXISTS  GetGradeComponentsByClass;
-DROP PROCEDURE IF EXISTS GetStudentHistory;
-
 
 CREATE DATABASE nota_dez_db;
 USE nota_dez_db;
 
+-- ===============================
+-- Tabelas principais
+-- ===============================
 
-CREATE TABLE Institutions (
-    InstitutionId VARCHAR(36) NOT NULL PRIMARY KEY,
-    Name VARCHAR(255)
+CREATE TABLE institutions (
+    id VARCHAR(36) NOT NULL PRIMARY KEY,
+    name VARCHAR(255)
 );
 
-CREATE TABLE Professors (
-    ProfessorId VARCHAR(36) NOT NULL PRIMARY KEY,
-    Name VARCHAR(255),
-    Email VARCHAR(255) UNIQUE, 
-    PhoneNumber VARCHAR(255),
-    Password VARCHAR(255),
-    CreatedAt TIMESTAMP
+CREATE TABLE professors (
+    id VARCHAR(36) NOT NULL PRIMARY KEY,
+    name VARCHAR(255),
+    email VARCHAR(255) UNIQUE, 
+    phone VARCHAR(255),
+    password VARCHAR(255),
+    created_at TIMESTAMP
 );
 
-CREATE TABLE ProfessorInstitutions (
-    ProfessorInstitutionId VARCHAR(36) NOT NULL PRIMARY KEY,
-    InstitutionId VARCHAR(36),
-    ProfessorId VARCHAR(36)
+CREATE TABLE professor_institutions (
+    id VARCHAR(36) NOT NULL PRIMARY KEY,
+    institution_id VARCHAR(36),
+    professor_id VARCHAR(36)
 );
 
 -- Tabela para Cursos
-CREATE TABLE Courses (
-    CourseId VARCHAR(36) NOT NULL PRIMARY KEY,
-    ProfessorInstitutionId VARCHAR(36),
-    Name VARCHAR(255)
+CREATE TABLE courses (
+    id VARCHAR(36) NOT NULL PRIMARY KEY,
+    professor_institution_id VARCHAR(36),
+    name VARCHAR(255)
 );
 
 -- Tabela para Disciplinas/Matérias
-CREATE TABLE Subjects (
-    SubjectId VARCHAR(36) NOT NULL PRIMARY KEY,
-    CourseId VARCHAR(36),
-    Name VARCHAR(255),
-    Code VARCHAR(255),
-    Acronym VARCHAR(255),
-    Period INTEGER,
-    StartDate DATE,
-    EndDate DATE
+CREATE TABLE subjects (
+    id VARCHAR(36) NOT NULL PRIMARY KEY,
+    course_id VARCHAR(36),
+    name VARCHAR(255),
+    code VARCHAR(255),
+    acronym VARCHAR(255),
+    period INTEGER,
+    start_date DATE,
+    end_date DATE
 );
 
 -- Tabela para Turmas (grupos de alunos para uma matéria)
-CREATE TABLE Classes (
-    ClassId VARCHAR(36) NOT NULL PRIMARY KEY,
-    SubjectId VARCHAR(36),
-    Name VARCHAR(255),
-    ClassroomLocation VARCHAR(255),
-    ClassTime TIME,
-    ClassDate DATE
+CREATE TABLE classes (
+    id VARCHAR(36) NOT NULL PRIMARY KEY,
+    subject_id VARCHAR(36),
+    name VARCHAR(255),
+    classroom_location VARCHAR(255),
+    class_time TIME,
+    class_date DATE
 );
 
 -- Tabela para Componentes de Nota (ex: Prova Parcial, Projeto Final)
-CREATE TABLE GradeComponents (
-    GradeComponentId VARCHAR(36) NOT NULL PRIMARY KEY,
-    ClassId VARCHAR(36),
-    Name VARCHAR(255),
-    FormulaAcronym VARCHAR(255),
-    Description VARCHAR(255)
+CREATE TABLE grade_components (
+    id VARCHAR(36) NOT NULL PRIMARY KEY,
+    class_id VARCHAR(36),
+    name VARCHAR(255),
+    formula_acronym VARCHAR(255),
+    description VARCHAR(255)
 );
 
 -- Tabela para Notas
-CREATE TABLE Grades (
-    GradeId VARCHAR(36) NOT NULL PRIMARY KEY,
-    GradeComponentId VARCHAR(36),
-    AutomaticFinalGrade DECIMAL(10, 2),
-    AdjustedFinalGrade DECIMAL(10, 2),
-    WasAdjusted BOOLEAN,
-    EntryDate DATE
+CREATE TABLE grades (
+    id VARCHAR(36) NOT NULL PRIMARY KEY,
+    grade_component_id VARCHAR(36),
+    automatic_final_grade DECIMAL(10, 2),
+    adjusted_final_grade DECIMAL(10, 2),
+    was_adjusted BOOLEAN,
+    entry_date DATE
 );
 
 -- Tabela para Alunos
-CREATE TABLE Students (
-    StudentId VARCHAR(36) NOT NULL PRIMARY KEY,
-    Name VARCHAR(255),
-    RegistrationID VARCHAR(255) UNIQUE
+CREATE TABLE students (
+    id VARCHAR(36) NOT NULL PRIMARY KEY,
+    name VARCHAR(255),
+    registration_id VARCHAR(255) UNIQUE
 );
 
 -- Tabela de Associação: Turma e Alunos
-CREATE TABLE ClassStudents (
-    ClassStudentId VARCHAR(36) NOT NULL PRIMARY KEY,
-    ClassId VARCHAR(36),
-    GradeId VARCHAR(36),
-    StudentId VARCHAR(36)
+CREATE TABLE class_students (
+    id VARCHAR(36) NOT NULL PRIMARY KEY,
+    class_id VARCHAR(36),
+    grade_id VARCHAR(36),
+    student_id VARCHAR(36)
 );
 
 -- Tabela para a Fórmula de Cálculo da Nota Final
-CREATE TABLE FinalGradeCalculations (
-    FinalGradeCalculationId VARCHAR(36) NOT NULL PRIMARY KEY,
-    ClassId VARCHAR(36),
-    Formula VARCHAR(255)
+CREATE TABLE final_grade_calculations (
+    id VARCHAR(36) NOT NULL PRIMARY KEY,
+    class_id VARCHAR(36),
+    formula VARCHAR(255)
 );
 
 -- Tabela para Auditoria
-CREATE TABLE Audits (
-    AuditId VARCHAR(36) NOT NULL PRIMARY KEY,
-    CreatedAt TIMESTAMP,
-    ChangeDescription VARCHAR(255),
-    ProfessorId VARCHAR(36)
+CREATE TABLE audits (
+    id VARCHAR(36) NOT NULL PRIMARY KEY,
+    created_at TIMESTAMP,
+    change_description VARCHAR(255),
+    professor_id VARCHAR(36)
 );
 
--- Adicionando Constraints de Chave Estrangeira
+-- ===============================
+-- Constraints de Chave Estrangeira
+-- ===============================
 
-ALTER TABLE ProfessorInstitutions ADD CONSTRAINT fk_profinst_institution FOREIGN KEY (InstitutionId) REFERENCES Institutions(InstitutionId);
-ALTER TABLE ProfessorInstitutions ADD CONSTRAINT fk_profinst_professor FOREIGN KEY (ProfessorId) REFERENCES Professors(ProfessorId);
+ALTER TABLE professor_institutions ADD CONSTRAINT fk_profinst_institution FOREIGN KEY (institution_id) REFERENCES institutions(id);
+ALTER TABLE professor_institutions ADD CONSTRAINT fk_profinst_professor FOREIGN KEY (professor_id) REFERENCES professors(id);
 
-ALTER TABLE Courses ADD CONSTRAINT fk_courses_profinst FOREIGN KEY (ProfessorInstitutionId) REFERENCES ProfessorInstitutions(ProfessorInstitutionId);
+ALTER TABLE courses ADD CONSTRAINT fk_courses_profinst FOREIGN KEY (professor_institution_id) REFERENCES professor_institutions(id);
 
-ALTER TABLE Subjects ADD CONSTRAINT fk_subjects_course FOREIGN KEY (CourseId) REFERENCES Courses(CourseId);
+ALTER TABLE subjects ADD CONSTRAINT fk_subjects_course FOREIGN KEY (course_id) REFERENCES courses(id);
 
-ALTER TABLE Classes ADD CONSTRAINT fk_classes_subject FOREIGN KEY (SubjectId) REFERENCES Subjects(SubjectId);
+ALTER TABLE classes ADD CONSTRAINT fk_classes_subject FOREIGN KEY (subject_id) REFERENCES subjects(id);
 
-ALTER TABLE GradeComponents ADD CONSTRAINT fk_gradecomp_class FOREIGN KEY (ClassId) REFERENCES Classes(ClassId);
+ALTER TABLE grade_components ADD CONSTRAINT fk_gradecomp_class FOREIGN KEY (class_id) REFERENCES classes(id);
 
-ALTER TABLE Grades ADD CONSTRAINT fk_grades_gradecomp FOREIGN KEY (GradeComponentId) REFERENCES GradeComponents(GradeComponentId);
+ALTER TABLE grades ADD CONSTRAINT fk_grades_gradecomp FOREIGN KEY (grade_component_id) REFERENCES grade_components(id);
 
-ALTER TABLE ClassStudents ADD CONSTRAINT fk_classstudents_class FOREIGN KEY (ClassId) REFERENCES Classes(ClassId);
-ALTER TABLE ClassStudents ADD CONSTRAINT fk_classstudents_grade FOREIGN KEY (GradeId) REFERENCES Grades(GradeId);
-ALTER TABLE ClassStudents ADD CONSTRAINT fk_classstudents_student FOREIGN KEY (StudentId) REFERENCES Students(StudentId);
+ALTER TABLE class_students ADD CONSTRAINT fk_classstudents_class FOREIGN KEY (class_id) REFERENCES classes(id);
+ALTER TABLE class_students ADD CONSTRAINT fk_classstudents_grade FOREIGN KEY (grade_id) REFERENCES grades(id);
+ALTER TABLE class_students ADD CONSTRAINT fk_classstudents_student FOREIGN KEY (student_id) REFERENCES students(id);
 
-ALTER TABLE FinalGradeCalculations ADD CONSTRAINT fk_finalgradecalc_class FOREIGN KEY (ClassId) REFERENCES Classes(ClassId);
+ALTER TABLE final_grade_calculations ADD CONSTRAINT fk_finalgradecalc_class FOREIGN KEY (class_id) REFERENCES classes(id);
 
-ALTER TABLE Audits ADD CONSTRAINT fk_audits_professor FOREIGN KEY (ProfessorId) REFERENCES Professors(ProfessorId);
+ALTER TABLE audits ADD CONSTRAINT fk_audits_professor FOREIGN KEY (professor_id) REFERENCES professors(id);
 
-
-/*******************************************************/
-/* CRIAÇÃO DE ÍNDICES                                  */
-/*******************************************************/
+-- ===============================
+-- Criação de índices
+-- ===============================
 
 -- Índices para Chaves Estrangeiras (FKs) para acelerar JOINs
-CREATE INDEX idx_profinst_institutionid ON ProfessorInstitutions(InstitutionId);
-CREATE INDEX idx_profinst_professorid ON ProfessorInstitutions(ProfessorId);
-CREATE INDEX idx_courses_profinstid ON Courses(ProfessorInstitutionId);
-CREATE INDEX idx_subjects_courseid ON Subjects(CourseId);
-CREATE INDEX idx_classes_subjectid ON Classes(SubjectId);
-CREATE INDEX idx_gradecomp_classid ON GradeComponents(ClassId);
-CREATE INDEX idx_grades_gradecompid ON Grades(GradeComponentId);
-CREATE INDEX idx_classstudents_classid ON ClassStudents(ClassId);
-CREATE INDEX idx_classstudents_gradeid ON ClassStudents(GradeId);
-CREATE INDEX idx_classstudents_studentid ON ClassStudents(StudentId);
-CREATE INDEX idx_finalgradecalc_classid ON FinalGradeCalculations(ClassId);
-CREATE INDEX idx_audits_professorid ON Audits(ProfessorId);
+CREATE INDEX idx_profinst_institution_id ON professor_institutions(institution_id);
+CREATE INDEX idx_profinst_professor_id ON professor_institutions(professor_id);
+CREATE INDEX idx_courses_profinst_id ON courses(professor_institution_id);
+CREATE INDEX idx_subjects_course_id ON subjects(course_id);
+CREATE INDEX idx_classes_subject_id ON classes(subject_id);
+CREATE INDEX idx_gradecomp_class_id ON grade_components(class_id);
+CREATE INDEX idx_grades_gradecomp_id ON grades(grade_component_id);
+CREATE INDEX idx_classstudents_class_id ON class_students(class_id);
+CREATE INDEX idx_classstudents_grade_id ON class_students(grade_id);
+CREATE INDEX idx_classstudents_student_id ON class_students(student_id);
+CREATE INDEX idx_finalgradecalc_class_id ON final_grade_calculations(class_id);
+CREATE INDEX idx_audits_professor_id ON audits(professor_id);
 
 -- Índices para colunas frequentemente consultadas (WHERE) ou ordenadas (ORDER BY)
-CREATE INDEX idx_professors_name ON Professors(Name);
-CREATE INDEX idx_students_name ON Students(Name);
-CREATE INDEX idx_subjects_code ON Subjects(Code);
-CREATE INDEX idx_subjects_name ON Subjects(Name);
-CREATE INDEX idx_audits_createdat ON Audits(CreatedAt);
+CREATE INDEX idx_professors_name ON professors(name);
+CREATE INDEX idx_students_name ON students(name);
+CREATE INDEX idx_subjects_code ON subjects(code);
+CREATE INDEX idx_subjects_name ON subjects(name);
+CREATE INDEX idx_audits_created_at ON audits(created_at);
 
-
+-- ===============================
 -- Procedures úteis
+-- ===============================
 
 DELIMITER $$
 
-CREATE PROCEDURE GetStudentsByClass(IN ClassName VARCHAR(255))
+CREATE PROCEDURE get_students_by_class(IN class_name VARCHAR(255))
 BEGIN
     SELECT DISTINCT
-        s.RegistrationID,
-        s.Name as StudentName,
-        c.Name as ClassName,
-        sub.Name as SubjectName
-    FROM Students s
-    JOIN ClassStudents cs ON s.StudentId = cs.StudentId
-    JOIN Classes c ON cs.ClassId = c.ClassId
-    JOIN Subjects sub ON c.SubjectId = sub.SubjectId
-    WHERE c.Name = ClassName;
+        s.registration_id,
+        s.name as student_name,
+        c.name as class_name,
+        sub.name as subject_name
+    FROM students s
+    JOIN class_students cs ON s.id = cs.student_id
+    JOIN classes c ON cs.class_id = c.id
+    JOIN subjects sub ON c.subject_id = sub.id
+    WHERE c.name = class_name;
 END$$
 
 DELIMITER ;
 
 DELIMITER $$
 
--- === === === === === === === === === === ===  selecionar classe por curso === === ===  === === === === === === === === === === 
-
-CREATE PROCEDURE GetClassesByCourse(IN CourseName VARCHAR(255))
+CREATE PROCEDURE get_classes_by_course(IN course_name VARCHAR(255))
 BEGIN
     SELECT
-        c.Name AS ClassName,
-        sub.Name AS SubjectName,
-        p.Name AS ProfessorName
-    FROM Classes c
-    JOIN Subjects sub ON c.SubjectId = sub.SubjectId
-    JOIN Courses co ON sub.CourseId = co.CourseId
-    JOIN ProfessorInstitutions pi ON co.ProfessorInstitutionId = pi.ProfessorInstitutionId
-    JOIN Professors p ON pi.ProfessorId = p.ProfessorId
-    WHERE co.Name = CourseName;
-END$$
-
-DELIMITER ;
-
--- === === === === === === === === === === ===  selecionar componente de notas de uma classe === === ===  === === === === ===
-
-DELIMITER $$
-
-CREATE PROCEDURE GetGradeComponentsByClass(IN ClassName VARCHAR(255))
-BEGIN
-    SELECT
-        gc.Name AS ComponentName,
-        gc.FormulaAcronym AS Acronym,
-        gc.Description AS Description,
-        c.Name AS ClassName,
-        sub.Name AS SubjectName
-    FROM GradeComponents gc
-    JOIN Classes c ON gc.ClassId = c.ClassId
-    JOIN Subjects sub ON c.SubjectId = sub.SubjectId
-    WHERE c.Name = ClassName;
+        c.name AS class_name,
+        sub.name AS subject_name,
+        p.name AS professor_name
+    FROM classes c
+    JOIN subjects sub ON c.subject_id = sub.id
+    JOIN courses co ON sub.course_id = co.id
+    JOIN professor_institutions pi ON co.professor_institution_id = pi.id
+    JOIN professors p ON pi.professor_id = p.id
+    WHERE co.name = course_name;
 END$$
 
 DELIMITER ;
 
 DELIMITER $$
 
--- === === === === === === === === === === ===  selecionar historico de um estudante === === ===  === === === === === ===
-
-CREATE PROCEDURE GetStudentHistory(IN StudentName VARCHAR(255))
+CREATE PROCEDURE get_grade_components_by_class(IN class_name VARCHAR(255))
 BEGIN
     SELECT
-        s.RegistrationID,
-        s.Name AS StudentName,
-        sub.Name AS SubjectName,
-        c.Name AS ClassName,
-        gc.Name AS ComponentName,
-        g.AutomaticFinalGrade AS Grade,
-        g.AdjustedFinalGrade AS AdjustedGrade,
-        g.WasAdjusted AS WasAdjusted,
-        g.EntryDate AS EntryDate
-    FROM Students s
-    JOIN ClassStudents cs ON s.StudentId = cs.StudentId
-    JOIN Grades g ON cs.GradeId = g.GradeId
-    JOIN GradeComponents gc ON g.GradeComponentId = gc.GradeComponentId
-    JOIN Classes c ON cs.ClassId = c.ClassId
-    JOIN Subjects sub ON c.SubjectId = sub.SubjectId
-    WHERE s.Name = StudentName
-    ORDER BY g.EntryDate DESC;
+        gc.name AS component_name,
+        gc.formula_acronym AS acronym,
+        gc.description AS description,
+        c.name AS class_name,
+        sub.name AS subject_name
+    FROM grade_components gc
+    JOIN classes c ON gc.class_id = c.id
+    JOIN subjects sub ON c.subject_id = sub.id
+    WHERE c.name = class_name;
+END$$
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE PROCEDURE get_student_history(IN student_name VARCHAR(255))
+BEGIN
+    SELECT
+        s.registration_id,
+        s.name AS student_name,
+        sub.name AS subject_name,
+        c.name AS class_name,
+        gc.name AS component_name,
+        g.automatic_final_grade AS grade,
+        g.adjusted_final_grade AS adjusted_grade,
+        g.was_adjusted AS was_adjusted,
+        g.entry_date AS entry_date
+    FROM students s
+    JOIN class_students cs ON s.id = cs.student_id
+    JOIN grades g ON cs.grade_id = g.id
+    JOIN grade_components gc ON g.grade_component_id = gc.id
+    JOIN classes c ON cs.class_id = c.id
+    JOIN subjects sub ON c.subject_id = sub.id
+    WHERE s.name = student_name
+    ORDER BY g.entry_date DESC;
 END$$
 
 DELIMITER ;
