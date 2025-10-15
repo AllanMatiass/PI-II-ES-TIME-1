@@ -13,7 +13,7 @@ export async function Login(email: string, password: string): Promise<ProfessorR
 
     // Instanciando o objeto do banco de dados e pegando a tabela do professor.
     const db = new DatabaseClient();
-    const professorTable = db.table<ProfessorDataModel>("professor");
+    const professorTable = db.table<ProfessorDataModel>("Professor");
 
     // Tentando encontrar um único professor.
     const professor = await professorTable.findUnique({
@@ -36,7 +36,7 @@ export async function Login(email: string, password: string): Promise<ProfessorR
 export async function Register(email: string, password: string, name: string, phone: string) {
     // Instanciando o objeto do banco de dados e pegando a tabela do professor.
     const db = new DatabaseClient();
-    const professorTable = db.table<ProfessorDataModel>("professor");
+    const professorTable = db.table<ProfessorDataModel>("Professor");
 
 
     
