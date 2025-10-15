@@ -13,7 +13,7 @@ export async function Login(email: string, password: string): Promise<ProfessorR
     console.log('ta vindo aqui o');
     // Instanciando o objeto do banco de dados e pegando a tabela do professor.
     const db = new DatabaseClient();
-    const professorTable = db.table<ProfessorDataModel>("professor");
+    const professorTable = db.table<ProfessorDataModel>("professors");
     
     
     console.log('Ta vino no login?');
@@ -40,7 +40,7 @@ export async function Login(email: string, password: string): Promise<ProfessorR
 export async function Register(email: string, password: string, name: string, phone: string) {
     // Instanciando o objeto do banco de dados e pegando a tabela do professor.
     const db = new DatabaseClient();
-    const professorTable = db.table<ProfessorDataModel>("professor");
+    const professorTable = db.table<ProfessorDataModel>("professors");
 
     console.log('Ta vino no registro?');
     
