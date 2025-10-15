@@ -164,31 +164,6 @@ CREATE INDEX idx_audits_createdat ON Audits(CreatedAt);
 
 
 -- Procedures úteis
-DELIMITER $$
-
-CREATE PROCEDURE GetStudentGrades(IN StudentName VARCHAR(255))
-BEGIN
-    SELECT
-		s.RegistrationID,
-        s.Name,
-        gc.Name,
-        gc.FormulaAcronym,
-        g.AutomaticFinalGrade,
-        g.AdjustedFinalGrade,
-        g.WasAdjusted
-    FROM
-        Students s
-    JOIN
-        ClassStudents cs ON s.StudentId = cs.StudentId
-    JOIN
-        Grades g ON cs.GradeId = g.GradeId
-    JOIN
-        GradeComponents gc ON g.GradeComponentId = gc.GradeComponentId
-    WHERE
-        s.Name = StudentName;
-END$$
-
-DELIMITER ;
 
 DELIMITER $$
 
@@ -197,8 +172,8 @@ BEGIN
     SELECT DISTINCT
         s.RegistrationID,
         s.Name as StudentName,
-        c.Name as Class,
-        sub.Name
+        c.Name as ClassName,
+        sub.Name as SubjectName
     FROM Students s
     JOIN ClassStudents cs ON s.StudentId = cs.StudentId
     JOIN Classes c ON cs.ClassId = c.ClassId
@@ -210,32 +185,36 @@ DELIMITER ;
 
 DELIMITER $$
 
+-- === === === === === === === === === === ===  selecionar classe por curso === === ===  === === === === === === === === === === 
+
 CREATE PROCEDURE GetClassesByCourse(IN CourseName VARCHAR(255))
 BEGIN
     SELECT
-        c.Name AS Turma,
-        sub.Name AS Disciplina,
-        s.Name AS Professor
+        c.Name AS ClassName,
+        sub.Name AS SubjectName,
+        p.Name AS ProfessorName
     FROM Classes c
     JOIN Subjects sub ON c.SubjectId = sub.SubjectId
     JOIN Courses co ON sub.CourseId = co.CourseId
     JOIN ProfessorInstitutions pi ON co.ProfessorInstitutionId = pi.ProfessorInstitutionId
-    JOIN Professors s ON pi.ProfessorId = s.ProfessorId
+    JOIN Professors p ON pi.ProfessorId = p.ProfessorId
     WHERE co.Name = CourseName;
 END$$
 
 DELIMITER ;
+
+-- === === === === === === === === === === ===  selecionar componente de notas de uma classe === === ===  === === === === ===
 
 DELIMITER $$
 
 CREATE PROCEDURE GetGradeComponentsByClass(IN ClassName VARCHAR(255))
 BEGIN
     SELECT
-        gc.Name AS Componente,
-        gc.FormulaAcronym AS Sigla,
-        gc.Description AS Descricao,
-        c.Name AS Turma,
-        sub.Name AS Disciplina
+        gc.Name AS ComponentName,
+        gc.FormulaAcronym AS Acronym,
+        gc.Description AS Description,
+        c.Name AS ClassName,
+        sub.Name AS SubjectName
     FROM GradeComponents gc
     JOIN Classes c ON gc.ClassId = c.ClassId
     JOIN Subjects sub ON c.SubjectId = sub.SubjectId
@@ -246,18 +225,20 @@ DELIMITER ;
 
 DELIMITER $$
 
+-- === === === === === === === === === === ===  selecionar historico de um estudante === === ===  === === === === === ===
+
 CREATE PROCEDURE GetStudentHistory(IN StudentName VARCHAR(255))
 BEGIN
     SELECT
         s.RegistrationID,
-        s.Name AS NomeDoAluno,
-        sub.Name AS Disciplina,
-        c.Name AS Turma,
-        gc.Name AS Componente,
-        g.AutomaticFinalGrade AS Nota,
-        g.AdjustedFinalGrade AS NotaAjustada,
-        g.WasAdjusted AS FoiAjustada,
-        g.EntryDate AS DataRegistro
+        s.Name AS StudentName,
+        sub.Name AS SubjectName,
+        c.Name AS ClassName,
+        gc.Name AS ComponentName,
+        g.AutomaticFinalGrade AS Grade,
+        g.AdjustedFinalGrade AS AdjustedGrade,
+        g.WasAdjusted AS WasAdjusted,
+        g.EntryDate AS EntryDate
     FROM Students s
     JOIN ClassStudents cs ON s.StudentId = cs.StudentId
     JOIN Grades g ON cs.GradeId = g.GradeId
