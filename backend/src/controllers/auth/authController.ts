@@ -26,7 +26,7 @@ export async function loginController(req: Request, res: Response) {
 			errors: errors.map((e) => e.message + '\n'),
 		});
 	}
-
+	console.log('PQ NAO QUER VIM AQUIII?')
 	// Chamando serviço para fazer o login.
 	const userProfile = await Login(body['email'], body['password']);
 
