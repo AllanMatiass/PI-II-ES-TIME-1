@@ -11,113 +11,6 @@ DROP PROCEDURE IF EXISTS  GetGradeComponentsByClass;
 DROP PROCEDURE IF EXISTS GetStudentHistory;
 
 
--- Procedures úteis
-DELIMITER $$
-
-CREATE PROCEDURE GetStudentGrades(IN StudentName VARCHAR(255))
-BEGIN
-    SELECT
-		s.RegistrationID,
-        s.Name,
-        gc.Name,
-        gc.FormulaAcronym,
-        g.AutomaticFinalGrade,
-        g.AdjustedFinalGrade,
-        g.WasAdjusted
-    FROM
-        Students s
-    JOIN
-        ClassStudents cs ON s.StudentId = cs.StudentId
-    JOIN
-        Grades g ON cs.GradeId = g.GradeId
-    JOIN
-        GradeComponents gc ON g.GradeComponentId = gc.GradeComponentId
-    WHERE
-        s.Name = StudentName;
-END$$
-
-DELIMITER ;
-
-DELIMITER $$
-
-CREATE PROCEDURE GetStudentsByClass(IN ClassName VARCHAR(255))
-BEGIN
-    SELECT DISTINCT
-        s.RegistrationID,
-        s.Name as StudentName,
-        c.Name as Class,
-        sub.Name
-    FROM Students s
-    JOIN ClassStudents cs ON s.StudentId = cs.StudentId
-    JOIN Classes c ON cs.ClassId = c.ClassId
-    JOIN Subjects sub ON c.SubjectId = sub.SubjectId
-    WHERE c.Name = ClassName;
-END$$
-
-DELIMITER ;
-
-DELIMITER $$
-
-CREATE PROCEDURE GetClassesByCourse(IN CourseName VARCHAR(255))
-BEGIN
-    SELECT
-        c.Name AS Turma,
-        sub.Name AS Disciplina,
-        s.Name AS Professor
-    FROM Classes c
-    JOIN Subjects sub ON c.SubjectId = sub.SubjectId
-    JOIN Courses co ON sub.CourseId = co.CourseId
-    JOIN ProfessorInstitutions pi ON co.ProfessorInstitutionId = pi.ProfessorInstitutionId
-    JOIN Professors s ON pi.ProfessorId = s.ProfessorId
-    WHERE co.Name = CourseName;
-END$$
-
-DELIMITER ;
-
-DELIMITER $$
-
-CREATE PROCEDURE GetGradeComponentsByClass(IN ClassName VARCHAR(255))
-BEGIN
-    SELECT
-        gc.Name AS Componente,
-        gc.FormulaAcronym AS Sigla,
-        gc.Description AS Descricao,
-        c.Name AS Turma,
-        sub.Name AS Disciplina
-    FROM GradeComponents gc
-    JOIN Classes c ON gc.ClassId = c.ClassId
-    JOIN Subjects sub ON c.SubjectId = sub.SubjectId
-    WHERE c.Name = ClassName;
-END$$
-
-DELIMITER ;
-
-DELIMITER $$
-
-CREATE PROCEDURE GetStudentHistory(IN StudentName VARCHAR(255))
-BEGIN
-    SELECT
-        s.RegistrationID,
-        s.Name AS NomeDoAluno,
-        sub.Name AS Disciplina,
-        c.Name AS Turma,
-        gc.Name AS Componente,
-        g.AutomaticFinalGrade AS Nota,
-        g.AdjustedFinalGrade AS NotaAjustada,
-        g.WasAdjusted AS FoiAjustada,
-        g.EntryDate AS DataRegistro
-    FROM Students s
-    JOIN ClassStudents cs ON s.StudentId = cs.StudentId
-    JOIN Grades g ON cs.GradeId = g.GradeId
-    JOIN GradeComponents gc ON g.GradeComponentId = gc.GradeComponentId
-    JOIN Classes c ON cs.ClassId = c.ClassId
-    JOIN Subjects sub ON c.SubjectId = sub.SubjectId
-    WHERE s.Name = StudentName
-    ORDER BY g.EntryDate DESC;
-END$$
-
-DELIMITER ;
-
 CREATE DATABASE nota_dez_db;
 USE nota_dez_db;
 
@@ -271,6 +164,31 @@ CREATE INDEX idx_audits_createdat ON Audits(CreatedAt);
 
 
 -- Procedures úteis
+DELIMITER $$
+
+CREATE PROCEDURE GetStudentGrades(IN StudentName VARCHAR(255))
+BEGIN
+    SELECT
+		s.RegistrationID,
+        s.Name,
+        gc.Name,
+        gc.FormulaAcronym,
+        g.AutomaticFinalGrade,
+        g.AdjustedFinalGrade,
+        g.WasAdjusted
+    FROM
+        Students s
+    JOIN
+        ClassStudents cs ON s.StudentId = cs.StudentId
+    JOIN
+        Grades g ON cs.GradeId = g.GradeId
+    JOIN
+        GradeComponents gc ON g.GradeComponentId = gc.GradeComponentId
+    WHERE
+        s.Name = StudentName;
+END$$
+
+DELIMITER ;
 
 DELIMITER $$
 
@@ -279,8 +197,8 @@ BEGIN
     SELECT DISTINCT
         s.RegistrationID,
         s.Name as StudentName,
-        c.Name as ClassName,
-        sub.Name as SubjectName
+        c.Name as Class,
+        sub.Name
     FROM Students s
     JOIN ClassStudents cs ON s.StudentId = cs.StudentId
     JOIN Classes c ON cs.ClassId = c.ClassId
@@ -292,36 +210,32 @@ DELIMITER ;
 
 DELIMITER $$
 
--- === === === === === === === === === === ===  selecionar classe por curso === === ===  === === === === === === === === === === 
-
 CREATE PROCEDURE GetClassesByCourse(IN CourseName VARCHAR(255))
 BEGIN
     SELECT
-        c.Name AS ClassName,
-        sub.Name AS SubjectName,
-        p.Name AS ProfessorName
+        c.Name AS Turma,
+        sub.Name AS Disciplina,
+        s.Name AS Professor
     FROM Classes c
     JOIN Subjects sub ON c.SubjectId = sub.SubjectId
     JOIN Courses co ON sub.CourseId = co.CourseId
     JOIN ProfessorInstitutions pi ON co.ProfessorInstitutionId = pi.ProfessorInstitutionId
-    JOIN Professors p ON pi.ProfessorId = p.ProfessorId
+    JOIN Professors s ON pi.ProfessorId = s.ProfessorId
     WHERE co.Name = CourseName;
 END$$
 
 DELIMITER ;
-
--- === === === === === === === === === === ===  selecionar componente de notas de uma classe === === ===  === === === === ===
 
 DELIMITER $$
 
 CREATE PROCEDURE GetGradeComponentsByClass(IN ClassName VARCHAR(255))
 BEGIN
     SELECT
-        gc.Name AS ComponentName,
-        gc.FormulaAcronym AS Acronym,
-        gc.Description AS Description,
-        c.Name AS ClassName,
-        sub.Name AS SubjectName
+        gc.Name AS Componente,
+        gc.FormulaAcronym AS Sigla,
+        gc.Description AS Descricao,
+        c.Name AS Turma,
+        sub.Name AS Disciplina
     FROM GradeComponents gc
     JOIN Classes c ON gc.ClassId = c.ClassId
     JOIN Subjects sub ON c.SubjectId = sub.SubjectId
@@ -332,20 +246,18 @@ DELIMITER ;
 
 DELIMITER $$
 
--- === === === === === === === === === === ===  selecionar historico de um estudante === === ===  === === === === === ===
-
 CREATE PROCEDURE GetStudentHistory(IN StudentName VARCHAR(255))
 BEGIN
     SELECT
         s.RegistrationID,
-        s.Name AS StudentName,
-        sub.Name AS SubjectName,
-        c.Name AS ClassName,
-        gc.Name AS ComponentName,
-        g.AutomaticFinalGrade AS Grade,
-        g.AdjustedFinalGrade AS AdjustedGrade,
-        g.WasAdjusted AS WasAdjusted,
-        g.EntryDate AS EntryDate
+        s.Name AS NomeDoAluno,
+        sub.Name AS Disciplina,
+        c.Name AS Turma,
+        gc.Name AS Componente,
+        g.AutomaticFinalGrade AS Nota,
+        g.AdjustedFinalGrade AS NotaAjustada,
+        g.WasAdjusted AS FoiAjustada,
+        g.EntryDate AS DataRegistro
     FROM Students s
     JOIN ClassStudents cs ON s.StudentId = cs.StudentId
     JOIN Grades g ON cs.GradeId = g.GradeId
