@@ -6,6 +6,7 @@ import { ProfessorDataModel } from "dataModels";
 
 // DB
 import { DatabaseClient } from "../db/DBClient";
+import { Request } from "express";
 
 const SALT_ROUNDS = 10;
 
@@ -68,4 +69,9 @@ export async function Register(email: string, password: string, name: string, ph
         password: hash,
         created_at: timestamp
     });
+}
+
+export function getLoggedUser(req: Request): ProfessorResponseDTO | null {
+	const user = req.session.user != null ? req.session.user as ProfessorResponseDTO : null;
+	return user;
 }

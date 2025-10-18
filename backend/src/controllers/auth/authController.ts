@@ -80,7 +80,3 @@ export async function registerController(req: Request, res: Response) {
 	});
 }
 
-export function getLoggedUser(req: Request): ProfessorResponseDTO | null {
-	const user = req.session.user != null ? req.session.user as ProfessorResponseDTO : null;
-	return user;
-}

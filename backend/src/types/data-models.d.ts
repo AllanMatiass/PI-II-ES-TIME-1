@@ -13,4 +13,11 @@ declare module 'dataModels' {
         id: string;
         name: string;
     }
+
+    interface ProfessorInstitutionDataModel {
+        id: string,
+        institution_id: string,
+        professor_id: string
+    }
 }
+
