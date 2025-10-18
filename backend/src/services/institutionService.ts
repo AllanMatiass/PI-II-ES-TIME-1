@@ -7,6 +7,32 @@ const institutionTable = db.table<InstitutionDataModel>('institutions');
 const professorInstitutionTable = db.table<ProfessorInstitutionDataModel>('professor_institutions');
 const professorTable = db.table<ProfessorDataModel>('professors');
 
+export async function insertProfessorInInstitution(professorId: string, institutionId: string) : Promise<InstitutionResponseDTO> {
+    const professorExist = await professorTable.findUnique({id: professorId});
+    if (!professorExist) {
+        throw new Error('Professor doesnt exist');
+    }
+
+    const institutionExist = await institutionTable.findUnique({id: institutionId});
+    if (!institutionExist) {
+        throw new Error('Institution doesnt exist');
+    }
+
+    const relationshipAlreadyExist = await professorInstitutionTable.findUnique({professor_id: professorId, institution_id: institutionId});
+    if (relationshipAlreadyExist){
+        throw new Error('This professor is already inserted in this institution.');
+    }
+
+    const professorInstitutionId = await professorInstitutionTable.insert({professor_id: professorId, institution_id: institutionId})
+    const res: InstitutionResponseDTO | null = await institutionTable.findUnique({id: institutionId});
+
+    if (!res || !professorInstitutionId){
+        throw new Error("An internal error ocurred on institution inserting.");
+    }
+
+    return res;
+}
+
 export async function insertInstitution(data: InstitutionRegisterRequestDTO, professorId: string) : Promise<InstitutionResponseDTO> {
 
     const institutionId: string = await institutionTable.insert(data);
@@ -16,14 +42,10 @@ export async function insertInstitution(data: InstitutionRegisterRequestDTO, pro
         throw new Error("An internal error ocurred on institution inserting.");
     }
 
-    professorInstitutionTable.insert({
-        professor_id: professorId,
-        institution_id: institutionId
-    })
-
-
+    insertProfessorInInstitution(professorId, institutionId);
     return res;
 }
+
 
 export async function getAllInstitutions(): Promise<InstitutionWithProfessorsResponseDTO[]> {
     const institutions = await institutionTable.findMany();
