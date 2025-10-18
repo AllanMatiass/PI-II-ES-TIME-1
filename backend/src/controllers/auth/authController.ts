@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { ProfessorLoginRequestDTO, ProfessorRegisterRequestDTO } from 'dtos';
+import { ProfessorLoginRequestDTO, ProfessorRegisterRequestDTO, ProfessorResponseDTO } from 'dtos';
 import { Login, Register } from '../../services/auth';
 
 type Error = {
@@ -78,4 +78,9 @@ export async function registerController(req: Request, res: Response) {
 	res.status(200).json({
 		message: 'Register successful',
 	});
+}
+
+export function getLoggedUser(req: Request): ProfessorResponseDTO | null {
+	const user = req.session.user != null ? req.session.user as ProfessorResponseDTO : null;
+	return user;
 }
