@@ -1,6 +1,6 @@
 import { InstitutionRegisterRequestDTO, InstitutionResponseDTO, InstitutionWithProfessorsResponseDTO } from "dtos";
 import { Request, Response } from "express";
-import { insertInstitution, getAllInstitutions, getInstitutionById } from "../../services/institutionService";
+import { insertInstitution, getAllInstitutions, getInstitutionById, getInstitutionByProfessorId } from "../../services/institutionService";
 import { getLoggedUser } from "../../services/auth";
 
 
@@ -43,13 +43,36 @@ export async function findInstitutionById(req: Request, res: Response) {
     try{
         const {id} = req.params;
         if (!id){
-            throw new Error('Body must contain "id" field');
+            throw new Error('Params must contain "id" field');
         }
 
         const institution = await getInstitutionById(id);
 
         return res.json({
             message: 'Institution Found',
+            data: institution
+        });
+
+    }  catch (err: any){
+        const msg: string = err.message;
+        res.json({
+            error: msg
+        });
+    }
+    
+}
+
+export async function findInstitutionByProfessorId(req: Request, res: Response) {
+    try{
+        const {id} = req.params;
+        if (!id){
+            throw new Error('Params must contain "id" field');
+        }
+
+        const institution = await getInstitutionByProfessorId(id);
+
+        return res.json({
+            message: 'Institutions Found',
             data: institution
         });
 

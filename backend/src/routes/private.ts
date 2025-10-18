@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createInstitution, findAllInstitutions, findInstitutionById } from "../controllers/institution/institutionController";
+import { createInstitution, findAllInstitutions, findInstitutionById, findInstitutionByProfessorId } from "../controllers/institution/institutionController";
 
 const router = Router();
 
@@ -16,6 +16,11 @@ router.get('/institution/all', async (req, res) => {
 router.get('/institution/:id', async (req, res) => {
     console.log(`GET /institution/${req.params.id} received`);
     await findInstitutionById(req, res);
+});
+
+router.get('/institution/by-professor/:id', async (req, res) => {
+    console.log(`GET /institution/by-professor/${req.params.id} received`);
+    await findInstitutionByProfessorId(req, res);
 });
 
 export default router;

@@ -110,3 +110,48 @@ export async function getInstitutionById(id: string): Promise<InstitutionWithPro
     professors: validProfessors,
   };
 }
+
+export async function getInstitutionByProfessorId(id: string): Promise<InstitutionWithProfessorsResponseDTO[]> {
+  // Verifica se o professor existe
+  const professor = await professorTable.findUnique({ id });
+  if (!professor) {
+    throw new Error(`Professor with id '${id}' not found`);
+  }
+
+  // Busca os vínculos do professor com instituições
+  const professorInstitutions = await professorInstitutionTable.findMany({ professor_id: id });
+
+  // Para cada vínculo, busca a instituição e seus professores
+  const institutionsWithProfessors = await Promise.all(
+    professorInstitutions.map(async (pi) => {
+      const institution = await institutionTable.findUnique({ id: pi.institution_id });
+      if (!institution) return null;
+
+      // Busca todos os professores dessa instituição
+      const relatedProfessorInstitutions = await professorInstitutionTable.findMany({ institution_id: institution.id });
+
+      const professors = await Promise.all(
+        relatedProfessorInstitutions.map(async (rpi) => {
+          const prof = await professorTable.findUnique({ id: rpi.professor_id });
+          if (!prof) return null;
+
+          // Converte DataModel → DTO
+          const { id, name, phone, email } = prof;
+          return { id, name, phone, email } as ProfessorResponseDTO;
+        })
+      );
+
+      const validProfessors = professors.filter((p): p is ProfessorResponseDTO => p !== null);
+
+      const institutionDTO: InstitutionResponseDTO = { id: institution.id, name: institution.name };
+
+      return {
+        institution: institutionDTO,
+        professors: validProfessors,
+      } as InstitutionWithProfessorsResponseDTO;
+    })
+  );
+
+  // Filtra instituições nulas (caso alguma não exista)
+  return institutionsWithProfessors.filter((i): i is InstitutionWithProfessorsResponseDTO => i !== null);
+}
