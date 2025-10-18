@@ -1,6 +1,6 @@
-import { InstitutionRegisterRequestDTO, InstitutionResponseDTO } from "dtos";
+import { InstitutionRegisterRequestDTO, InstitutionResponseDTO, InstitutionWithProfessorsResponseDTO } from "dtos";
 import { Request, Response } from "express";
-import { insertInstitution } from "../../services/institutionService";
+import { insertInstitution, getAllInstitutions } from "../../services/institutionService";
 import { getLoggedUser } from "../../services/auth";
 
 
@@ -30,4 +30,11 @@ export async function createInstitution(req:Request, res: Response) {
         });
     }
     
+}
+
+export async function findAllInstitutions(res: Response) {
+    return res.json({
+        message: 'All institutions are found.',
+        data: await getAllInstitutions()
+    });
 }

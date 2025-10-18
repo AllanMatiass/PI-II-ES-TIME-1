@@ -32,7 +32,8 @@ export async function Login(email: string, password: string): Promise<ProfessorR
         id: professor.id,
         email,
         name: professor.name,
-        phone: professor.phone
+        phone: professor.phone,
+        created_at: professor.created_at
     }
 }
 
