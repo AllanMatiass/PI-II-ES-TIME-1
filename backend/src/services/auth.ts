@@ -15,7 +15,6 @@ export async function Login(email: string, password: string): Promise<ProfessorR
     const professorTable = db.table<ProfessorDataModel>("professors");
     
     
-    console.log('Ta vino no login?');
     console.log(await professorTable.findMany()); 
 
     // Tentando encontrar um único professor.
@@ -53,6 +52,9 @@ export async function Register(email: string, password: string, name: string, ph
     if (professor != null) {
         throw new Error("Invalid email!");
     }
+    
+    const now = new Date();
+    const timestamp = now.getTime();
 
     // Criptografando a senha fornecida.
     const salt = bcrypt.genSaltSync(SALT_ROUNDS);
@@ -63,6 +65,7 @@ export async function Register(email: string, password: string, name: string, ph
         email,
         name,
         phone,
-        password: hash
+        password: hash,
+        created_at: timestamp
     });
 }

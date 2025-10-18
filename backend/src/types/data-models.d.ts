@@ -6,6 +6,7 @@ declare module 'dataModels' {
         email: string;
         phone: string;
         password: string;
+        created_at: number;
     }
 
     interface InstitutionDataModel {
