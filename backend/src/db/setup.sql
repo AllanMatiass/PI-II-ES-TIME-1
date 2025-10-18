@@ -75,8 +75,6 @@ CREATE TABLE grades (
     id VARCHAR(36) NOT NULL PRIMARY KEY,
     grade_component_id VARCHAR(36),
     automatic_final_grade DECIMAL(10, 2),
-    adjusted_final_grade DECIMAL(10, 2),
-    was_adjusted BOOLEAN,
     entry_date DATE
 );
 
