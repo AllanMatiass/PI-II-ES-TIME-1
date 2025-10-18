@@ -10,7 +10,6 @@ import { DatabaseClient } from "../db/DBClient";
 const SALT_ROUNDS = 10;
 
 export async function Login(email: string, password: string): Promise<ProfessorResponseDTO> {
-    console.log('ta vindo aqui o');
     // Instanciando o objeto do banco de dados e pegando a tabela do professor.
     const db = new DatabaseClient();
     const professorTable = db.table<ProfessorDataModel>("professors");
