@@ -1,6 +1,7 @@
 import { InstitutionRegisterRequestDTO, InstitutionResponseDTO, InstitutionWithProfessorsResponseDTO, ProfessorResponseDTO } from "dtos";
 import { DatabaseClient } from "../db/DBClient";
 import { InstitutionDataModel, ProfessorDataModel, ProfessorInstitutionDataModel } from "dataModels";
+import { AppError } from "../errors/AppError";
 
 const db: DatabaseClient = new DatabaseClient();
 const institutionTable = db.table<InstitutionDataModel>('institutions');
@@ -10,24 +11,24 @@ const professorTable = db.table<ProfessorDataModel>('professors');
 export async function insertProfessorInInstitution(professorId: string, institutionId: string) : Promise<InstitutionResponseDTO> {
     const professorExist = await professorTable.findUnique({id: professorId});
     if (!professorExist) {
-        throw new Error('Professor doesnt exist');
+        throw new AppError(404, 'Professor doesnt exist');
     }
 
     const institutionExist = await institutionTable.findUnique({id: institutionId});
     if (!institutionExist) {
-        throw new Error('Institution doesnt exist');
+        throw new AppError(404, 'Institution doesnt exist');
     }
 
     const relationshipAlreadyExist = await professorInstitutionTable.findUnique({professor_id: professorId, institution_id: institutionId});
     if (relationshipAlreadyExist){
-        throw new Error('This professor is already inserted in this institution.');
+        throw new AppError(409, 'This professor is already inserted in this institution.');
     }
 
     const professorInstitutionId = await professorInstitutionTable.insert({professor_id: professorId, institution_id: institutionId})
     const res: InstitutionResponseDTO | null = await institutionTable.findUnique({id: institutionId});
 
     if (!res || !professorInstitutionId){
-        throw new Error("An internal error ocurred on institution inserting.");
+        throw new AppError(500, "An internal error ocurred during the institution inserting.");
     }
 
     return res;
@@ -39,7 +40,7 @@ export async function insertInstitution(data: InstitutionRegisterRequestDTO, pro
     const res: InstitutionResponseDTO | null = await institutionTable.findUnique({id: institutionId});
 
     if (!res){
-        throw new Error("An internal error ocurred on institution inserting.");
+        throw new AppError(500, "An internal error ocurred on institution inserting.");
     }
 
     insertProfessorInInstitution(professorId, institutionId);
@@ -96,7 +97,7 @@ export async function getInstitutionById(id: string): Promise<InstitutionWithPro
   // Busca a instituição
   const institution = await institutionTable.findUnique({ id });
   if (!institution) {
-    throw new Error(`Institution with id '${id}' not found`);
+    throw new AppError(404, `Institution with id '${id}' not found`);
   }
 
   // Busca os vínculos da instituição com professores
@@ -137,7 +138,7 @@ export async function getInstitutionByProfessorId(id: string): Promise<Instituti
   // Verifica se o professor existe
   const professor = await professorTable.findUnique({ id });
   if (!professor) {
-    throw new Error(`Professor with id '${id}' not found`);
+    throw new AppError(404, `Professor with id '${id}' not found`);
   }
 
   // Busca os vínculos do professor com instituições

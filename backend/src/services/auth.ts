@@ -7,6 +7,7 @@ import { ProfessorDataModel } from "dataModels";
 // DB
 import { DatabaseClient } from "../db/DBClient";
 import { Request } from "express";
+import { AppError } from "../errors/AppError";
 
 const SALT_ROUNDS = 10;
 
@@ -25,7 +26,7 @@ export async function Login(email: string, password: string): Promise<ProfessorR
 
     // Verificando se existe professor e Comparando a senha vindo do body com a registrada (criptografada) no banco de dados. 
     if (!professor || !bcrypt.compareSync(password, professor.password)) {
-        throw new Error("Invalid email or password!")
+        throw new AppError(401,"Invalid email or password!")
     }
 
     return {
@@ -49,8 +50,8 @@ export async function Register(email: string, password: string, name: string, ph
 
 
     // Se já existir professor, lança um erro.
-    if (professor != null) {
-        throw new Error("Invalid email!");
+    if (professor !== null) {
+        throw new AppError(409, "Email already exist!");
     }
     
     const now = new Date();

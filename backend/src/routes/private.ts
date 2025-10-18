@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createInstitution, findAllInstitutions, findInstitutionById, findInstitutionByProfessorId } from "../controllers/institution/institutionController";
+import { createInstitution, findAllInstitutions, findInstitutionById, findInstitutionByProfessorId, relateProfessorWithInstitution } from "../controllers/institution/institutionController";
 
 const router = Router();
 
@@ -8,9 +8,14 @@ router.post("/institution",  async (req, res) => {
     await createInstitution(req, res);
 });
 
+router.post('/institution/relateWithProfessor', async (req, res) => {
+    console.log('POST /api/institution/relateWithProfessor received');
+    await relateProfessorWithInstitution(req, res);
+});
+
 router.get('/institution/all', async (req, res) => {
     console.log('GET /institution/all received');
-    await findAllInstitutions(res);
+    ;await findAllInstitutions(res);
 })
 
 router.get('/institution/:id', async (req, res) => {
