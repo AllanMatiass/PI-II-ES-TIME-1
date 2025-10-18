@@ -41,8 +41,6 @@ export async function Register(email: string, password: string, name: string, ph
     // Instanciando o objeto do banco de dados e pegando a tabela do professor.
     const db = new DatabaseClient();
     const professorTable = db.table<ProfessorDataModel>("professors");
-
-    console.log('Ta vino no registro?');
     
     // Tentando encontrar um único professor.
     const professor = await professorTable.findUnique({

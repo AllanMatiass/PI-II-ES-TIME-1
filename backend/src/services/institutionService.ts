@@ -26,7 +26,7 @@ export async function insertInstitution(data: InstitutionRegisterRequestDTO, pro
 }
 
 export async function getAllInstitutions(): Promise<InstitutionWithProfessorsResponseDTO[]> {
-   const institutions = await institutionTable.findMany();
+    const institutions = await institutionTable.findMany();
 
     const institutionProfessors: InstitutionWithProfessorsResponseDTO[] = await Promise.all(
         // Pega cada instituição
@@ -68,6 +68,45 @@ export async function getAllInstitutions(): Promise<InstitutionWithProfessorsRes
     );
 
     return institutionProfessors;
+}
 
+export async function getInstitutionById(id: string): Promise<InstitutionWithProfessorsResponseDTO> {
+  // Busca a instituição
+  const institution = await institutionTable.findUnique({ id });
+  if (!institution) {
+    throw new Error(`Institution with id '${id}' not found`);
+  }
 
+  // Busca os vínculos da instituição com professores
+  const professorInstitutions = await professorInstitutionTable.findMany({ institution_id: id });
+
+  // Busca os professores associados
+  const professors = await Promise.all(
+    professorInstitutions.map(async (pi) => {
+      const professor = await professorTable.findUnique({ id: pi.professor_id });
+      if (!professor) return null;
+
+      // converte DataModel → DTO
+      const { id, name, phone, email, created_at } = professor;
+      const dto: ProfessorResponseDTO = { id, name, phone, email, created_at };
+      return dto;
+    })
+  );
+
+  // Filtra nulls e garante tipagem
+  const validProfessors = professors.filter(
+    (p): p is ProfessorResponseDTO => p !== null
+  );
+
+  // Converte instituição para DTO
+  const institutionDTO: InstitutionResponseDTO = {
+    id: institution.id,
+    name: institution.name,
+  };
+
+  // Retorna no formato esperado
+  return {
+    institution: institutionDTO,
+    professors: validProfessors,
+  };
 }
