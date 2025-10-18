@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { ProfessorLoginRequestDTO, ProfessorRegisterRequestDTO } from 'dtos';
+import { ProfessorLoginRequestDTO, ProfessorRegisterRequestDTO, ProfessorResponseDTO } from 'dtos';
 import { Login, Register } from '../../services/auth';
 
 type Error = {
@@ -26,14 +26,14 @@ export async function loginController(req: Request, res: Response) {
 			errors: errors.map((e) => e.message + '\n'),
 		});
 	}
-	console.log('PQ NAO QUER VIM AQUIII?')
 	// Chamando serviço para fazer o login.
-	const userProfile = await Login(body['email'], body['password']);
+	req.session.user = await Login(body['email'], body['password']);
+
 
 	// Retorna com êxito caso tudo no Login ocorra bem.
 	res.status(200).json({
 		message: 'Login successful',
-		data: userProfile,
+		data: req.session.user,
 	});
 }
 
@@ -79,3 +79,4 @@ export async function registerController(req: Request, res: Response) {
 		message: 'Register successful',
 	});
 }
+

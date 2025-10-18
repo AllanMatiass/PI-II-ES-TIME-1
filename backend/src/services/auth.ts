@@ -6,17 +6,16 @@ import { ProfessorDataModel } from "dataModels";
 
 // DB
 import { DatabaseClient } from "../db/DBClient";
+import { Request } from "express";
 
 const SALT_ROUNDS = 10;
 
 export async function Login(email: string, password: string): Promise<ProfessorResponseDTO> {
-    console.log('ta vindo aqui o');
     // Instanciando o objeto do banco de dados e pegando a tabela do professor.
     const db = new DatabaseClient();
     const professorTable = db.table<ProfessorDataModel>("professors");
     
     
-    console.log('Ta vino no login?');
     console.log(await professorTable.findMany()); 
 
     // Tentando encontrar um único professor.
@@ -54,6 +53,9 @@ export async function Register(email: string, password: string, name: string, ph
     if (professor != null) {
         throw new Error("Invalid email!");
     }
+    
+    const now = new Date();
+    const timestamp = now.getTime();
 
     // Criptografando a senha fornecida.
     const salt = bcrypt.genSaltSync(SALT_ROUNDS);
@@ -64,6 +66,12 @@ export async function Register(email: string, password: string, name: string, ph
         email,
         name,
         phone,
-        password: hash
+        password: hash,
+        created_at: timestamp
     });
+}
+
+export function getLoggedUser(req: Request): ProfessorResponseDTO | null {
+	const user = req.session.user != null ? req.session.user as ProfessorResponseDTO : null;
+	return user;
 }

@@ -2,7 +2,8 @@ import express from 'express'
 import session from 'express-session'
 import cors from 'cors'
 import PublicRoutes from './routes/public';
-
+import PrivateRoutes from './routes/private';
+import isAuth from './middlewares/auth';
 import { config } from 'dotenv'
 
 // Arquivo env
@@ -14,25 +15,6 @@ const app = express();
 // PORTAS
 const BACKEND_PORT = process.env.BACKEND_PORT ?? 3000;
 const FRONTEND_PORT = process.env.FRONTEND_PORT ?? 5500;
-
-// Função para criar as rotas da API
-// async function CreateRoutes(base: string) {
-// 	const entries = fs.readdirSync(base, { withFileTypes: true });
-
-// 	for (const entry of entries) {
-// 		const entryPath = `${base}/${entry}`;
-
-// 		if (entry.isDirectory()) {
-// 			CreateRoutes(entryPath);
-// 		} else {
-// 			const file = await import(entryPath);
-// 			const route = entryPath.slice(0, -3);
-
-// 			app.use(route, file.default);
-// 		}
-// 	}
-
-// }
 
 // CORS para conexão com front-end
 const allowedOrigins = [
@@ -66,7 +48,7 @@ app.use(express.json());
 
 // rotas
 app.use('/api', PublicRoutes);
-
+app.use('/api', isAuth, PrivateRoutes);
 
 // Inicializa o servidor
 app.listen(BACKEND_PORT, () => {
