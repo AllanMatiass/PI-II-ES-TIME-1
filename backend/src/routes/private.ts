@@ -1,3 +1,5 @@
+// Matias e Cristian
+
 import { Router } from "express";
 import { 
     createInstitution, 
@@ -8,9 +10,12 @@ import {
     putInstitution, 
     relateProfessorWithInstitution 
 } from "../controllers/institution/institutionController";
+import isAuth from "../middlewares/auth";
+import { GET_FindInstitutionCourses, POST_CreateCourse, PUT_UpdateCourse } from "../controllers/course/courseController";
 
 const router = Router();
 
+// --- ROTAS DA INSTITUIÇÃO ---
 router.post("/institution",  async (req, res) => {
     console.log("POST /api/institution received");
     await createInstitution(req, res);
@@ -23,7 +28,7 @@ router.post('/institution/relateWithProfessor', async (req, res) => {
 
 router.get('/institution/all', async (req, res) => {
     console.log('GET /institution/all received');
-    ;await findAllInstitutions(res);
+    await findAllInstitutions(res);
 })
 
 router.get('/institution/:id', async (req, res) => {
@@ -44,6 +49,23 @@ router.put('/institution/:id', async (req, res) => {
 router.delete('/institution/:id', async (req, res) => {
     console.log(`DELETE /institution/${req.params.id} received`);
     await delInstitution(req, res);
-})
+});
+
+// --- ROTAS DO CURSO ---
+router.post('/institution/course', isAuth, async (req, res) => {
+    console.log("POST /api/course");
+    await POST_CreateCourse(req, res);
+
+});
+
+router.put('/institution/course/', isAuth, async (req, res) => {
+    console.log("PUT /api/course");
+    await PUT_UpdateCourse(req, res);
+});
+
+router.get('/institution/courses', isAuth, async (req, res) => {
+    console.log("GET /api/institution/courses");
+    await GET_FindInstitutionCourses(req, res);
+});
 
 export default router;
