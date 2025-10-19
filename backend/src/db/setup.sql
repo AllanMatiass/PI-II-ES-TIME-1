@@ -29,14 +29,20 @@ CREATE TABLE professors (
 CREATE TABLE professor_institutions (
     id VARCHAR(36) NOT NULL PRIMARY KEY,
     institution_id VARCHAR(36),
-    professor_id VARCHAR(36)
+    professor_id VARCHAR(36),
+    CONSTRAINT fk_profinst_institution FOREIGN KEY (institution_id) 
+        REFERENCES institutions(id) ON DELETE CASCADE,
+    CONSTRAINT fk_profinst_professor FOREIGN KEY (professor_id) 
+        REFERENCES professors(id) ON DELETE RESTRICT
 );
 
 -- Tabela para Cursos
 CREATE TABLE courses (
     id VARCHAR(36) NOT NULL PRIMARY KEY,
     professor_institution_id VARCHAR(36),
-    name VARCHAR(255)
+    name VARCHAR(255),
+    CONSTRAINT fk_courses_profinst FOREIGN KEY (professor_institution_id) 
+        REFERENCES professor_institutions(id) ON DELETE CASCADE
 );
 
 -- Tabela para Disciplinas/Matérias
@@ -48,26 +54,32 @@ CREATE TABLE subjects (
     acronym VARCHAR(255),
     period INTEGER,
     start_date DATE,
-    end_date DATE
+    end_date DATE,
+    CONSTRAINT fk_subjects_course FOREIGN KEY (course_id) 
+        REFERENCES courses(id) ON DELETE CASCADE
 );
 
--- Tabela para Turmas (grupos de alunos para uma matéria)
+-- Tabela para Turmas
 CREATE TABLE classes (
     id VARCHAR(36) NOT NULL PRIMARY KEY,
     subject_id VARCHAR(36),
     name VARCHAR(255),
     classroom_location VARCHAR(255),
     class_time TIME,
-    class_date DATE
+    class_date DATE,
+    CONSTRAINT fk_classes_subject FOREIGN KEY (subject_id) 
+        REFERENCES subjects(id) ON DELETE CASCADE
 );
 
--- Tabela para Componentes de Nota (ex: Prova Parcial, Projeto Final)
+-- Tabela para Componentes de Nota
 CREATE TABLE grade_components (
     id VARCHAR(36) NOT NULL PRIMARY KEY,
     class_id VARCHAR(36),
     name VARCHAR(255),
     formula_acronym VARCHAR(255),
-    description VARCHAR(255)
+    description VARCHAR(255),
+    CONSTRAINT fk_gradecomp_class FOREIGN KEY (class_id) 
+        REFERENCES classes(id) ON DELETE CASCADE
 );
 
 -- Tabela para Notas
@@ -75,7 +87,9 @@ CREATE TABLE grades (
     id VARCHAR(36) NOT NULL PRIMARY KEY,
     grade_component_id VARCHAR(36),
     automatic_final_grade DECIMAL(10, 2),
-    entry_date DATE
+    entry_date DATE,
+    CONSTRAINT fk_grades_gradecomp FOREIGN KEY (grade_component_id) 
+        REFERENCES grade_components(id) ON DELETE CASCADE
 );
 
 -- Tabela para Alunos
@@ -85,59 +99,43 @@ CREATE TABLE students (
     registration_id VARCHAR(255) UNIQUE
 );
 
--- Tabela de Associação: Turma e Alunos
+-- Associação: Turma e Alunos
 CREATE TABLE class_students (
     id VARCHAR(36) NOT NULL PRIMARY KEY,
     class_id VARCHAR(36),
     grade_id VARCHAR(36),
-    student_id VARCHAR(36)
+    student_id VARCHAR(36),
+    CONSTRAINT fk_classstudents_class FOREIGN KEY (class_id) 
+        REFERENCES classes(id) ON DELETE CASCADE,
+    CONSTRAINT fk_classstudents_grade FOREIGN KEY (grade_id) 
+        REFERENCES grades(id) ON DELETE CASCADE,
+    CONSTRAINT fk_classstudents_student FOREIGN KEY (student_id) 
+        REFERENCES students(id) ON DELETE RESTRICT
 );
 
--- Tabela para a Fórmula de Cálculo da Nota Final
+-- Fórmula de Cálculo da Nota Final
 CREATE TABLE final_grade_calculations (
     id VARCHAR(36) NOT NULL PRIMARY KEY,
     class_id VARCHAR(36),
-    formula VARCHAR(255)
+    formula VARCHAR(255),
+    CONSTRAINT fk_finalgradecalc_class FOREIGN KEY (class_id) 
+        REFERENCES classes(id) ON DELETE CASCADE
 );
 
--- Tabela para Auditoria
+-- Auditoria
 CREATE TABLE audits (
     id VARCHAR(36) NOT NULL PRIMARY KEY,
     created_at TIMESTAMP,
     change_description VARCHAR(255),
-    professor_id VARCHAR(36)
+    professor_id VARCHAR(36),
+    CONSTRAINT fk_audits_professor FOREIGN KEY (professor_id) 
+        REFERENCES professors(id) ON DELETE SET NULL
 );
-
--- ===============================
--- Constraints de Chave Estrangeira
--- ===============================
-
-ALTER TABLE professor_institutions ADD CONSTRAINT fk_profinst_institution FOREIGN KEY (institution_id) REFERENCES institutions(id);
-ALTER TABLE professor_institutions ADD CONSTRAINT fk_profinst_professor FOREIGN KEY (professor_id) REFERENCES professors(id);
-
-ALTER TABLE courses ADD CONSTRAINT fk_courses_profinst FOREIGN KEY (professor_institution_id) REFERENCES professor_institutions(id);
-
-ALTER TABLE subjects ADD CONSTRAINT fk_subjects_course FOREIGN KEY (course_id) REFERENCES courses(id);
-
-ALTER TABLE classes ADD CONSTRAINT fk_classes_subject FOREIGN KEY (subject_id) REFERENCES subjects(id);
-
-ALTER TABLE grade_components ADD CONSTRAINT fk_gradecomp_class FOREIGN KEY (class_id) REFERENCES classes(id);
-
-ALTER TABLE grades ADD CONSTRAINT fk_grades_gradecomp FOREIGN KEY (grade_component_id) REFERENCES grade_components(id);
-
-ALTER TABLE class_students ADD CONSTRAINT fk_classstudents_class FOREIGN KEY (class_id) REFERENCES classes(id);
-ALTER TABLE class_students ADD CONSTRAINT fk_classstudents_grade FOREIGN KEY (grade_id) REFERENCES grades(id);
-ALTER TABLE class_students ADD CONSTRAINT fk_classstudents_student FOREIGN KEY (student_id) REFERENCES students(id);
-
-ALTER TABLE final_grade_calculations ADD CONSTRAINT fk_finalgradecalc_class FOREIGN KEY (class_id) REFERENCES classes(id);
-
-ALTER TABLE audits ADD CONSTRAINT fk_audits_professor FOREIGN KEY (professor_id) REFERENCES professors(id);
 
 -- ===============================
 -- Criação de índices
 -- ===============================
 
--- Índices para Chaves Estrangeiras (FKs) para acelerar JOINs
 CREATE INDEX idx_profinst_institution_id ON professor_institutions(institution_id);
 CREATE INDEX idx_profinst_professor_id ON professor_institutions(professor_id);
 CREATE INDEX idx_courses_profinst_id ON courses(professor_institution_id);
@@ -151,7 +149,6 @@ CREATE INDEX idx_classstudents_student_id ON class_students(student_id);
 CREATE INDEX idx_finalgradecalc_class_id ON final_grade_calculations(class_id);
 CREATE INDEX idx_audits_professor_id ON audits(professor_id);
 
--- Índices para colunas frequentemente consultadas (WHERE) ou ordenadas (ORDER BY)
 CREATE INDEX idx_professors_name ON professors(name);
 CREATE INDEX idx_students_name ON students(name);
 CREATE INDEX idx_subjects_code ON subjects(code);
@@ -227,8 +224,6 @@ BEGIN
         c.name AS class_name,
         gc.name AS component_name,
         g.automatic_final_grade AS grade,
-        g.adjusted_final_grade AS adjusted_grade,
-        g.was_adjusted AS was_adjusted,
         g.entry_date AS entry_date
     FROM students s
     JOIN class_students cs ON s.id = cs.student_id

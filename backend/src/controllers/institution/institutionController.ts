@@ -1,6 +1,6 @@
 import { InstitutionRegisterRequestDTO, InstitutionResponseDTO, InstitutionWithProfessorsResponseDTO } from "dtos";
 import { Request, Response } from "express";
-import { insertInstitution, getAllInstitutions, getInstitutionById, getInstitutionByProfessorId, insertProfessorInInstitution, updateInstitution } from "../../services/institutionService";
+import { insertInstitution, getAllInstitutions, getInstitutionById, getInstitutionByProfessorId, insertProfessorInInstitution, updateInstitution, deleteInstitution } from "../../services/institutionService";
 import { getLoggedUser } from "../../services/auth";
 import { AppError } from '../../errors/AppError';
 
@@ -141,6 +141,32 @@ export async function putInstitution(req: Request, res: Response) {
         return res.json({
             message: 'Institution updated',
             data: updatedInstitution
+        });
+
+    } catch(err: any) {
+        if (err instanceof AppError){
+            return res.status(err.code).json({error: err.message})
+        }
+
+        console.error(err);
+        return res.status(500).json({error: 'Unexpected Error'});
+    }
+    
+}
+
+export async function delInstitution(req: Request, res: Response) {
+    try{
+        const {params} = req;
+    
+        if (!params.id){
+            throw new AppError(404, 'Institution ID not found.');            
+        }
+
+        await deleteInstitution(params.id);
+
+        return res.json({
+            message: 'Institution removed',
+            data: null
         });
 
     } catch(err: any) {

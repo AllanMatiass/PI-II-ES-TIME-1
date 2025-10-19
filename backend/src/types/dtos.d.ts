@@ -24,7 +24,7 @@ declare module 'dtos' {
         name: string;
         phone: string;
         email: string;
-        created_at: number;
+        created_at: Date;
     }
 
     interface InstitutionResponseDTO {

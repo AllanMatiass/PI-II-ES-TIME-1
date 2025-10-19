@@ -54,8 +54,7 @@ export async function Register(email: string, password: string, name: string, ph
         throw new AppError(409, "Email already exist!");
     }
     
-    const now = new Date();
-    const timestamp = now.getTime();
+    const createdAt = new Date(); // Cria um objeto Date válido
 
     // Criptografando a senha fornecida.
     const salt = bcrypt.genSaltSync(SALT_ROUNDS);
@@ -67,7 +66,7 @@ export async function Register(email: string, password: string, name: string, ph
         name,
         phone,
         password: hash,
-        created_at: timestamp
+        created_at: createdAt
     });
 }
 

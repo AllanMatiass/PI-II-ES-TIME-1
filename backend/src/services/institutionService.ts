@@ -194,3 +194,10 @@ export async function updateInstitution(id:string, data: InstitutionRegisterRequ
   return institution;
 }
 
+export async function deleteInstitution(id:string) {
+  if(!await getInstitutionById(id)){
+    throw new AppError(404, 'Institution ID not found.');
+  }
+
+  await institutionTable.deleteMany({id});
+}
