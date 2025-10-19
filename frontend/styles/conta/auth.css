@@ -45,6 +45,7 @@ form label {
     display: block;
     margin: 1rem 0 5px;
     color: #000;
+ 
 }
 
 /* Bordas padrão dos inputs e da área de senha */
@@ -56,10 +57,10 @@ form input,
 }
 
 /* Efeito ao passar o mouse nos inputs e senha */
-form input:focus,
+/*form input:focus,
 .input-senha:focus {
-    border: 2px #164581 solid;
-}
+    border: 2px #97acc8 solid;
+}*/
 
 /* ========================================
    Container da senha (input + botão)
@@ -68,7 +69,16 @@ form input:focus,
     display: flex;
     flex-direction: row;
     align-items: center;
+    /* border-color: red; */
 }
+
+/* #input_texto_s{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    border-color: rgb(0, 255, 119);
+
+} */
 
 /* Remove borda interna do input dentro da área de senha */
 .input-senha input {
@@ -376,3 +386,53 @@ button {
 .topBar .btnInst {
     margin-top: 20px;
 }
+
+#nomeTxt, #emailTxt{
+    border: 2px solid #929599;
+    border-radius: 12px;
+}
+#cadForm{
+    background-color: #ffffff;
+    padding: 40px;
+    width: 100dvw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    border-radius: 20px;
+    gap: 10px; /* espaço entre os elementos */
+   
+    max-width: 300px; /* limite para manter os inputs do mesmo tamanho */
+    margin:4.5%;
+
+}
+
+
+
+/* Faz os labels ficarem alinhados à esquerda */
+#cadForm label {
+  font-weight: bold;
+  margin-bottom: 3px;
+  color: #333;
+  text-align: left;
+  width: 100%;
+}
+
+/* Deixa todos os inputs com o mesmo tamanho */
+#cadForm input[type="text"],
+#cadForm input[type="tel"],
+#cadForm input[type="password"],
+#cadForm input[type="email"] {
+  width: 100%;
+  padding: 10px;
+  border-radius: 10px;
+  font-size: 15px;
+  box-sizing: border-box;
+}
+
+/* Garante que os inputs de senha dentro do .input-senha também fiquem alinhados */
+.input-senha {
+  width: 100%;
+}
+
+
