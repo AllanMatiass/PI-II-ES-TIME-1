@@ -1,6 +1,6 @@
 import { InstitutionRegisterRequestDTO, InstitutionResponseDTO, InstitutionWithProfessorsResponseDTO } from "dtos";
 import { Request, Response } from "express";
-import { insertInstitution, getAllInstitutions, getInstitutionById, getInstitutionByProfessorId, insertProfessorInInstitution } from "../../services/institutionService";
+import { insertInstitution, getAllInstitutions, getInstitutionById, getInstitutionByProfessorId, insertProfessorInInstitution, updateInstitution } from "../../services/institutionService";
 import { getLoggedUser } from "../../services/auth";
 import { AppError } from '../../errors/AppError';
 
@@ -122,4 +122,34 @@ export async function relateProfessorWithInstitution(req: Request, res: Response
         console.error(err);
         return res.status(500).json({error: 'Unexpected Error'});
     }
+}
+
+export async function putInstitution(req: Request, res: Response) {
+    try{
+        const {params, body} = req;
+    
+        if (!params.id){
+            throw new AppError(404, 'Institution ID not found.');            
+        }
+
+        if (!body){
+            throw new AppError(400, 'Body must contain data to continue.');
+        }
+
+        const updatedInstitution = await updateInstitution(params.id, body);
+
+        return res.json({
+            message: 'Institution updated',
+            data: updatedInstitution
+        });
+
+    } catch(err: any) {
+        if (err instanceof AppError){
+            return res.status(err.code).json({error: err.message})
+        }
+
+        console.error(err);
+        return res.status(500).json({error: 'Unexpected Error'});
+    }
+    
 }
