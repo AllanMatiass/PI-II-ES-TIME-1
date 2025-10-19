@@ -36,4 +36,9 @@ declare module 'dtos' {
         institution: InstitutionResponseDTO;
         professors: ProfessorResponseDTO[];
     }
+
+    interface CourseRegisterRequestDTO {
+        name: string;
+        institution_id: string;
+    }
 }
