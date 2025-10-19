@@ -178,3 +178,26 @@ export async function getInstitutionByProfessorId(id: string): Promise<Instituti
   // Filtra instituições nulas (caso alguma não exista)
   return institutionsWithProfessors.filter((i): i is InstitutionWithProfessorsResponseDTO => i !== null);
 }
+
+export async function updateInstitution(id:string, data: InstitutionRegisterRequestDTO): Promise<InstitutionWithProfessorsResponseDTO> {
+  let institution = await getInstitutionById(id);
+
+  if (!data || !data.name){
+    console.warn('No data received.');
+  }
+
+  if (data.name && data.name !== institution.institution.name){
+    await institutionTable.update(data, {id});
+    institution = await getInstitutionById(id);
+  }
+
+  return institution;
+}
+
+export async function deleteInstitution(id:string) {
+  if(!await getInstitutionById(id)){
+    throw new AppError(404, 'Institution ID not found.');
+  }
+
+  await institutionTable.deleteMany({id});
+}
