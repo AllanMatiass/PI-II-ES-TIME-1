@@ -24,5 +24,16 @@ declare module 'dtos' {
         name: string;
         phone: string;
         email: string;
+        created_at: Date;
+    }
+
+    interface InstitutionResponseDTO {
+        id: string;
+        name: string;
+    }
+
+    interface InstitutionWithProfessorsResponseDTO {
+        institution: InstitutionResponseDTO;
+        professors: ProfessorResponseDTO[];
     }
 }

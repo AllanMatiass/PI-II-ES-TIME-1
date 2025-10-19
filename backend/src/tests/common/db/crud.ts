@@ -36,7 +36,8 @@ async function testProfessorCRUD() {
         name: requestBody.name,
         email: requestBody.email,
         phone: requestBody.phone,
-        password: requestBody.password
+        password: requestBody.password,
+        created_at: new Date()
     });
 
     console.log("ID do professor inserido: ", newProfessorId);
