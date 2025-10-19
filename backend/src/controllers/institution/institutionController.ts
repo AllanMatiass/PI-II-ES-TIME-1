@@ -8,7 +8,7 @@ import { insertInstitution, getAllInstitutions, getInstitutionById, getInstituti
 import { getLoggedUser } from "../../services/auth";
 import { AppError } from '../../errors/AppError';
 
-
+// cria uma instituição
 export async function createInstitution(req:Request, res: Response) {
     const {body} = req;
     try{
