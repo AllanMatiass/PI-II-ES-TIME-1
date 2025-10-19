@@ -1,3 +1,4 @@
+// Autor: Allan Giovanni Matias Paes
 import { InstitutionRegisterRequestDTO, InstitutionResponseDTO, InstitutionWithProfessorsResponseDTO, ProfessorResponseDTO } from "dtos";
 import { DatabaseClient } from "../db/DBClient";
 import { InstitutionDataModel, ProfessorDataModel, ProfessorInstitutionDataModel } from "dataModels";
@@ -8,25 +9,31 @@ const institutionTable = db.table<InstitutionDataModel>('institutions');
 const professorInstitutionTable = db.table<ProfessorInstitutionDataModel>('professor_institutions');
 const professorTable = db.table<ProfessorDataModel>('professors');
 
+// Insere professor em uma instituição
 export async function insertProfessorInInstitution(professorId: string, institutionId: string) : Promise<InstitutionResponseDTO> {
+
+    // Verifica se professor existe, se não existir, lança erro.
     const professorExist = await professorTable.findUnique({id: professorId});
     if (!professorExist) {
         throw new AppError(404, 'Professor doesnt exist');
     }
-
+    // Verifica se instituição existe, se não existir, lança erro.
     const institutionExist = await institutionTable.findUnique({id: institutionId});
     if (!institutionExist) {
         throw new AppError(404, 'Institution doesnt exist');
     }
 
+    // Verifica se já estão relacionados, se já estiverem, lança erro de conflito.
     const relationshipAlreadyExist = await professorInstitutionTable.findUnique({professor_id: professorId, institution_id: institutionId});
     if (relationshipAlreadyExist){
         throw new AppError(409, 'This professor is already inserted in this institution.');
     }
 
+    // insere o professor aquela instituição via tabela de relacionamento
     const professorInstitutionId = await professorInstitutionTable.insert({professor_id: professorId, institution_id: institutionId})
     const res: InstitutionResponseDTO | null = await institutionTable.findUnique({id: institutionId});
 
+    // se não tiver dados, lança erro inesperado
     if (!res || !professorInstitutionId){
         throw new AppError(500, "An internal error ocurred during the institution inserting.");
     }
@@ -34,11 +41,15 @@ export async function insertProfessorInInstitution(professorId: string, institut
     return res;
 }
 
+// Insere uma instituição na DB
 export async function insertInstitution(data: InstitutionRegisterRequestDTO, professorId: string) : Promise<InstitutionResponseDTO> {
 
+    // insere a instituição e pega o ID
     const institutionId: string = await institutionTable.insert(data);
+    // pega a instituição inserida
     const res: InstitutionResponseDTO | null = await institutionTable.findUnique({id: institutionId});
 
+    // Se não tiver, algum erro interno aconteceu.
     if (!res){
         throw new AppError(500, "An internal error ocurred on institution inserting.");
     }
@@ -47,7 +58,7 @@ export async function insertInstitution(data: InstitutionRegisterRequestDTO, pro
     return res;
 }
 
-
+// pega todas as instituições
 export async function getAllInstitutions(): Promise<InstitutionWithProfessorsResponseDTO[]> {
     const institutions = await institutionTable.findMany();
 
@@ -164,6 +175,7 @@ export async function getInstitutionByProfessorId(id: string): Promise<Instituti
         })
       );
 
+      // pega apenas os professores que não são nulos
       const validProfessors = professors.filter((p): p is ProfessorResponseDTO => p !== null);
 
       const institutionDTO: InstitutionResponseDTO = { id: institution.id, name: institution.name };
@@ -179,25 +191,33 @@ export async function getInstitutionByProfessorId(id: string): Promise<Instituti
   return institutionsWithProfessors.filter((i): i is InstitutionWithProfessorsResponseDTO => i !== null);
 }
 
+// atualiza uma instituição
 export async function updateInstitution(id:string, data: InstitutionRegisterRequestDTO): Promise<InstitutionWithProfessorsResponseDTO> {
-  let institution = await getInstitutionById(id);
+  // inicialmente, pega uma instituição pelo ID
+  let institutionProfessor = await getInstitutionById(id);
 
+  // se não tiver dados dá um warn no console
   if (!data || !data.name){
     console.warn('No data received.');
   }
 
-  if (data.name && data.name !== institution.institution.name){
+  // se tiver o 'name' na requisição e for diferente do nome da instituição atual
+  if (data.name && data.name !== institutionProfessor.institution.name){
     await institutionTable.update(data, {id});
-    institution = await getInstitutionById(id);
+    institutionProfessor = await getInstitutionById(id);
   }
 
-  return institution;
+  return institutionProfessor;
 }
 
+// Deleta uma instituição pelo ID
 export async function deleteInstitution(id:string) {
+
+  // Se não encontrar a instituição pelo ID, retorna erro 404.
   if(!await getInstitutionById(id)){
     throw new AppError(404, 'Institution ID not found.');
   }
 
+  // se encontrar, deleta.
   await institutionTable.deleteMany({id});
 }
