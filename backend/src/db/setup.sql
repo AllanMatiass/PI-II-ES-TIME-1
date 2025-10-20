@@ -61,7 +61,7 @@ CREATE TABLE subjects (
         REFERENCES courses(id) ON DELETE CASCADE,
 
     CONSTRAINT fk_professor_institution_id FOREIGN KEY (professor_institution_id)
-        REFERENCES professor_institutions(id) ON DELETE CASCADE;
+        REFERENCES professor_institutions(id) ON DELETE CASCADE
 );
 
 -- Tabela para Turmas

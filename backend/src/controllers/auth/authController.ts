@@ -69,5 +69,3 @@ export async function registerController(req: Request, res: Response) {
     }
 	
 }
-
-J
