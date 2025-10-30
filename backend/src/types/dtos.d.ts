@@ -18,6 +18,20 @@ declare module 'dtos' {
         name: string;
     }
 
+     interface CourseRegisterRequestDTO {
+        name: string;
+        institution_id: string;
+    }
+    interface ClassRegisterRequestDTO {
+        subject_id: string;
+        institution_id: string;
+        course_id: string;
+        name: string;
+        classroom_location: string;
+        class_time: string;
+        class_date: Date;
+    }
+
     // responses
     interface ProfessorResponseDTO {
         id: string;
@@ -36,4 +50,14 @@ declare module 'dtos' {
         institution: InstitutionResponseDTO;
         professors: ProfessorResponseDTO[];
     }
+
+    interface ClassResponseDTO {
+        id: string;
+        subject_id: string;
+        name: string;
+        classroom_location: string;
+        class_time: string;
+        class_date: Date;
+    }
+   
 }

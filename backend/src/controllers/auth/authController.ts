@@ -15,11 +15,9 @@ export async function loginController(req: Request, res: Response) {
 		// Chamando serviço para fazer o login.
 		req.session.user = await Login(body['email'], body['password']);
 
-
 		// Retorna com êxito caso tudo no Login ocorra bem.
 		res.status(200).json({
-			message: 'Login successful',
-			data: req.session.user,
+			message: 'Login successful'
 		});
 
 	} catch (err: any){
@@ -71,4 +69,3 @@ export async function registerController(req: Request, res: Response) {
     }
 	
 }
-

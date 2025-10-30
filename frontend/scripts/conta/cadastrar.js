@@ -61,8 +61,12 @@ mostrarSenhaBtn.addEventListener("click", () => {
     
     // Esconde e mostra a senha no input
     if (inputSenha.type == "password") {
+        const id="input_texto_s";
         inputSenha.type = "text";
+        inputSenha.id = id;
+        
         icone.src = "/frontend/icons/olho-cortado.png";
+    
     } else {
         inputSenha.type = "password";
         icone.src = "/frontend/icons/olho.png";

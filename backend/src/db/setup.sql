@@ -39,10 +39,10 @@ CREATE TABLE professor_institutions (
 -- Tabela para Cursos
 CREATE TABLE courses (
     id VARCHAR(36) NOT NULL PRIMARY KEY,
-    professor_institution_id VARCHAR(36),
     name VARCHAR(255),
-    CONSTRAINT fk_courses_profinst FOREIGN KEY (professor_institution_id) 
-        REFERENCES professor_institutions(id) ON DELETE CASCADE
+    institution_id VARCHAR(36),
+    CONSTRAINT fk_courses_profinst FOREIGN KEY (institution_id) 
+        REFERENCES institutions(id) ON DELETE CASCADE
 );
 
 -- Tabela para Disciplinas/Matérias
@@ -55,8 +55,13 @@ CREATE TABLE subjects (
     period INTEGER,
     start_date DATE,
     end_date DATE,
+    -- professor_institution_id  VARCHAR(36) NOT NULL,
+    
     CONSTRAINT fk_subjects_course FOREIGN KEY (course_id) 
-        REFERENCES courses(id) ON DELETE CASCADE
+        REFERENCES courses(id) ON DELETE CASCADE,
+
+    -- CONSTRAINT fk_professor_institution_id FOREIGN KEY (professor_institution_id)
+    --     REFERENCES professor_institutions(id) ON DELETE CASCADE
 );
 
 -- Tabela para Turmas

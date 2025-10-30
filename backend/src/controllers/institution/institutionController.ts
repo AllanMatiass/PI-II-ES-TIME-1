@@ -9,43 +9,43 @@ import { getLoggedUser } from "../../services/auth";
 import { AppError } from '../../errors/AppError';
 
 // cria uma instituição
-export async function createInstitution(req:Request, res: Response) {
-    const {body} = req;
-    try{
-        // verifica se tem campo "name" no body
-        if (!body || !body.name){
-            throw new AppError(400, "Property 'name' cannot be null.");
-        }
+    export async function createInstitution(req: Request, res: Response) {
+			const { body } = req;
+			try {
+				// verifica se tem campo "name" no body
+				if (!body || !body.name) {
+					throw new AppError(400, "Property 'name' cannot be null.");
+				}
 
-        // converte para um tipo customizado que contém apenas "name" como propriedade
-        const data = body as InstitutionRegisterRequestDTO;
-        
-        // Pega o professor logado e vê se está autenticado (a verificação foi feita apenas para evitar do Typescript reclamar.)
-        const professor = getLoggedUser(req);
-        if (!professor){
-            throw new AppError(401, 'User is not authenticated.');
-        }
+				// converte para um tipo customizado que contém apenas "name" como propriedade
+				const data = body as InstitutionRegisterRequestDTO;
 
-        // Faz a inserção via service
-        const institution: InstitutionResponseDTO = await insertInstitution(data, professor.id);
+				// Pega o professor logado e vê se está autenticado (a verificação foi feita apenas para evitar do Typescript reclamar.)
+				const professor = getLoggedUser(req);
+				if (!professor) {
+					throw new AppError(401, 'User is not authenticated.');
+				}
 
-        
-        // Retorna um JSON com a instituição criada
-        return res.json({
-            message: 'Institution was created successfully.',
-            data: institution
-        });
+				// Faz a inserção via service
+				const institution: InstitutionResponseDTO = await insertInstitution(
+					data,
+					professor.id
+				);
 
-    } catch (err: any){
-        if (err instanceof AppError){
-            return res.status(err.code).json({error: err.message})
-        }
+				// Retorna um JSON com a instituição criada
+				return res.json({
+					message: 'Institution was created successfully.',
+					data: institution,
+				});
+			} catch (err: any) {
+				if (err instanceof AppError) {
+					return res.status(err.code).json({ error: err.message });
+				}
 
-        console.error(err);
-        return res.status(500).json({error: 'Unexpected Error'});
-    }
-    
-}
+				console.error(err);
+				return res.status(500).json({ error: 'Unexpected Error' });
+			}
+		}
 
 // Apenas pega todas as instituições e professores relacionados
 export async function findAllInstitutions(res: Response) {
