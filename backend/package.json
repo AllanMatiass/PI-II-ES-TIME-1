@@ -1,33 +1,33 @@
 {
-  "name": "backend",
-  "version": "1.0.0",
-  "description": "Backend do projeto NotaDez",
-  "license": "ISC",
-  "author": "Time 1 - PI-2",
-  "type": "commonjs",
-  "main": "./backend/server.js",
-  "scripts": {
-    "build": "tsc --project ./tsconfig.json",
-    "dev": "node ./dist/src/server.js",
-    "seed": "node ./src/db/seed.js",
-    "crudTest": "node ./dist/src/tests/common/db/crud.js"
-  },
-  "dependencies": {
-    "@types/cors": "^2.8.19",
-    "@types/express": "^5.0.3",
-    "@types/express-session": "^1.18.2",
-    "bcrypt": "^6.0.0",
-    "cors": "^2.8.5",
-    "dotenv": "^17.2.2",
-    "express": "^5.1.0",
-    "express-session": "^1.18.2",
-    "mathjs": "^14.7.0",
-    "mysql2": "^3.14.5",
-    "typescript": "^5.9.2",
-    "uuid": "^13.0.0"
-  },
-  "devDependencies": {
-    "@types/bcrypt": "^6.0.0",
-    "@types/node": "^24.3.1"
-  }
+	"name": "backend",
+	"version": "1.0.0",
+	"description": "Backend do projeto NotaDez",
+	"license": "ISC",
+	"author": "Time 1 - PI-2",
+	"type": "commonjs",
+	"main": "./backend/server.js",
+	"scripts": {
+		"build": "tsc --project ./tsconfig.json",
+		"dev": "node ./dist/src/server.js",
+		"seed": "node ./src/db/seed.js",
+		"crudTest": "node ./dist/src/tests/common/db/crud.js"
+	},
+	"dependencies": {
+		"bcrypt": "^6.0.0",
+		"cors": "^2.8.5",
+		"dotenv": "^17.2.2",
+		"express": "^5.1.0",
+		"express-session": "^1.18.2",
+		"mathjs": "^14.7.0",
+		"mysql2": "^3.14.5",
+		"typescript": "^5.9.2",
+		"uuid": "^13.0.0"
+	},
+	"devDependencies": {
+		"@types/express": "^5.0.3",
+		"@types/cors": "^2.8.19",
+		"@types/express-session": "^1.18.2",
+		"@types/bcrypt": "^6.0.0",
+		"@types/node": "^24.3.1"
+	}
 }
