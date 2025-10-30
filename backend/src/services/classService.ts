@@ -56,7 +56,6 @@ export async function findAllClasses(): Promise<ClassResponseDTO[]> {
 }
 
 export async function findClassByID(id: string): Promise<ClassResponseDTO> {
-
     const class_ = await classTable.findUnique({id});
 
     if (!class_){
@@ -64,4 +63,20 @@ export async function findClassByID(id: string): Promise<ClassResponseDTO> {
     }
 
     return class_;
+}
+
+export async function findClassBySubjectId(subId: string): Promise<ClassResponseDTO[]> {
+    const subject = await subjectTable.findUnique({id: subId});
+    
+    if (!subject){
+        throw new AppError(404, 'Subject not found.');
+    }
+
+    const classes = await classTable.findMany({
+        subject_id: subId
+    }) || [];
+
+    return classes;
+
+    
 }

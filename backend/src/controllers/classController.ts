@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { AppError } from "../errors/AppError";
 import { ClassRegisterRequestDTO } from "dtos";
-import { findAllClasses, findClassByID, insertClass } from "../services/classService";
+import { findAllClasses, findClassByID, findClassBySubjectId, insertClass } from "../services/classService";
 
 export async function POST_insertClass(req: Request, res: Response) {
     try{
@@ -98,4 +98,30 @@ export async function GET_findAllClasses(req: Request, res: Response) {
         console.error(err);
         return res.status(500).json({error: 'Unexpected Error'});
     }
+}
+
+export async function GET_findClassesBySubjectId(req:Request, res: Response) {
+    try{
+
+        const {params} = req;
+        if (!params || !params.subId){
+            throw new AppError(400, 'Subject ID must be provided as a parameter.');
+        }
+
+        const classes = await findClassBySubjectId(params.subId);
+        return res.json({
+            message: 'Classes by subject ID found.',
+            data: classes
+        });
+
+    } catch(err) {
+        if (err instanceof AppError){
+            return res.status(err.code).json({error: err.message})
+        }
+        
+        console.error(err);
+        return res.status(500).json({error: 'Unexpected Error'});
+    }
+
+    
 }
