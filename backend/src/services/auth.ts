@@ -15,9 +15,6 @@ export async function Login(email: string, password: string): Promise<ProfessorR
     // Instanciando o objeto do banco de dados e pegando a tabela do professor.
     const db = new DatabaseClient();
     const professorTable = db.table<ProfessorDataModel>("professors");
-    
-    
-    console.log(await professorTable.findMany()); 
 
     // Tentando encontrar um único professor.
     const professor = await professorTable.findUnique({
