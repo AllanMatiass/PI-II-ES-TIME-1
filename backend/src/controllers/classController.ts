@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { AppError } from "../errors/AppError";
 import { ClassRegisterRequestDTO } from "dtos";
-import { findClassByID, insertClass } from "../services/classService";
+import { findAllClasses, findClassByID, insertClass } from "../services/classService";
 
 export async function POST_insertClass(req: Request, res: Response) {
     try{
@@ -68,7 +68,27 @@ export async function GET_findClassByID(req: Request, res: Response) {
         return res.json({
             messasge: 'Class found.',
             data: class_
-        })
+        });
+
+    } catch(err){
+        if (err instanceof AppError){
+            return res.status(err.code).json({error: err.message})
+        }
+        
+        console.error(err);
+        return res.status(500).json({error: 'Unexpected Error'});
+    }
+}
+
+export async function GET_findAllClasses(req: Request, res: Response) {
+    try{
+        const class_ = await findAllClasses();
+
+        return res.json({
+            messasge: 'Class found.',
+            data: class_
+        });
+
 
     } catch(err){
         if (err instanceof AppError){

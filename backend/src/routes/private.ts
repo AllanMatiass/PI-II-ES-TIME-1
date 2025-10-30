@@ -12,7 +12,7 @@ import {
 } from "../controllers/institution/institutionController";
 import isAuth from "../middlewares/auth";
 import { GET_FindInstitutionCourses, POST_CreateCourse, PUT_UpdateCourse } from "../controllers/course/courseController";
-import { GET_findClassByID, POST_insertClass } from "../controllers/classController";
+import { GET_findAllClasses, GET_findClassByID, POST_insertClass } from "../controllers/classController";
 
 const router = Router();
 
@@ -80,5 +80,10 @@ router.get('/class/:id', async (req, res) => {
     console.log('GET /api/class/' + req.params.id);
     await GET_findClassByID(req, res);
 });
+
+router.get('/classes', async (req, res) => {
+    console.log('GET /api/classes ');
+    await GET_findAllClasses(req, res);
+})
 
 export default router;
