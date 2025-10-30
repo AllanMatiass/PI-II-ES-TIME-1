@@ -9,10 +9,9 @@ import {
     findInstitutionByProfessorId, 
     putInstitution, 
     relateProfessorWithInstitution 
-} from "../controllers/institution/institutionController";
-import isAuth from "../middlewares/auth";
-import { GET_FindInstitutionCourses, POST_CreateCourse, PUT_UpdateCourse } from "../controllers/course/courseController";
-import { POST_insertClass } from "../controllers/classController";
+} from "../controllers/institutionController";
+import { GET_FindInstitutionCourses, POST_CreateCourse, PUT_UpdateCourse } from "../controllers/courseController";
+import { GET_findAllClasses, GET_findClassByID, GET_findClassesBySubjectId, POST_insertClass, PUT_updateClass } from "../controllers/classController";
 
 const router = Router();
 
@@ -53,18 +52,18 @@ router.delete('/institution/:id', async (req, res) => {
 });
 
 // --- ROTAS DO CURSO ---
-router.post('/institution/course', isAuth, async (req, res) => {
+router.post('/course', async (req, res) => {
     console.log("POST /api/course");
     await POST_CreateCourse(req, res);
 
 });
 
-router.put('/institution/course/', isAuth, async (req, res) => {
+router.put('/course', async (req, res) => {
     console.log("PUT /api/course");
     await PUT_UpdateCourse(req, res);
 });
 
-router.get('/institution/courses', isAuth, async (req, res) => {
+router.get('/courses', async (req, res) => {
     console.log("GET /api/institution/courses");
     await GET_FindInstitutionCourses(req, res);
 });
@@ -74,6 +73,26 @@ router.get('/institution/courses', isAuth, async (req, res) => {
 router.post('/class', async (req, res) => {
     console.log('POST /api/class');
     await POST_insertClass(req, res);
+});
+
+router.get('/class/:id', async (req, res) => {
+    console.log('GET /api/class/' + req.params.id);
+    await GET_findClassByID(req, res);
+});
+
+router.get('/classes', async (req, res) => {
+    console.log('GET /api/classes ');
+    await GET_findAllClasses(req, res);
+});
+
+router.get('/classes/by-subject/:subId', async (req, res) => {
+    console.log('GET /api/classes/by-subject/' + req.params.subId);
+    await GET_findClassesBySubjectId(req, res);
+});
+
+router.put('/class/:id', async (req, res) => {
+    console.log('PUT /api/class/' + req.params.id);
+    await PUT_updateClass(req, res);
 });
 
 export default router;
