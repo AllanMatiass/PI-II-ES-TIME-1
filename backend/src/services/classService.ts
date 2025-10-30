@@ -76,7 +76,40 @@ export async function findClassBySubjectId(subId: string): Promise<ClassResponse
         subject_id: subId
     }) || [];
 
-    return classes;
+    return classes;   
+}
 
+export async function updateClass(id: string, data: Partial<ClassRegisterRequestDTO>): Promise<ClassResponseDTO> {
+    const classExist = await classTable.findUnique({ id });
+    if (!classExist) {
+        throw new AppError(404, 'Class not found.');
+    }
+
+    // Cria um objeto só com os campos que mudaram
+    const updateData: Partial<ClassRegisterRequestDTO> = {};
+
+    for (const key in data) {
+        if (Object.prototype.hasOwnProperty.call(data, key)) {
+            // @ts-ignore
+            if (classExist[key] && data[key] !== classExist[key]) {
+                // @ts-ignore
+                updateData[key] = data[key];
+            }
+        }
+    }
+
+    // Se não houver alterações, retorna a própria classe
+    if (Object.keys(updateData).length === 0) {
+        return classExist;
+    }
+
+    // Atualiza apenas os campos que mudaram
+    await classTable.update(data, {id});
+    const updatedClass = await classTable.findUnique({ id });
+
+    if (!updatedClass) {
+        throw new AppError(500, 'Something wrong happened');
+    }
     
+    return updatedClass;
 }

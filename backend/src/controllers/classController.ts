@@ -1,7 +1,8 @@
+// Autor: Allan Giovanni Matias Paes
 import { Request, Response } from "express";
 import { AppError } from "../errors/AppError";
 import { ClassRegisterRequestDTO } from "dtos";
-import { findAllClasses, findClassByID, findClassBySubjectId, insertClass } from "../services/classService";
+import { findAllClasses, findClassByID, findClassBySubjectId, insertClass, updateClass } from "../services/classService";
 
 export async function POST_insertClass(req: Request, res: Response) {
     try{
@@ -122,6 +123,33 @@ export async function GET_findClassesBySubjectId(req:Request, res: Response) {
         console.error(err);
         return res.status(500).json({error: 'Unexpected Error'});
     }
+}
 
-    
+export async function PUT_updateClass(req: Request, res: Response) {
+    try{
+        const {params, body} = req;
+        if (!params || !params.id){
+            throw new AppError(400, 'Subject ID must be provided as a parameter.');
+        }
+
+        if (!body){
+            throw new AppError(400, 'Body must contain something.');
+        }
+
+        const {name, classroom_location, class_time, class_date} = body;
+
+        const class_ = await updateClass(params.id, {name, classroom_location, class_time, class_date} );
+        return res.json({
+            message: 'Class updated.',
+            data: class_
+        });
+
+    } catch(err){
+        if (err instanceof AppError){
+            return res.status(err.code).json({error: err.message})
+        }
+        
+        console.error(err);
+        return res.status(500).json({error: 'Unexpected Error'});
+    }
 }
