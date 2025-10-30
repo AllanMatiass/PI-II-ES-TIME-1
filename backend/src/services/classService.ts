@@ -48,3 +48,13 @@ export async function insertClass(data: ClassRegisterRequestDTO): Promise<ClassR
         class_date
     }
 }
+
+export async function findClassByID(id: string): Promise<ClassResponseDTO> {
+
+    const class_ = await classTable.findUnique({id});
+
+    if (!class_){
+        throw new AppError(404, 'Class not found.');
+    }
+    return class_;
+}

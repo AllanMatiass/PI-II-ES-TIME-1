@@ -12,7 +12,7 @@ import {
 } from "../controllers/institution/institutionController";
 import isAuth from "../middlewares/auth";
 import { GET_FindInstitutionCourses, POST_CreateCourse, PUT_UpdateCourse } from "../controllers/course/courseController";
-import { POST_insertClass } from "../controllers/classController";
+import { GET_findClassByID, POST_insertClass } from "../controllers/classController";
 
 const router = Router();
 
@@ -74,6 +74,11 @@ router.get('/institution/courses', isAuth, async (req, res) => {
 router.post('/class', async (req, res) => {
     console.log('POST /api/class');
     await POST_insertClass(req, res);
+});
+
+router.get('/class/:id', async (req, res) => {
+    console.log('GET /api/class/' + req.params.id);
+    await GET_findClassByID(req, res);
 });
 
 export default router;
