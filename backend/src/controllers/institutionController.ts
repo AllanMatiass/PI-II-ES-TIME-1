@@ -4,9 +4,18 @@
 // NOTA: todos os catch's estão padronizados para reconhecer o tipo AppError lançado em algum momento do código, caso não seja, é um erro inesperado.
 import { InstitutionRegisterRequestDTO, InstitutionResponseDTO, InstitutionWithProfessorsResponseDTO } from "dtos";
 import { Request, Response } from "express";
-import { insertInstitution, getAllInstitutions, getInstitutionById, getInstitutionByProfessorId, insertProfessorInInstitution, updateInstitution, deleteInstitution } from "../../services/institutionService";
-import { getLoggedUser } from "../../services/auth";
-import { AppError } from '../../errors/AppError';
+import { insertInstitution, 
+    getAllInstitutions, 
+    getInstitutionById, 
+    getInstitutionByProfessorId, 
+    insertProfessorInInstitution, 
+    updateInstitution, 
+    deleteInstitution } from "../services/institutionService";
+import { getLoggedUser } from "../services/auth";
+import { AppError } from '../errors/AppError';
+import { insertInstitution, getAllInstitutions, getInstitutionById, getInstitutionByProfessorId, insertProfessorInInstitution, updateInstitution, deleteInstitution } from "../services/institutionService";
+import { getLoggedUser } from "../services/auth";
+import { AppError } from '../errors/AppError';
 
 // cria uma instituição
     export async function createInstitution(req: Request, res: Response) {

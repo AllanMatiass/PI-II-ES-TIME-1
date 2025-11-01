@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { ProfessorLoginRequestDTO, ProfessorRegisterRequestDTO, ProfessorResponseDTO } from 'dtos';
-import { Login, Register } from '../../services/auth';
-import { AppError } from '../../errors/AppError';
+import { Login, Register } from '../services/auth';
+import { AppError } from '../errors/AppError';
 
 export async function loginController(req: Request, res: Response) {
 	try{
