@@ -16,39 +16,39 @@ import { DELETE_deleteClass, GET_findAllClasses, GET_findClassByID, GET_findClas
 const router = Router();
 
 // --- ROTAS DA INSTITUIÇÃO ---
-router.post("/institution",  async (req, res) => {
-    console.log("POST /api/institution received");
-    await createInstitution(req, res);
+router.post('/institution', async (req, res) => {
+	console.log('POST /api/institution received');
+	await createInstitution(req, res); // Cria uma nova instituição
 });
 
 router.post('/institution/relateWithProfessor', async (req, res) => {
-    console.log('POST /api/institution/relateWithProfessor received');
-    await relateProfessorWithInstitution(req, res);
+	console.log('POST /api/institution/relateWithProfessor received');
+	await relateProfessorWithInstitution(req, res); // Relaciona professor com instituição
 });
 
 router.get('/institution/all', async (req, res) => {
-    console.log('GET /institution/all received');
-    await findAllInstitutions(res);
-})
+	console.log('GET /institution/all received');
+	await findAllInstitutions(res); // Busca todas as instituições
+});
 
 router.get('/institution/:id', async (req, res) => {
-    console.log(`GET /institution/${req.params.id} received`);
-    await findInstitutionById(req, res);
+	console.log(`GET /institution/${req.params.id} received`);
+	await findInstitutionById(req, res); // Busca uma instituição específica pelo ID
 });
 
 router.get('/institution/by-professor/:id', async (req, res) => {
-    console.log(`GET /institution/by-professor/${req.params.id} received`);
-    await findInstitutionByProfessorId(req, res);
+	console.log(`GET /institution/by-professor/${req.params.id} received`);
+	await findInstitutionByProfessorId(req, res); // Busca instituição pelo ID do professor
 });
 
 router.put('/institution/:id', async (req, res) => {
-    console.log(`PUT /institution/${req.params.id} received`);
-    await putInstitution(req, res);
+	console.log(`PUT /institution/${req.params.id} received`);
+	await putInstitution(req, res); // Atualiza dados da instituição
 });
 
 router.delete('/institution/:id', async (req, res) => {
-    console.log(`DELETE /institution/${req.params.id} received`);
-    await delInstitution(req, res);
+	console.log(`DELETE /institution/${req.params.id} received`);
+	await delInstitution(req, res); // Deleta uma instituição
 });
 
 // --- ROTAS DO CURSO ---
