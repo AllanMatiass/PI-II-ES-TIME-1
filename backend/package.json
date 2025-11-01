@@ -26,12 +26,8 @@
 	},
 	"devDependencies": {
 		"@types/nodemailer": "^7.0.3",
-		"@types/bcrypt": "^6.0.0",
 		"@types/cors": "^2.8.19",
 		"@types/express": "^5.0.3",
-		"@types/express-session": "^1.18.2",
-		"@types/express": "^5.0.3",
-		"@types/cors": "^2.8.19",
 		"@types/express-session": "^1.18.2",
 		"@types/bcrypt": "^6.0.0",
 		"@types/node": "^24.3.1"
