@@ -34,7 +34,7 @@ export async function InsertSubjectInCourse(subjectDto: SubjectRegisterRequestDT
     }
 
     // Insere a nova disciplina na tabela "subjects" e obtém o ID gerado
-    const subjectId: string = await subjectTable.insert(subjectDto as any);
+    const subjectId: string = await subjectTable.insert(subjectDto);
 
     // Busca a disciplina recém-criada pelo ID
     const subject = await subjectTable.findUnique({
@@ -75,7 +75,7 @@ export async function UpdateSubject(id: string, subjectDto: SubjectRegisterReque
     }
 
     // Atualiza o registro da disciplina com os novos dados
-    await subjectTable.update(subjectDto as any, {
+    await subjectTable.update(subjectDto , {
         id
     });
 
