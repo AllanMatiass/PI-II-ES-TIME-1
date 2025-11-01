@@ -52,11 +52,6 @@ const CheckValidRegisterBody = async (body: SubjectRegisterRequestDTO): Promise<
         throw new AppError(400, 'Subject must have a valid end date.');
     }
 
-    // Verifica se o ID do professor associado é uma string válida
-    if (!body.professor_institution_id || typeof body.professor_institution_id !== 'string') {
-        throw new AppError(400, 'Subject must have a valid professor institution id.');
-    }
-
     // Se passou em todas as verificações, retorna true
     return true;
 };
