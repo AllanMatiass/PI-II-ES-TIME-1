@@ -68,8 +68,8 @@ router.put('/course', async (req, res) => {
 	await PUT_UpdateCourse(req, res);
 });
 
-router.get('/courses', async (req, res) => {
-	console.log('GET /api/institution/courses');
+router.get('/courses/:institution_id', async (req, res) => {
+	console.log('GET /api/courses');
 	await GET_FindInstitutionCourses(req, res);
 });
 

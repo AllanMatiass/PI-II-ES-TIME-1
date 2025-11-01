@@ -75,7 +75,7 @@ export async function UpdateSubject(id: string, subjectDto: SubjectRegisterReque
     }
 
     // Atualiza o registro da disciplina com os novos dados
-    await subjectTable.update(subjectDto as any, {
+    await subjectTable.update(subjectDto , {
         id
     });
 

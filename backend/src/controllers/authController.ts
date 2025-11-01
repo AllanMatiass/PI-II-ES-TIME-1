@@ -2,6 +2,10 @@ import { Request, Response } from 'express';
 import { ProfessorLoginRequestDTO, ProfessorRegisterRequestDTO, ProfessorResponseDTO } from 'dtos';
 import { Login, Register } from '../services/auth';
 import { AppError } from '../errors/AppError';
+import jwt from 'jsonwebtoken';
+
+const JWT_SECRET = process.env.JWT_SECRET || 'supersecret'; // coloque em .env em produção
+const JWT_EXPIRES_IN = '5h'; // duração do token
 
 export async function loginController(req: Request, res: Response) {
 	try{
@@ -13,11 +17,23 @@ export async function loginController(req: Request, res: Response) {
 		}
 		
 		// Chamando serviço para fazer o login.
-		req.session.user = await Login(body['email'], body['password']);
-
+		const user = await Login(body['email'], body['password']);
+		const token = jwt.sign(
+            { id: user.id, email: user.email },
+            JWT_SECRET,
+            { expiresIn: JWT_EXPIRES_IN }
+        );
 		// Retorna com êxito caso tudo no Login ocorra bem.
 		res.status(200).json({
-			message: 'Login successful'
+			message: 'Login successful',
+			token: token,
+			data: {
+                id: user.id,
+                name: user.name,
+                email: user.email,
+				phone: user.phone,
+				created_at: user.created_at
+            }
 		});
 
 	} catch (err: any){
