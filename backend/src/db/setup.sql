@@ -55,13 +55,10 @@ CREATE TABLE subjects (
     period INTEGER,
     start_date DATE,
     end_date DATE,
-    -- professor_institution_id  VARCHAR(36) NOT NULL,
     
     CONSTRAINT fk_subjects_course FOREIGN KEY (course_id) 
         REFERENCES courses(id) ON DELETE CASCADE,
 
-    -- CONSTRAINT fk_professor_institution_id FOREIGN KEY (professor_institution_id)
-    --     REFERENCES professor_institutions(id) ON DELETE CASCADE
 );
 
 -- Tabela para Turmas

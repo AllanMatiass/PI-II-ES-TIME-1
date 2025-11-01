@@ -11,7 +11,7 @@ import {
     relateProfessorWithInstitution 
 } from "../controllers/institutionController";
 import { GET_FindInstitutionCourses, POST_CreateCourse, PUT_UpdateCourse } from "../controllers/courseController";
-import { GET_findAllClasses, GET_findClassByID, GET_findClassesBySubjectId, POST_insertClass, PUT_updateClass } from "../controllers/classController";
+import { DELETE_deleteClass, GET_findAllClasses, GET_findClassByID, GET_findClassesBySubjectId, POST_insertClass, PUT_updateClass } from "../controllers/classController";
 
 const router = Router();
 
@@ -93,6 +93,11 @@ router.get('/classes/by-subject/:subId', async (req, res) => {
 router.put('/class/:id', async (req, res) => {
     console.log('PUT /api/class/' + req.params.id);
     await PUT_updateClass(req, res);
+});
+
+router.delete('/class/:id', async (req, res) => {
+    console.log('DELETE /api/class/' + req.params.id);
+    await DELETE_deleteClass(req, res);
 });
 
 export default router;

@@ -24,7 +24,6 @@ declare module 'dtos' {
     }
     interface ClassRegisterRequestDTO {
         subject_id: string;
-        institution_id: string;
         course_id: string;
         name: string;
         classroom_location: string;
