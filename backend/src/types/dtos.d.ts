@@ -30,6 +30,16 @@ declare module 'dtos' {
         class_date: Date;
     }
 
+	interface SubjectRegisterRequestDTO {
+        course_id: string;
+        name: string;
+        code: string;
+        acronym: string;
+        period: number;
+        start_date: Date;
+        end_date: Date;
+	}
+
 	// responses
 	interface ProfessorResponseDTO {
 		id: string;
