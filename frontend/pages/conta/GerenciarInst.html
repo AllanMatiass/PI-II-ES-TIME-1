@@ -17,14 +17,13 @@
             </div>
             <div class="sideBar">
                 <h2>Selecione sua Instituição</h2>
-                <p>Bem-vindo, Professor! Para concluir seu primeiro acesso, 
-                escolha a instituição em que você trabalha. Você poderá adicionar mais depois em Configurações.</p>
+                <p>Organize suas Instituições e cursos associados. Adicione, edite ou remove itens conforme o necessário.</p>
                 <label for="pesqInt">Pesquisar Instituições</label>
-                <input type="text" name="Instituição" id="pesqInt" required/>
+                <input type="text" name="Instituição" id="pesqInt" placeholder="Digite o nome da Instituição" required/>
             </div>
             <div class="form">
                 <p class="ajudaTxt">Não consegue achar sua instituição?</p>
-                <input type="text" name="pesquisar" placeholder="Adicionar uma nova Instituição" required/>
+                <button id="btnAddInstituicao" class="btn-adicionar">+ Adicionar uma nova Instituição</button>
                 <div class="btnInst">
                     <button class="btnVoltar">⤺Voltar</button>
                     <button class="btnContinuar">✓Continuar</button>
@@ -37,7 +36,8 @@
                 <p>Selecione pelo menos um curso que você ensina. Você pode adicionar mais depois.</p>
                 <label for="pesqCurso">Pesquisar Cursos</label>
                 <input type="text" name="Curso" id="pesqCurso" placeholder="Pesquise por Código ou Nome" required/>
-                <p>Selecione ao menor um curso para continuar.</p>
+                <button id="btnAddInstituicao" class="btn-adicionar">+ Adicionar novo curso</button>
+                <p>Selecione ao menos um curso para continuar.</p>
                 <div class="btnInst">
                     <button class="btnVoltar">X Deixar para Depois</button>
                     <button class="btnContinuar">✓Confirmar Cursos</button>
