@@ -44,7 +44,6 @@ declare module 'dataModels' {
         period: number;
         start_date: Date;
         end_date: Date;
-        professor_institution_id: string;
     }
 }
 
