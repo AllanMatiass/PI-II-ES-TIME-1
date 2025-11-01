@@ -13,24 +13,22 @@ declare module 'dtos' {
 		confirmPassword: string;
 	}
 
-	interface InstitutionRegisterRequestDTO {
-		name: string;
-	}
+    interface InstitutionRegisterRequestDTO {
+        name: string;
+    }
 
-	interface CourseRegisterRequestDTO {
-		name: string;
-		institution_id: string;
-	}
-
-	interface ClassRegisterRequestDTO {
-		subject_id: string;
-		institution_id: string;
-		course_id: string;
-		name: string;
-		classroom_location: string;
-		class_time: string;
-		class_date: Date;
-	}
+     interface CourseRegisterRequestDTO {
+        name: string;
+        institution_id: string;
+    }
+    interface ClassRegisterRequestDTO {
+        subject_id: string;
+        course_id: string;
+        name: string;
+        classroom_location: string;
+        class_time: string;
+        class_date: Date;
+    }
 
 	// responses
 	interface ProfessorResponseDTO {
@@ -51,23 +49,13 @@ declare module 'dtos' {
 		professors: ProfessorResponseDTO[];
 	}
 
-	interface ClassResponseDTO {
-		id: string;
-		subject_id: string;
-		name: string;
-		classroom_location: string;
-		class_time: string;
-		class_date: Date;
-	}
-
-	interface SubjectRegisterRequestDTO {
-		course_id: string;
-		name: string;
-		code: string;
-		acronym: string;
-		period: number;
-		start_date: string;
-		end_date: string;
-		professor_institution_id: string;
-	}
+    interface ClassResponseDTO {
+        id: string;
+        subject_id: string;
+        name: string;
+        classroom_location: string;
+        class_time: string;
+        class_date: Date;
+    }
+   
 }
