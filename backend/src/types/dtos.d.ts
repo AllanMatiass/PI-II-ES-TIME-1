@@ -1,44 +1,73 @@
-
 declare module 'dtos' {
-    // requests
-    interface ProfessorLoginRequestDTO {
-        email: string;
-        password: string;
-    }
+	// requests
+	interface ProfessorLoginRequestDTO {
+		email: string;
+		password: string;
+	}
 
-    interface ProfessorRegisterRequestDTO {
-        name: string;
-        phone: string;
-        email: string;
-        password: string;
-        confirmPassword: string;
-    }
+	interface ProfessorRegisterRequestDTO {
+		name: string;
+		phone: string;
+		email: string;
+		password: string;
+		confirmPassword: string;
+	}
 
-    interface InstitutionRegisterRequestDTO {
-        name: string;
-    }
+	interface InstitutionRegisterRequestDTO {
+		name: string;
+	}
 
-    // responses
-    interface ProfessorResponseDTO {
-        id: string;
-        name: string;
-        phone: string;
-        email: string;
-        created_at: Date;
-    }
+	interface CourseRegisterRequestDTO {
+		name: string;
+		institution_id: string;
+	}
 
-    interface InstitutionResponseDTO {
-        id: string;
-        name: string;
-    }
+	interface ClassRegisterRequestDTO {
+		subject_id: string;
+		institution_id: string;
+		course_id: string;
+		name: string;
+		classroom_location: string;
+		class_time: string;
+		class_date: Date;
+	}
 
-    interface InstitutionWithProfessorsResponseDTO {
-        institution: InstitutionResponseDTO;
-        professors: ProfessorResponseDTO[];
-    }
+	// responses
+	interface ProfessorResponseDTO {
+		id: string;
+		name: string;
+		phone: string;
+		email: string;
+		created_at: Date;
+	}
 
-    interface CourseRegisterRequestDTO {
-        name: string;
-        institution_id: string;
-    }
+	interface InstitutionResponseDTO {
+		id: string;
+		name: string;
+	}
+
+	interface InstitutionWithProfessorsResponseDTO {
+		institution: InstitutionResponseDTO;
+		professors: ProfessorResponseDTO[];
+	}
+
+	interface ClassResponseDTO {
+		id: string;
+		subject_id: string;
+		name: string;
+		classroom_location: string;
+		class_time: string;
+		class_date: Date;
+	}
+
+	interface SubjectRegisterRequestDTO {
+		course_id: string;
+		name: string;
+		code: string;
+		acronym: string;
+		period: number;
+		start_date: string;
+		end_date: string;
+		professor_institution_id: string;
+	}
 }
