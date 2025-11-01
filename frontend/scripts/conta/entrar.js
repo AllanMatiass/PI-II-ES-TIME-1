@@ -25,21 +25,24 @@ loginForm.addEventListener("submit", async (ev) => {
         const res = await fetch(`${API_URL}/api/login`, {
             method: "POST",
             credentials: "include",
+            
             headers: {
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
+                
             },
             body: json
         });
 
         // Coropo da resposta
         const body = await res.json();
-        
+        console.log('BODY', body);
         // Em caso de erro no servidor, mostra a mensagem.
-        if (res.status != 200) {
-            throw new errors(`Não foi possível fazer login. Erros: ${body.errors.join(", ")}`);
+        if (res.status !== 200) {
+            throw new Error(`Não foi possível fazer login. Erros: ${body.errors?.join(", ") || body.error}`);
         }
 
         // Depois de efetuar login, redireciona para a dashboard
+        localStorage.setItem('token', body.token );
         window.location.href = "/frontend/pages/painel/home.html"
     } catch (err) {
         alert(err.message);
