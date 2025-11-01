@@ -22,20 +22,20 @@ const transporter = nodemailer.createTransport({
 } as any);                                     // Linhas 18 a 22 apenas para corrigir erro
 
 // Função que permite o envio do E-mail
-export async function enviarEmail(destinatario: string, mensagem: string) {
+export async function sendEmail(to: string, message: string, subject: string) {
     try {
         const info = await transporter.sendMail({
             from: `"SistemaNotaDez" <${process.env.EMAIL_USER}>`, // Refere-se ao remetente
-            to: destinatario,                                     // Refere-se ao destinatario
-            subject: "A respeito de notas",                       // Assunto do E-mail
-            text: mensagem,                                       // Texto simples
-            html: `<p>${mensagem}</p>`,                           // (Opcional) versão para HTML
+            to: to,                                     // Refere-se ao destinatario
+            subject: subject,                       // Assunto do E-mail
+            text: message,                                       // Texto simples
+            html: `<p>${message}</p>`,                           // (Opcional) versão para HTML
         });
 
         console.log("E-mail enviado com sucesso:", info.messageId);
-        return { sucesso: true, id: info.messageId };
-    } catch (erro) {
-        console.error("Erro ao enviar e-mail:", erro);
-        return { sucesso: false, erro};
+        return { success: true, id: info.messageId };
+    } catch (err) {
+        console.error("Erro ao enviar e-mail:", err);
+        return { success: false, erro: err};
     }
 }

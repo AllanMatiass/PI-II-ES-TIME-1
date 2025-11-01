@@ -13,9 +13,6 @@ import { insertInstitution,
     deleteInstitution } from "../services/institutionService";
 import { getLoggedUser } from "../services/auth";
 import { AppError } from '../errors/AppError';
-import { insertInstitution, getAllInstitutions, getInstitutionById, getInstitutionByProfessorId, insertProfessorInInstitution, updateInstitution, deleteInstitution } from "../services/institutionService";
-import { getLoggedUser } from "../services/auth";
-import { AppError } from '../errors/AppError';
 
 // cria uma instituição
     export async function createInstitution(req: Request, res: Response) {
