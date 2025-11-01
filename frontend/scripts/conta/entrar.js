@@ -28,7 +28,6 @@ loginForm.addEventListener("submit", async (ev) => {
             
             headers: {
                 "Content-Type": "application/json",
-                
             },
             body: json
         });
@@ -43,7 +42,23 @@ loginForm.addEventListener("submit", async (ev) => {
 
         // Depois de efetuar login, redireciona para a dashboard
         localStorage.setItem('token', body.token );
-        window.location.href = "/frontend/pages/painel/home.html"
+
+        const linkedInstitutions = await fetch(`${API_URL}/api/institution/by-professor/${body.data.id}`, {
+            method: 'GET',
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + body.token
+            }
+        });
+
+        const linkedJson = await linkedInstitutions.json();
+
+        if (linkedJson.data > 0){        
+            window.location.href = "/frontend/pages/conta/GerenciarInst.html"
+            return;
+        }
+        
+        window.location.href = "/frontend/pages/conta/painelPrincipal.html"
     } catch (err) {
         alert(err.message);
     }
