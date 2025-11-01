@@ -2,8 +2,8 @@
 
 import { CourseRegisterRequestDTO } from 'dtos';
 import { Request, Response } from 'express';
-import { AppError } from '../../errors/AppError';
-import { DeleteCouse, GetInstitutionCourses, insertCourse as InsertCourse, UpdateCourse } from '../../services/courseService';
+import { AppError } from '../errors/AppError';
+import { DeleteCouse, GetInstitutionCourses, insertCourse as InsertCourse, UpdateCourse } from '../services/courseService';
 import { CourseDataModel } from 'dataModels';
 
 export async function POST_CreateCourse(req: Request, res: Response) {
