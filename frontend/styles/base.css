@@ -24,6 +24,11 @@ body {
     width: 100%;
     min-height: 100dvh; /* ocupa altura total da tela */
     color: var(--foreground);
+
+    display: flex;
+    align-items: center;  /* centraliza verticalmente */
+    justify-content: center; /* centraliza horizontalmente */
+    background: #f5f5f5; /* cor de fundo opcional */
 }
 
 /* Área principal */
@@ -40,3 +45,10 @@ main {
         padding: 0;
     }
 }
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  /*overflow: hidden; /* impede a rolagem */
+}
+
