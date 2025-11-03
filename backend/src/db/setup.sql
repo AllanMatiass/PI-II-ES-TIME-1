@@ -57,7 +57,7 @@ CREATE TABLE subjects (
     end_date DATE,
     
     CONSTRAINT fk_subjects_course FOREIGN KEY (course_id) 
-        REFERENCES courses(id) ON DELETE CASCADE,
+        REFERENCES courses(id) ON DELETE CASCADE
 
 );
 
@@ -140,7 +140,6 @@ CREATE TABLE audits (
 
 CREATE INDEX idx_profinst_institution_id ON professor_institutions(institution_id);
 CREATE INDEX idx_profinst_professor_id ON professor_institutions(professor_id);
-CREATE INDEX idx_courses_profinst_id ON courses(professor_institution_id);
 CREATE INDEX idx_subjects_course_id ON subjects(course_id);
 CREATE INDEX idx_classes_subject_id ON classes(subject_id);
 CREATE INDEX idx_gradecomp_class_id ON grade_components(class_id);
