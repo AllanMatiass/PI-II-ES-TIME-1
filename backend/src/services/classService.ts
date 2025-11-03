@@ -71,11 +71,6 @@ export async function findClassBySubjectId(subId: string): Promise<ClassResponse
         subject_id: subId
     }) || [];
 
-    const a = await institutionTable.findUnique({
-        id: '123'
-    });
-    
-
     return classes;   
 }
 
