@@ -13,12 +13,7 @@ const classTable = db.table<ClassDataModel>('classes');
 
 
 export async function insertClass(data: ClassRegisterRequestDTO): Promise<ClassResponseDTO> {
-    const {subject_id, institution_id, course_id, name, classroom_location, class_time, class_date} = data;
-    const institution = await institutionTable.findUnique({id: institution_id});
-
-    if (!institution){
-        throw new AppError(404, 'Institution not found.');
-    }
+    const {subject_id, course_id, name, classroom_location, class_time, class_date} = data;
 
     const course = await courseTable.findUnique({id: course_id});
 
@@ -76,6 +71,11 @@ export async function findClassBySubjectId(subId: string): Promise<ClassResponse
         subject_id: subId
     }) || [];
 
+    const a = await institutionTable.findUnique({
+        id: '123'
+    });
+    
+
     return classes;   
 }
 
@@ -112,4 +112,14 @@ export async function updateClass(id: string, data: Partial<ClassRegisterRequest
     }
     
     return updatedClass;
+}
+
+export async function deleteClass(id: string): Promise<boolean> {
+    const classExist = await classTable.findUnique({ id });
+    if (!classExist) {
+        throw new AppError(404, 'Class not found.');
+    }
+
+    const res = await classTable.deleteMany({id});
+    return res;
 }

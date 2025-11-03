@@ -8,6 +8,8 @@ import { ProfessorDataModel } from "dataModels";
 import { DatabaseClient } from "../db/DBClient";
 import { Request } from "express";
 import { AppError } from "../errors/AppError";
+import jwt from 'jsonwebtoken';
+
 
 const SALT_ROUNDS = 10;
 
@@ -67,7 +69,20 @@ export async function Register(email: string, password: string, name: string, ph
     });
 }
 
+const JWT_SECRET = process.env.JWT_SECRET || 'supersecret';
+
 export function getLoggedUser(req: Request): ProfessorResponseDTO | null {
-	const user = req.session.user != null ? req.session.user as ProfessorResponseDTO : null;
-	return user;
+    try {
+        const authHeader = req.headers.authorization;
+        if (!authHeader) return null;
+
+        const [, token] = authHeader.split(' '); // "Bearer <token>"
+        if (!token) return null;
+
+        const decoded = jwt.verify(token, JWT_SECRET) as ProfessorResponseDTO;
+        return decoded;
+    } catch (err) {
+        console.error('Invalid token:', err);
+        return null;
+    }
 }

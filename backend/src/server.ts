@@ -3,7 +3,7 @@ import session from 'express-session'
 import cors from 'cors'
 import PublicRoutes from './routes/public';
 import PrivateRoutes from './routes/private';
-import isAuth from './middlewares/auth';
+import { isAuth } from './middlewares/auth';
 import { config } from 'dotenv'
 
 // Arquivo env
@@ -24,8 +24,15 @@ const allowedOrigins = [
 
 
 app.use(cors({
-	origin: allowedOrigins,
+	origin: (origin, callback) => {
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
 	credentials: true,
+	allowedHeaders: ['Content-Type', 'Authorization'] 
 }));
 
 // Inicializa o express-session
@@ -36,7 +43,7 @@ app.use(session({
 	cookie: {
 		httpOnly: true,
 		secure: false,
-		sameSite: 'lax',
+		sameSite: 'none',
 	},
 }));
 
@@ -53,4 +60,4 @@ app.use('/api', isAuth, PrivateRoutes);
 // Inicializa o servidor
 app.listen(BACKEND_PORT, () => {
     console.log('Server running!')
-})
+});

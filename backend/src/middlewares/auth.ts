@@ -1,20 +1,23 @@
 import { type NextFunction, type Request, type Response } from 'express'
 import { AppError } from '../errors/AppError';
+import jwt from 'jsonwebtoken';
+import { ProfessorResponseDTO } from 'dtos';
 
-export default async function isAuth(req: Request, res: Response, next: NextFunction) {
-    try{
-        if (req.session.user == null) {
-            throw new AppError(401, "Faça login para acessar esta página!");
-        }
+const JWT_SECRET = process.env.JWT_SECRET || 'supersecret';
 
-    } catch(err){
-        if (err instanceof AppError){
-            return res.status(err.code).json({error: err.message})
+export function isAuth(req: Request, res: Response, next: NextFunction) {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) throw new AppError(401, 'No token provided');
+
+    const [, token] = authHeader.split(' ') ;
+        if (!token){
+            throw new AppError(401, 'Invalid token');
         }
-        
-        console.error(err);
-        return res.status(500).json({error: 'Unexpected Error'});
+    try {
+        const decoded = jwt.verify(token, JWT_SECRET);
+        req.user = decoded as ProfessorResponseDTO;
+        next();
+    } catch {
+        throw new AppError(401, 'Invalid token');
     }
-
-    next();
 }

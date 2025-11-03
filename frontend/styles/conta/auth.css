@@ -241,15 +241,13 @@ h2 {
 
 }
 
-
-
-
 body {
     font-family: "Josefin Sans", sans-serif;
     background-color: #f9fafb;
     color: #111827;
     margin: 0;
     padding: 0;
+    overflow-x: hidden;
 }
 
 .wrapper {
@@ -335,6 +333,16 @@ input[type="text"]:focus {
     outline: none;
 }
 
+textarea{
+     width: 100%;
+    padding: 10px 14px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 14px;
+    margin-bottom: 20px;
+    transition: border-color 0.2s;
+}
+
 .ajudaTxt {
     font-size: 14px;
     color: #4b5563;
@@ -402,7 +410,7 @@ button {
     border-radius: 20px;
     gap: 10px; /* espaço entre os elementos */
    
-    max-width: 300px; /* limite para manter os inputs do mesmo tamanho */
+    max-width: 300px; 
     margin:4.5%;
 
 }
@@ -435,4 +443,197 @@ button {
   width: 100%;
 }
 
+
+
+/* ===== PAINEL PRINCIPAL ===== */
+body.painel {
+  background-color: #f0f4f8;
+  font-family: "Josefin Sans", sans-serif;
+  color: #1e293b;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  justify-content: center; 
+  align-items: flex-start;
+}
+
+/* Wrapper principal */
+body.painel .wrapper {
+  display: flex;
+  max-width: 1000px;    
+  width: 100%;
+  height: 1000px;          
+  min-height: 400px;     
+  gap: 20px;             
+  background-color: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  overflow: hidden;
+  
+
+}
+
+/* ===== Sidebar ===== */
+body.painel .login-info {
+  flex: 0 0 250px;
+  background-color: #e9f1ff;
+  padding: 20px 15px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start; 
+  align-items: center;    
+  border-radius: 20px 0 0 20px;
+}
+
+/* Logo */
+body.painel .header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 30px;
+}
+
+body.painel .logo-icon {
+  background-color: #1e3a8a;
+  color: white;
+  font-weight: bold;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 18px;
+}
+
+body.painel .logo-text {
+  font-weight: 700;
+  color: #1e3a8a;
+  font-size: 18px;
+}
+
+/* Menu */
+body.painel .menu {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+body.painel .menu-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background-color: #fafafc;
+  border: none;
+  color: #1e3a8a;
+  font-weight: 300;
+  font-size: 15px;
+  padding: 10px 14px;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+}
+
+body.painel .menu-btn:hover {
+  background-color: #dbeafe;
+}
+
+/* ===== Área de conteúdo (coluna direita) ===== */
+body.painel .login-form {
+  flex: 1;                    
+  padding:  0 40px 10px;;          
+  overflow-y: auto;          
+  display: flex;
+  flex-direction: column;
+  gap: 15px;                   
+  align-items: flex-start;  
+}
+
+/* Topo do painel */
+body.painel h1 {
+  font-size: 28px;
+  font-weight: 600;
+  color: #0f172a;
+  padding: 0;
+  margin: 0;
+}
+
+body.painel p {
+  color: #64748b;
+  margin-bottom: 3px;
+}
+
+/* ===== Cards ===== */
+.card {
+  background-color: #ffffff;
+  border-radius: 12px;
+  border: 2px solid #e5e7eb;
+  padding: 15px;
+  width: 100%;                 
+  min-height: 10px;
+  max-width: 500px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  box-sizing: border-box;
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start; 
+
+
+}
+.botoes {
+  display: flex;         
+  gap: 4px;             
+  flex-wrap: wrap;        
+  margin-top: 10px;       
+}
+
+.botoes .btnContinuar {
+  width: auto;            
+  padding: 8px 18px;      
+  margin: 0;           
+}
+
+
+/* Botões dentro dos cards */
+body.painel .btnContinuar {
+  background-color: #1e3a8a;
+  color: white;
+  font-weight: 20;
+  font-size: 15px;
+  border: none;
+  border-radius: 300px;
+  padding: 5px 15px;
+  margin: 5px 6px 0 0;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+body.painel .btnContinuar:hover {
+  background-color: #2a4ab8;
+}
+
+.card .btnContinuar {
+  width: auto;
+  padding: 8px 20px;
+  margin-top: 10px;
+  align-self: center;
+}
+
+
+body.painel .btnSecundario {
+  background-color: #f1f5ff;
+  color: #1e3a8a;
+  border-radius: 14px;
+  padding: 8px 18px;
+  border: 1px solid #c7d2fe;
+  font-weight: 500;
+  font-size: 14px;
+  margin-right: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+body.painel .btnSecundario:hover {
+  background-color: #e0e7ff;
+}
 
