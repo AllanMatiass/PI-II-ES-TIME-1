@@ -54,7 +54,7 @@ loginForm.addEventListener("submit", async (ev) => {
 
         const linkedJson = await linkedInstitutions.json();
 
-        if (linkedJson.data > 0){        
+        if (linkedJson.data.length === 0){        
             window.location.href = "/frontend/pages/conta/GerenciarInst.html"
             return;
         }
