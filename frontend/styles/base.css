@@ -52,3 +52,8 @@ html, body {
   /*overflow: hidden; /* impede a rolagem */
 }
 
+.selecionado-curso {
+    text-decoration: underline;
+    font-weight: bold;
+}
+

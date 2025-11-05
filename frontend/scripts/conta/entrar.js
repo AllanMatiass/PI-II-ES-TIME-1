@@ -42,6 +42,7 @@ loginForm.addEventListener("submit", async (ev) => {
 
         // Depois de efetuar login, redireciona para a dashboard
         localStorage.setItem('token', body.token );
+        localStorage.setItem('userId', body.data.id)
 
         const linkedInstitutions = await fetch(`${API_URL}/api/institution/by-professor/${body.data.id}`, {
             method: 'GET',
