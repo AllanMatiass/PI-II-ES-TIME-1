@@ -58,7 +58,6 @@ CREATE TABLE subjects (
     
     CONSTRAINT fk_subjects_course FOREIGN KEY (course_id) 
         REFERENCES courses(id) ON DELETE CASCADE
-
 );
 
 -- Tabela para Turmas
@@ -76,22 +75,23 @@ CREATE TABLE classes (
 -- Tabela para Componentes de Nota
 CREATE TABLE grade_components (
     id VARCHAR(36) NOT NULL PRIMARY KEY,
-    class_id VARCHAR(36),
+    subject_id VARCHAR(36),
     name VARCHAR(255),
     formula_acronym VARCHAR(255),
     description VARCHAR(255),
-    CONSTRAINT fk_gradecomp_class FOREIGN KEY (class_id) 
-        REFERENCES classes(id) ON DELETE CASCADE
+    CONSTRAINT fk_gradecomp_subject FOREIGN KEY (subject_id) 
+        REFERENCES subjects(id) ON DELETE CASCADE
 );
 
 -- Tabela para Notas
 CREATE TABLE grades (
     id VARCHAR(36) NOT NULL PRIMARY KEY,
-    grade_component_id VARCHAR(36),
+    student_id VARCHAR(36),
     automatic_final_grade DECIMAL(10, 2),
     entry_date DATE,
-    CONSTRAINT fk_grades_gradecomp FOREIGN KEY (grade_component_id) 
-        REFERENCES grade_components(id) ON DELETE CASCADE
+    grade_value DECIMAL(10,2),
+    CONSTRAINT fk_student FOREIGN KEY (student_id) 
+        REFERENCES students(id) ON DELETE CASCADE
 );
 
 -- Tabela para Alunos
@@ -106,23 +106,12 @@ CREATE TABLE class_students (
     id VARCHAR(36) NOT NULL PRIMARY KEY,
     class_id VARCHAR(36),
     grade_id VARCHAR(36),
-    student_id VARCHAR(36),
-    CONSTRAINT fk_classstudents_class FOREIGN KEY (class_id) 
+    CONSTRAINT fk_classstudents_class FOREIGN KEY (class_id)
         REFERENCES classes(id) ON DELETE CASCADE,
-    CONSTRAINT fk_classstudents_grade FOREIGN KEY (grade_id) 
-        REFERENCES grades(id) ON DELETE CASCADE,
     CONSTRAINT fk_classstudents_student FOREIGN KEY (student_id) 
         REFERENCES students(id) ON DELETE RESTRICT
 );
 
--- Fórmula de Cálculo da Nota Final
-CREATE TABLE final_grade_calculations (
-    id VARCHAR(36) NOT NULL PRIMARY KEY,
-    class_id VARCHAR(36),
-    formula VARCHAR(255),
-    CONSTRAINT fk_finalgradecalc_class FOREIGN KEY (class_id) 
-        REFERENCES classes(id) ON DELETE CASCADE
-);
 
 -- Auditoria
 CREATE TABLE audits (
@@ -133,28 +122,6 @@ CREATE TABLE audits (
     CONSTRAINT fk_audits_professor FOREIGN KEY (professor_id) 
         REFERENCES professors(id) ON DELETE SET NULL
 );
-
--- ===============================
--- Criação de índices
--- ===============================
-
-CREATE INDEX idx_profinst_institution_id ON professor_institutions(institution_id);
-CREATE INDEX idx_profinst_professor_id ON professor_institutions(professor_id);
-CREATE INDEX idx_subjects_course_id ON subjects(course_id);
-CREATE INDEX idx_classes_subject_id ON classes(subject_id);
-CREATE INDEX idx_gradecomp_class_id ON grade_components(class_id);
-CREATE INDEX idx_grades_gradecomp_id ON grades(grade_component_id);
-CREATE INDEX idx_classstudents_class_id ON class_students(class_id);
-CREATE INDEX idx_classstudents_grade_id ON class_students(grade_id);
-CREATE INDEX idx_classstudents_student_id ON class_students(student_id);
-CREATE INDEX idx_finalgradecalc_class_id ON final_grade_calculations(class_id);
-CREATE INDEX idx_audits_professor_id ON audits(professor_id);
-
-CREATE INDEX idx_professors_name ON professors(name);
-CREATE INDEX idx_students_name ON students(name);
-CREATE INDEX idx_subjects_code ON subjects(code);
-CREATE INDEX idx_subjects_name ON subjects(name);
-CREATE INDEX idx_audits_created_at ON audits(created_at);
 
 -- ===============================
 -- Procedures úteis
