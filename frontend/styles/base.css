@@ -20,40 +20,22 @@ ul {
 }
 
 /* Estilos gerais do body */
-body {
+html, body {
     width: 100%;
     min-height: 100dvh; /* ocupa altura total da tela */
     color: var(--foreground);
-
-    display: flex;
-    align-items: center;  /* centraliza verticalmente */
-    justify-content: center; /* centraliza horizontalmente */
     background: #f5f5f5; /* cor de fundo opcional */
+    overflow: hidden;
 }
 
 /* Área principal */
 main {
     width: 100%;
     min-height: 100dvh;
-    padding: 0 2rem;
-    background: var(--main-background);
-}
-
-/* Responsividade: remove padding em telas menores que 768px */
-@media screen and (max-width: 768px) {
-    main {
-        padding: 0;
-    }
-}
-html, body {
-  height: 100%;
-  margin: 0;
-  padding: 0;
-  /*overflow: hidden; /* impede a rolagem */
+    background: #f1efef;
 }
 
 .selecionado-curso {
     text-decoration: underline;
     font-weight: bold;
 }
-

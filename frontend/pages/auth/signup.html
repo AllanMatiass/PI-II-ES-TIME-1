@@ -1,0 +1,81 @@
+<!-- Autor: Cristian Fava -->
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Entrar - Nota10</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous" />
+    <link rel="stylesheet" href="/frontend/styles/base.css" type="text/css" />
+</head>
+
+<body>
+    <main class="container-fluid min-vh-100 d-flex justify-content-center align-items-center">
+        <div class="row col-12 col-md-10 col-lg-8 bg-secondary text-white p-5 rounded d-flex align-items-center">
+
+            <!-- Coluna de informações -->
+            <div class="col-md-6 border-end pe-4">
+                <h3>CADASTRE-SE!</h3>
+                <hr />
+                <p>
+                    Use um endereço de e-mail profissional. <br />
+                    As senhas devem ter no mínimo 8 caracteres
+                </p>
+            </div>
+
+            <!-- Coluna do formulário -->
+            <div class="col-md-6 ps-4">
+                <form class="w-100">
+
+                    <!-- Linha com 4 campos lado a lado -->
+                    <div class="row">
+                        <!-- Nome -->
+                        <div class="col-md-6 mb-3">
+                            <label for="nomeTxt" class="form-label mb-0">Nome:</label>
+                            <input type="text" name="nome" id="nomeTxt" class="form-control" required>
+                        </div>
+
+                        <!-- E-mail -->
+                        <div class="col-md-6 mb-3">
+                            <label for="emailTxt" class="form-label mb-0">E-mail:</label>
+                            <input type="email" name="email" id="emailTxt" class="form-control" required>
+                        </div>
+
+                        <!-- Telefone -->
+                        <div class="col-md-6 mb-3">
+                            <label for="telefoneTxt" class="form-label mb-0">Telefone:</label>
+                            <input type="tel" name="telefone" id="telefoneTxt" class="form-control" required>
+                        </div>
+
+                        <!-- Senha -->
+                        <div class="col-md-6 mb-4">
+                            <label for="senhaTxt" class="form-label mb-0">Senha:</label>
+                            <input type="password" name="senha" id="senhaTxt" class="form-control" required>
+                        </div>
+                    </div>
+
+                    <!-- Botão centralizado -->
+                    <div class="text-center">
+                        <button type="submit" class="btn btn-light px-5 mb-3">CADASTRAR</button>
+                    </div>
+
+                    <!-- Links -->
+                    <ul class="list-unstyled text-end">
+                        <li>
+                            <a href="/frontend/pages/auth/signin.html" class="text-white">Já tem conta? Entrar</a>
+                        </li>
+                    </ul>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.min.js"
+        integrity="sha384-G/EV+4j2dNv+tEPo3++6LCgdCROaejBqfUeNjuKAiuXbjrxilcCdDz6ZAVfHWe1Y"
+        crossorigin="anonymous"></script>
+</body>
+
+</html>
