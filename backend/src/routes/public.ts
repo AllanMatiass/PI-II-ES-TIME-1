@@ -11,6 +11,6 @@ router.post("/login",  async (req, res) => {
 router.post('/register', async (req, res) => {
     console.log('POST /api/register');
     await registerController(req, res);
-})
+});
 
 export default router;

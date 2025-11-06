@@ -1,25 +1,38 @@
 // Matias e Cristian
 
-import { Router } from "express";
-import { 
-    createInstitution, 
-    delInstitution, 
-    findAllInstitutions, 
-    findInstitutionById, 
-    findInstitutionByProfessorId, 
-    putInstitution, 
-    relateProfessorWithInstitution 
-} from "../controllers/institutionController";
-import { GET_FindInstitutionCourses, POST_CreateCourse, PUT_UpdateCourse } from "../controllers/courseController";
-import { DELETE_deleteClass, GET_findAllClasses, GET_findClassByID, GET_findClassesBySubjectId, POST_insertClass, PUT_updateClass } from "../controllers/classController";
+import { Router } from 'express';
+import {
+	createInstitution,
+	delInstitution,
+	findAllInstitutions,
+	findInstitutionById,
+	findInstitutionByProfessorId,
+	putInstitution,
+	relateProfessorWithInstitution,
+} from '../controllers/institutionController';
+import {
+	GET_FindInstitutionCourses,
+	POST_CreateCourse,
+	PUT_UpdateCourse,
+} from '../controllers/courseController';
+import {
+	DELETE_deleteClass,
+	GET_findAllClasses,
+	GET_findClassByID,
+	GET_findClassesBySubjectId,
+	POST_insertClass,
+	PUT_updateClass,
+} from '../controllers/classController';
 import {
 	DELETE_DeleteSubject,
 	GET_GetCourseSubjects,
 	POST_CreateSubject,
 	PUT_UpdateSubject,
 } from '../controllers/subjectController';
+import multer from "multer";
 
 const router = Router();
+const upload = multer({ dest: "uploads/" });
 
 // --- ROTAS DA INSTITUIÇÃO ---
 router.post('/institution', async (req, res) => {
@@ -108,6 +121,10 @@ router.put('/class/:id', async (req, res) => {
 router.delete('/class/:id', async (req, res) => {
 	console.log('DELETE /api/class/' + req.params.id);
 	await DELETE_deleteClass(req, res);
+});
+
+router.post('/class/:id/import', upload.single("file"), (req, res) => {
+	console.log(`POST /api/class/${req.params.id}/import`);
 });
 
 // --- ROTAS DA DISCIPLINA ---
