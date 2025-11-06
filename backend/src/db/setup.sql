@@ -1,17 +1,10 @@
--- Autor: Allan Giovanni Matias Paes
--- ===============================
--- SETUP: Criação de tabelas e índices
--- ===============================
-
 DROP DATABASE IF EXISTS nota_dez_db;
-
 CREATE DATABASE nota_dez_db;
 USE nota_dez_db;
 
 -- ===============================
 -- Tabelas principais
 -- ===============================
-
 CREATE TABLE institutions (
     id VARCHAR(36) NOT NULL PRIMARY KEY,
     name VARCHAR(255)
@@ -36,16 +29,16 @@ CREATE TABLE professor_institutions (
         REFERENCES professors(id) ON DELETE RESTRICT
 );
 
--- Tabela para Cursos
+-- Cursos precisam apontar para professor_institution
 CREATE TABLE courses (
     id VARCHAR(36) NOT NULL PRIMARY KEY,
     name VARCHAR(255),
-    institution_id VARCHAR(36),
-    CONSTRAINT fk_courses_profinst FOREIGN KEY (institution_id) 
-        REFERENCES institutions(id) ON DELETE CASCADE
+    professor_institution_id VARCHAR(36),
+    CONSTRAINT fk_courses_profinst FOREIGN KEY (professor_institution_id) 
+        REFERENCES professor_institutions(id) ON DELETE CASCADE
 );
 
--- Tabela para Disciplinas/Matérias
+-- Subjects
 CREATE TABLE subjects (
     id VARCHAR(36) NOT NULL PRIMARY KEY,
     course_id VARCHAR(36),
@@ -55,12 +48,11 @@ CREATE TABLE subjects (
     period INTEGER,
     start_date DATE,
     end_date DATE,
-    
     CONSTRAINT fk_subjects_course FOREIGN KEY (course_id) 
         REFERENCES courses(id) ON DELETE CASCADE
 );
 
--- Tabela para Turmas
+-- Classes
 CREATE TABLE classes (
     id VARCHAR(36) NOT NULL PRIMARY KEY,
     subject_id VARCHAR(36),
@@ -72,7 +64,14 @@ CREATE TABLE classes (
         REFERENCES subjects(id) ON DELETE CASCADE
 );
 
--- Tabela para Componentes de Nota
+-- Students
+CREATE TABLE students (
+    id VARCHAR(36) NOT NULL PRIMARY KEY,
+    name VARCHAR(255),
+    registration_id VARCHAR(255) UNIQUE
+);
+
+-- Grade Components
 CREATE TABLE grade_components (
     id VARCHAR(36) NOT NULL PRIMARY KEY,
     subject_id VARCHAR(36),
@@ -83,35 +82,33 @@ CREATE TABLE grade_components (
         REFERENCES subjects(id) ON DELETE CASCADE
 );
 
--- Tabela para Notas
+-- Grades
 CREATE TABLE grades (
     id VARCHAR(36) NOT NULL PRIMARY KEY,
     student_id VARCHAR(36),
+    grade_component_id VARCHAR(36),
+    class_id VARCHAR(36),
     automatic_final_grade DECIMAL(10, 2),
     entry_date DATE,
     grade_value DECIMAL(10,2),
-    CONSTRAINT fk_student FOREIGN KEY (student_id) 
-        REFERENCES students(id) ON DELETE CASCADE
+    CONSTRAINT fk_grade_student FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
+    CONSTRAINT fk_grade_component FOREIGN KEY (grade_component_id) REFERENCES grade_components(id) ON DELETE CASCADE,
+    CONSTRAINT fk_grade_class FOREIGN KEY (class_id) REFERENCES classes(id) ON DELETE CASCADE
 );
 
--- Tabela para Alunos
-CREATE TABLE students (
-    id VARCHAR(36) NOT NULL PRIMARY KEY,
-    name VARCHAR(255),
-    registration_id VARCHAR(255) UNIQUE
-);
-
--- Associação: Turma e Alunos
+-- Class Students
 CREATE TABLE class_students (
     id VARCHAR(36) NOT NULL PRIMARY KEY,
     class_id VARCHAR(36),
+    student_id VARCHAR(36),
     grade_id VARCHAR(36),
     CONSTRAINT fk_classstudents_class FOREIGN KEY (class_id)
         REFERENCES classes(id) ON DELETE CASCADE,
     CONSTRAINT fk_classstudents_student FOREIGN KEY (student_id) 
-        REFERENCES students(id) ON DELETE RESTRICT
+        REFERENCES students(id) ON DELETE RESTRICT,
+    CONSTRAINT fk_classstudents_grade FOREIGN KEY (grade_id)
+        REFERENCES grades(id) ON DELETE SET NULL
 );
-
 
 -- Auditoria
 CREATE TABLE audits (
@@ -124,9 +121,8 @@ CREATE TABLE audits (
 );
 
 -- ===============================
--- Procedures úteis
+-- PROCEDURES CORRIGIDAS
 -- ===============================
-
 DELIMITER $$
 
 CREATE PROCEDURE get_students_by_class(IN class_name VARCHAR(255))
@@ -143,10 +139,6 @@ BEGIN
     WHERE c.name = class_name;
 END$$
 
-DELIMITER ;
-
-DELIMITER $$
-
 CREATE PROCEDURE get_classes_by_course(IN course_name VARCHAR(255))
 BEGIN
     SELECT
@@ -161,10 +153,6 @@ BEGIN
     WHERE co.name = course_name;
 END$$
 
-DELIMITER ;
-
-DELIMITER $$
-
 CREATE PROCEDURE get_grade_components_by_class(IN class_name VARCHAR(255))
 BEGIN
     SELECT
@@ -174,14 +162,10 @@ BEGIN
         c.name AS class_name,
         sub.name AS subject_name
     FROM grade_components gc
-    JOIN classes c ON gc.class_id = c.id
-    JOIN subjects sub ON c.subject_id = sub.id
+    JOIN subjects sub ON gc.subject_id = sub.id
+    JOIN classes c ON c.subject_id = sub.id
     WHERE c.name = class_name;
 END$$
-
-DELIMITER ;
-
-DELIMITER $$
 
 CREATE PROCEDURE get_student_history(IN student_name VARCHAR(255))
 BEGIN
@@ -194,10 +178,9 @@ BEGIN
         g.automatic_final_grade AS grade,
         g.entry_date AS entry_date
     FROM students s
-    JOIN class_students cs ON s.id = cs.student_id
-    JOIN grades g ON cs.grade_id = g.id
+    JOIN grades g ON s.id = g.student_id
     JOIN grade_components gc ON g.grade_component_id = gc.id
-    JOIN classes c ON cs.class_id = c.id
+    JOIN classes c ON g.class_id = c.id
     JOIN subjects sub ON c.subject_id = sub.id
     WHERE s.name = student_name
     ORDER BY g.entry_date DESC;
