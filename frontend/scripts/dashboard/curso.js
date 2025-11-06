@@ -1,5 +1,5 @@
 import { API_URL } from "../utils/config.js";
-import { getAuthHeaders } from "./instituicao.js";
+import { GetAuthHeaders } from "./instituicao.js";
 
 let cursos = [];
 let topBar;
@@ -16,7 +16,7 @@ async function carregarCursos(institutionId = null) {
         }
         const res = await fetch(url, {
             method: "GET",
-            headers: getAuthHeaders()
+            headers: GetAuthHeaders()
         });
 
         const body = await res.json();
@@ -126,7 +126,7 @@ function setupAdicionarCurso() {
             try {
                 const res = await fetch(`${API_URL}/api/course`, {
                     method: "POST",
-                    headers: getAuthHeaders(),
+                    headers: GetAuthHeaders(),
                     body: JSON.stringify({ name, institution_id: instituicaoSelecionadaId })
                 });
 
@@ -155,7 +155,7 @@ async function editarCurso(curso) {
     try {
         const res = await fetch(`${API_URL}/api/course`, {
             method: "PUT",
-            headers: getAuthHeaders(),
+            headers: GetAuthHeaders(),
             body: JSON.stringify({ 
                 id: curso.id, 
                 name: novoNome, 
@@ -181,7 +181,7 @@ async function excluirCurso(id) {
     try {
         const res = await fetch(`${API_URL}/api/course/${id}`, {
             method: "DELETE",
-            headers: getAuthHeaders()
+            headers: GetAuthHeaders()
         });
 
         if (!res.ok) throw new Error("Erro ao excluir curso");

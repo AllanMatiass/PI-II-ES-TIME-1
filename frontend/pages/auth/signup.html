@@ -14,12 +14,12 @@
 
 <body>
     <main class="container-fluid min-vh-100 d-flex justify-content-center align-items-center">
-        <div class="row col-12 col-md-10 col-lg-8 bg-secondary text-white p-5 rounded d-flex align-items-center">
+        <div
+            class="row col-10 col-md-8 col-lg-6 bg-secondary text-white p-5 rounded d-flex align-items-center rounded-4 bg-light shadow">
 
             <!-- Coluna de informações -->
-            <div class="col-md-6 border-end pe-4">
-                <h3>CADASTRE-SE!</h3>
-                <hr />
+            <div class="col-md-5 text-dark">
+                <h3 class="my-3">CADASTRE-SE!</h3>
                 <p>
                     Use um endereço de e-mail profissional. <br />
                     As senhas devem ter no mínimo 8 caracteres
@@ -27,45 +27,54 @@
             </div>
 
             <!-- Coluna do formulário -->
-            <div class="col-md-6 ps-4">
-                <form class="w-100">
+            <div class="col-md-7 ps-4 border-start text-dark">
+                <form id="register-form" class="w-100">
 
                     <!-- Linha com 4 campos lado a lado -->
                     <div class="row">
                         <!-- Nome -->
-                        <div class="col-md-6 mb-3">
+                        <div class="col-md-6 mb-2">
                             <label for="nomeTxt" class="form-label mb-0">Nome:</label>
-                            <input type="text" name="nome" id="nomeTxt" class="form-control" required>
+                            <input type="text" name="nome" id="nomeTxt" class="form-control border border-dark"
+                                required>
                         </div>
 
                         <!-- E-mail -->
-                        <div class="col-md-6 mb-3">
-                            <label for="emailTxt" class="form-label mb-0">E-mail:</label>
-                            <input type="email" name="email" id="emailTxt" class="form-control" required>
+                        <div class="col-md-6 mb-2">
+                            <label for="emailTxt" class="form-label mb-0">E-Mail:</label>
+                            <input type="email" name="email" id="emailTxt" class="form-control border border-dark"
+                                required>
                         </div>
 
                         <!-- Telefone -->
-                        <div class="col-md-6 mb-3">
+                        <div class="col-md-6 mb-2">
                             <label for="telefoneTxt" class="form-label mb-0">Telefone:</label>
-                            <input type="tel" name="telefone" id="telefoneTxt" class="form-control" required>
+                            <input type="tel" 
+                                id="telefoneTxt" 
+                                class="form-control border border-dark" 
+                                name="telefone" 
+                                data-mask="(99) 99999-9999"
+                                maxlength="11" 
+                                required />
                         </div>
 
                         <!-- Senha -->
                         <div class="col-md-6 mb-4">
                             <label for="senhaTxt" class="form-label mb-0">Senha:</label>
-                            <input type="password" name="senha" id="senhaTxt" class="form-control" required>
+                            <input type="password" name="senha" id="senhaTxt" class="form-control border border-dark"
+                                required>
                         </div>
                     </div>
 
                     <!-- Botão centralizado -->
                     <div class="text-center">
-                        <button type="submit" class="btn btn-light px-5 mb-3">CADASTRAR</button>
+                        <button type="submit" class="btn btn-dark w-auto px-4">CADASTRAR</button>
                     </div>
 
                     <!-- Links -->
                     <ul class="list-unstyled text-end">
                         <li>
-                            <a href="/frontend/pages/auth/signin.html" class="text-white">Já tem conta? Entrar</a>
+                            <a href="/frontend/pages/auth/signin.html" class="text-dark">Já tem conta? Entrar</a>
                         </li>
                     </ul>
                 </form>
@@ -76,6 +85,17 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.min.js"
         integrity="sha384-G/EV+4j2dNv+tEPo3++6LCgdCROaejBqfUeNjuKAiuXbjrxilcCdDz6ZAVfHWe1Y"
         crossorigin="anonymous"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"
+        integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js" 
+        integrity="sha512-pHVGpX7F/27yZ0ISY+VVjyULApbDlD0/X0rgGbTqCE7WFW5MezNTWG/dnhtbBuICzsd0WQPgpE4REBLv+UqChw==" 
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <script src="/frontend/components/errors-modal/modal.js" type="module"></script>
+    <script src="/frontend/scripts/auth/signup.js" type="module"></script>
 </body>
 
 </html>

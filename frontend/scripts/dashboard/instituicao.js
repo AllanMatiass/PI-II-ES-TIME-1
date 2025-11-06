@@ -1,21 +1,6 @@
 // murilo
+import { GetAuthHeaders } from "scripts/utils/getAuthHeaders.js";
 import { API_URL } from "../utils/config.js";
-
-/**
- * Cria e retorna os cabeçalhos padrão para requisições autenticadas.
- */
-export function getAuthHeaders() {
-    const token = localStorage.getItem("token");
-    if (!token) {
-        alert("Sessão expirada. Por favor, faça login novamente.");
-        window.location.href = '/login.html';
-        throw new Error("Usuário não autenticado");
-    }
-    return {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`
-    };
-}
 
 let instituicoes = [];
 let sideBar;
@@ -26,7 +11,7 @@ async function carregarInstituicoes() {
     try {
         const res = await fetch(`${API_URL}/api/institution/all`, {
             method: "GET",
-            headers: getAuthHeaders()
+            headers: GetAuthHeaders()
         });
 
         const body = await res.json();
@@ -45,7 +30,7 @@ async function criarInstituicao(novaInst) {
     try {
         const res = await fetch(`${API_URL}/api/institution`, {
             method: "POST",
-            headers: getAuthHeaders(),
+            headers: GetAuthHeaders(),
             body: JSON.stringify(novaInst)
         });
 
@@ -64,7 +49,7 @@ async function atualizarInstituicao(id, dadosAtualizados) {
     try {
         const res = await fetch(`${API_URL}/api/institution/${id}`, {
             method: "PUT",
-            headers: getAuthHeaders(),
+            headers: GetAuthHeaders(),
             body: JSON.stringify(dadosAtualizados)
         });
 
@@ -85,7 +70,7 @@ async function excluirInstituicao(id) {
     try {
         const res = await fetch(`${API_URL}/api/institution/${id}`, {
             method: "DELETE",
-            headers: getAuthHeaders()
+            headers: GetAuthHeaders()
         });
 
         if (res.status !== 204 && !res.ok) throw new Error("Erro ao excluir instituição");
@@ -236,7 +221,7 @@ document.addEventListener("DOMContentLoaded", () => {
         try {
             const res = await fetch(`${API_URL}/api/institution/relateWithProfessor`, {
                 method: "POST",
-                headers: getAuthHeaders(),
+                headers: GetAuthHeaders(),
                 body: JSON.stringify({
                     professorId,
                     institutionId

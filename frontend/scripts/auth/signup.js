@@ -1,0 +1,48 @@
+// Autor: Cristian Fava
+import { API_URL } from "../utils/config.js";
+import { ShowErrors } from "/frontend/components/errors-modal/modal.js";
+
+const cadForm = document.querySelector("#register-form");
+
+// Coleta a requisição de envio do formulário
+cadForm.addEventListener("submit", async (ev) => {
+    // Torna o padrão
+    ev.preventDefault();
+
+    // Converte os dados do formulário para um objeto
+    const formData = new FormData(ev.currentTarget);
+    const data = Object.fromEntries(formData);
+
+    try {
+        // Passa os dados para JSON
+        const json = JSON.stringify({
+            name: data.nome,
+            phone: data.telefone,
+            email: data.email,
+            password: data.senha
+        });
+
+        // Efetua a requisição de login e aguarda a resposta
+        const res = await fetch(`${API_URL}/api/register`, {
+            method: "POST",
+            body: json,
+            headers: {
+                "Content-Type": "application/json"
+            },
+        });
+
+        // Coropo da resposta
+        const body = await res.json();
+        
+        // Em caso de erro no servidor, mostra a mensagem.
+        if (res.status != 200) {
+            ShowErrors("ERRO AO CADASTRAR CONTA!", body.errors);
+        } else {
+            // Depois de criar a conta, redireciona para a página de login
+            window.location.href = "/frontend/pages/conta/entrar.html";
+        }
+
+    } catch (err) {
+        ShowErrors("ERRO AO CADASTRAR CONTA!", [err]);
+    }
+});
