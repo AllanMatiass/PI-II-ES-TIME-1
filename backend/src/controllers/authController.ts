@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { ProfessorLoginRequestDTO, ProfessorRegisterRequestDTO, ProfessorResponseDTO } from 'dtos';
-import { Login, Register } from '../services/auth';
+import { getLoggedUser, Login, Register } from '../services/auth';
 import { AppError } from '../errors/AppError';
 import jwt from 'jsonwebtoken';
 
@@ -84,4 +84,29 @@ export async function registerController(req: Request, res: Response) {
         return res.status(500).json({error: 'Unexpected Error'});
     }
 	
+}
+
+export async function getCurrentUser(req: Request, res: Response) {
+	try{
+		const auth = req.headers.authorization;
+
+		if (!auth){
+			throw new AppError(404, 'Professor not found.')
+		}
+
+		const professor = await getLoggedUser(auth);
+		return res.status(200).json({
+			message: 'Professor found',
+			data: professor
+		})
+
+
+	}catch (err: any){
+        if (err instanceof AppError){
+            return res.status(err.code).json({error: err.message})
+        }
+
+        console.error(err);
+        return res.status(500).json({error: 'Unexpected Error'});
+    }
 }

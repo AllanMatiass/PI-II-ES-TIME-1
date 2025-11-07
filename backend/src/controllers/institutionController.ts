@@ -27,7 +27,9 @@ import { AppError } from '../errors/AppError';
 				const data = body as InstitutionRegisterRequestDTO;
 
 				// Pega o professor logado e vê se está autenticado (a verificação foi feita apenas para evitar do Typescript reclamar.)
-				const professor = getLoggedUser(req);
+                const auth = req.headers.authorization;
+                if (!auth) throw new AppError(401, 'User is not signed in');
+				const professor = await getLoggedUser(auth);
 				if (!professor) {
 					throw new AppError(401, 'User is not authenticated.');
 				}

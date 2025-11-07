@@ -30,6 +30,7 @@ import {
 	PUT_UpdateSubject,
 } from '../controllers/subjectController';
 import multer from "multer";
+import { getCurrentUser } from '../controllers/authController';
 
 const router = Router();
 const upload = multer({ dest: "uploads/" });
@@ -141,6 +142,12 @@ router.put('/subject/:subject_id', async (req, res) => {
 router.delete('/subject/:subject_id', async (req, res) => {
 	console.log('DELETE /api/subject/' + req.params.subject_id);
 	await DELETE_DeleteSubject(req, res);
+});
+
+// ROTAS DE PROFESSOR
+router.get('/profile', async (req, res) => {
+	console.log('GET /api/profile');
+	await getCurrentUser(req, res);
 });
 
 export default router;
