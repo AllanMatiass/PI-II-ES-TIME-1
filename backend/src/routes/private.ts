@@ -31,6 +31,7 @@ import {
 } from '../controllers/subjectController';
 import multer from "multer";
 import { getCurrentUser } from '../controllers/authController';
+import { UPDATE_professor } from '../controllers/professorController';
 
 const router = Router();
 const upload = multer({ dest: "uploads/" });
@@ -149,5 +150,10 @@ router.get('/profile', async (req, res) => {
 	console.log('GET /api/profile');
 	await getCurrentUser(req, res);
 });
+
+router.put('/professor/:prof_id', async (req, res) => {
+	console.log('PUT /api/professor/' + req.params.prof_id);
+	await UPDATE_professor(req, res);
+})
 
 export default router;
