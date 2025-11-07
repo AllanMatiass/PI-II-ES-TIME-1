@@ -11,12 +11,12 @@ import { AppError } from "../errors/AppError";
 import jwt from 'jsonwebtoken';
 
 
+// Instanciando o objeto do banco de dados e pegando a tabela do professor.
+const db = new DatabaseClient();
+const professorTable = db.table<ProfessorDataModel>("professors");
 const SALT_ROUNDS = 10;
 
 export async function Login(email: string, password: string): Promise<ProfessorResponseDTO> {
-    // Instanciando o objeto do banco de dados e pegando a tabela do professor.
-    const db = new DatabaseClient();
-    const professorTable = db.table<ProfessorDataModel>("professors");
 
     // Tentando encontrar um único professor.
     const professor = await professorTable.findUnique({
@@ -38,9 +38,6 @@ export async function Login(email: string, password: string): Promise<ProfessorR
 }
 
 export async function Register(email: string, password: string, name: string, phone: string) {
-    // Instanciando o objeto do banco de dados e pegando a tabela do professor.
-    const db = new DatabaseClient();
-    const professorTable = db.table<ProfessorDataModel>("professors");
     
     // Tentando encontrar um único professor.
     const professor = await professorTable.findUnique({
@@ -71,16 +68,17 @@ export async function Register(email: string, password: string, name: string, ph
 
 const JWT_SECRET = process.env.JWT_SECRET || 'supersecret';
 
-export function getLoggedUser(req: Request): ProfessorResponseDTO | null {
+export async function getLoggedUser(authHeader: string): Promise<ProfessorResponseDTO | null> {
     try {
-        const authHeader = req.headers.authorization;
         if (!authHeader) return null;
 
         const [, token] = authHeader.split(' '); // "Bearer <token>"
         if (!token) return null;
 
         const decoded = jwt.verify(token, JWT_SECRET) as ProfessorResponseDTO;
-        return decoded;
+        const {id, email, name, phone, created_at} = await professorTable.findUnique({id: decoded.id}) as ProfessorResponseDTO;
+        return {id, email, name, phone, created_at};
+
     } catch (err) {
         console.error('Invalid token:', err);
         return null;
