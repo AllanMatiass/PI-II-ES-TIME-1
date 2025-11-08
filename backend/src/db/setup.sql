@@ -29,13 +29,12 @@ CREATE TABLE professor_institutions (
         REFERENCES professors(id) ON DELETE RESTRICT
 );
 
--- Cursos precisam apontar para professor_institution
 CREATE TABLE courses (
     id VARCHAR(36) NOT NULL PRIMARY KEY,
     name VARCHAR(255),
-    professor_institution_id VARCHAR(36),
-    CONSTRAINT fk_courses_profinst FOREIGN KEY (professor_institution_id) 
-        REFERENCES professor_institutions(id) ON DELETE CASCADE
+    institution_id VARCHAR(36),
+    CONSTRAINT fk_courses_institution FOREIGN KEY (institution_id) 
+        REFERENCES institutions(id) ON DELETE CASCADE
 );
 
 -- Subjects
@@ -101,13 +100,10 @@ CREATE TABLE class_students (
     id VARCHAR(36) NOT NULL PRIMARY KEY,
     class_id VARCHAR(36),
     student_id VARCHAR(36),
-    grade_id VARCHAR(36),
     CONSTRAINT fk_classstudents_class FOREIGN KEY (class_id)
         REFERENCES classes(id) ON DELETE CASCADE,
     CONSTRAINT fk_classstudents_student FOREIGN KEY (student_id) 
-        REFERENCES students(id) ON DELETE RESTRICT,
-    CONSTRAINT fk_classstudents_grade FOREIGN KEY (grade_id)
-        REFERENCES grades(id) ON DELETE SET NULL
+        REFERENCES students(id) ON DELETE RESTRICT
 );
 
 -- Auditoria
