@@ -1,6 +1,6 @@
 // Autor: Cristian Fava
 import { API_URL } from "../utils/config.js";
-import { ShowErrors } from "/frontend/components/errors-modal/modal.js";
+import { ShowErrorModal } from "/frontend/components/errors-modal/modal.js";
 
 const cadForm = document.querySelector("#register-form");
 
@@ -36,13 +36,13 @@ cadForm.addEventListener("submit", async (ev) => {
         
         // Em caso de erro no servidor, mostra a mensagem.
         if (res.status != 200) {
-            ShowErrors("ERRO AO CADASTRAR CONTA!", body.errors);
+            ShowErrorModal("ERRO AO CADASTRAR CONTA!", body.errors);
         } else {
             // Depois de criar a conta, redireciona para a página de login
             window.location.href = "/frontend/pages/conta/entrar.html";
         }
 
     } catch (err) {
-        ShowErrors("ERRO AO CADASTRAR CONTA!", [err]);
+        ShowErrorModal("ERRO AO CADASTRAR CONTA!", [err]);
     }
 });

@@ -23,29 +23,6 @@ import {
 	POST_insertClass,
 	PUT_updateClass,
 } from '../controllers/classController';
-import { Router } from 'express';
-import {
-	createInstitution,
-	delInstitution,
-	findAllInstitutions,
-	findInstitutionById,
-	findInstitutionByProfessorId,
-	putInstitution,
-	relateProfessorWithInstitution,
-} from '../controllers/institutionController';
-import {
-	GET_FindInstitutionCourses,
-	POST_CreateCourse,
-	PUT_UpdateCourse,
-} from '../controllers/courseController';
-import {
-	DELETE_deleteClass,
-	GET_findAllClasses,
-	GET_findClassByID,
-	GET_findClassesBySubjectId,
-	POST_insertClass,
-	PUT_updateClass,
-} from '../controllers/classController';
 import {
 	DELETE_DeleteSubject,
 	GET_GetCourseSubjects,
@@ -53,10 +30,11 @@ import {
 	PUT_UpdateSubject,
 } from '../controllers/subjectController';
 import multer from "multer";
+import { getCurrentUser } from '../controllers/authController';
+import { UPDATE_professor } from '../controllers/professorController';
 
 const router = Router();
-const upload = multer({ dest: "uploads/" });
-const upload = multer({ dest: "uploads/" });
+const upload = multer({ dest: 'uploads/' });
 
 // --- ROTAS DA INSTITUIÇÃO ---
 router.post('/institution', async (req, res) => {

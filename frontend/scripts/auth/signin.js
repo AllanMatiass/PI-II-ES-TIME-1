@@ -1,6 +1,6 @@
 // Autor: Cristian Fava
 import { API_URL } from '../utils/config.js';
-import { ShowErrors } from '/frontend/components/errors-modal/modal.js';
+import { ShowErrorModal } from '/frontend/components/errors-modal/modal.js';
 
 const loginForm = document.querySelector('#login-form');
 
@@ -35,7 +35,7 @@ loginForm.addEventListener('submit', async (ev) => {
 
 		// Em caso de erro no servidor, mostra a mensagem.
         if (res.status !== 200) {
-            ShowErrors("ERRO AO EFETUAR LOGIN!", body.errors);
+            ShowErrorModal("ERRO AO EFETUAR LOGIN!", body.errors);
 		}
 
 		// Depois de efetuar login, redireciona para a dashboard
@@ -63,6 +63,6 @@ loginForm.addEventListener('submit', async (ev) => {
 
 		window.location.href = '/frontend/pages/conta/dashboard.html';
     } catch (err) {
-        ShowErrors("ERRO AO EFETUAR LOGIN!", [err]);
+        ShowErrorModal("ERRO AO EFETUAR LOGIN!", [err]);
     }
 });

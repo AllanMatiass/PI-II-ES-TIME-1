@@ -1,23 +1,24 @@
 import { GetAuthHeaders } from "/frontend/scripts/utils/getAuthHeaders.js";
 import { API_URL } from "/frontend/scripts/utils/config.js";
-import { ShowErrors } from "/frontend/components/errors-modal/modal.js";
+import { ShowErrorModal } from "/frontend/components/errors-modal/modal.js";
 
-jQuery('#navbar-frame').load('/frontend/components/navbar/navbar.html', () => {
-	const openProfileModalBtn = document.querySelector('#openProfileModalBtn');
+$.get('/frontend/components/navbar/navbar.html', (html) => {
+	const $navbar = $(html);
 
-	openProfileModalBtn.addEventListener('click', async () => {
-		const profile = await fetchProfileInfo();
-		if (!profile) return;
+	$(document.body).prepend($navbar);
 
-        console.log("a");
+	$navbar.find('#openProfileModalBtn')
+		.on('click', async () => {
+			const profile = await fetchProfileInfo();
+			if (!profile) return;
 
-		$('#nomeTxt').val(body.data.name);
-		$('#emailTxt').val(body.data.email);
-		$('#telefoneTxt').val(body.data.phone);
+			$navbar.find('#nomeTxt').val(profile.data.name);
+			$navbar.find('#emailTxt').val(profile.data.email);
+			$navbar.find('#telefoneTxt').val(profile.data.phone);
 
-		const modal = new bootstrap.Modal(document.querySelector('#profile-modal'));
-		modal.show();
-	});
+			const modal = new bootstrap.Modal($navbar.find('#profile-modal')[0]);
+			modal.show();
+		});
 });
 
 async function fetchProfileInfo() {
@@ -30,11 +31,11 @@ async function fetchProfileInfo() {
 		const body = await res.json();
 
 		if (res.status != 200) {
-			return ShowErrors(body.json);
+			return ShowErrorModal(body.json);
 		}
 
 		return body;
 	} catch (err) {
-		ShowErrors([err]);
+		ShowErrorModal([err]);
 	}
 }

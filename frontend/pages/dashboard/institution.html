@@ -20,42 +20,44 @@
 </head>
 
 <body>
-    <!-- <main class="">
-        <div class="header">
-            <span class="logo-icon">N</span>
-            <span class="logo-text">Nota Dez</span>
-            <span class="setup">Área do Professor</span>
-            <hr>
-        </div>
-
-        <div class="sideBar">
-            <h2>Selecione sua Instituição</h2>
-            <p>Organize suas Instituições e cursos associados. Adicione, edite ou remove itens conforme o necessário.
-            </p>
-            <label for="pesqInt">Pesquisar Instituições</label>
-            <input type="text" name="Instituição" id="pesqInt" placeholder="Digite o nome da Instituição" required />
-        </div>
-
-        <div class="form">
-            <p class="ajudaTxt">Não consegue achar sua instituição?</p>
-            <button id="btnAddInstituicao" class="btn-adicionar">+ Adicionar uma nova Instituição</button>
-            <div class="btnInst">
-                <button class="btnVoltar">⤺Voltar</button>
-                <button id="btnContinuar" class="btnContinuar">✓Continuar</button>
-
-                <hr>
-            </div>
-        </div>
-    </main> -->
-
-    <div id="navbar-frame"></div>
-
-    <main class="container-fluid min-vh-100 p-0">
+    <main class="container-fluid min-vh-100 p-4 d-flex flex-column align-items-center">
         
-        <div
-            class="row col-10 col-md-8 col-lg-6 bg-secondary text-white p-5 rounded d-flex align-items-center rounded-4 bg-light shadow">
+        <h2 class="mt-5 mb-0">Gerenciar instituições</h2>
+        <p class="mb-5">Pesquise as instituições pelo nome.</p>
 
+        <div class="row col-9 col-md-7 col-lg-5 bg-secondary text-white p-4 rounded-4 bg-light shadow">
+            <form>
+                <div class="text-dark mb-2">
+                    <label class="form-label" for="procurarInstTxt">Procurar instituição: </label>
+                    <div class="input-group">
+                        <input type="search" 
+                            class="form-control"
+                            id="institution-search-input"
+                            placeholder="Digite o nome da instituição"
+                            name="institutionName" />
+                    
+                        <button id="search-btn" class="input-group-text button" title="Buscar instituição">
+                            <i class="bi bi-search"></i>
+                        </button>
+
+                        <button id="create-institution-btn" class="input-group-text button" title="Adicionar instituição">
+                            <i class="bi bi-plus-lg"></i>
+                        </button>
+                    </div>
+                </div>
+            </form>
         </div>
+
+        <table class="table table-striped table-hover mt-5 bg-white rounded shadow text-center align-middle">
+            <thead>
+                <tr>
+                    <th scope="col">ID</th>
+                    <th scope="col">Nome</th>
+                    <th scope="col">Ações</th>
+                </tr>
+            </thead>
+            <tbody id="institution-table-body"></tbody>
+        </table>
     </main>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.min.js"
