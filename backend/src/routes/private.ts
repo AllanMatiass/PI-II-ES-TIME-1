@@ -23,6 +23,29 @@ import {
 	POST_insertClass,
 	PUT_updateClass,
 } from '../controllers/classController';
+import { Router } from 'express';
+import {
+	createInstitution,
+	delInstitution,
+	findAllInstitutions,
+	findInstitutionById,
+	findInstitutionByProfessorId,
+	putInstitution,
+	relateProfessorWithInstitution,
+} from '../controllers/institutionController';
+import {
+	GET_FindInstitutionCourses,
+	POST_CreateCourse,
+	PUT_UpdateCourse,
+} from '../controllers/courseController';
+import {
+	DELETE_deleteClass,
+	GET_findAllClasses,
+	GET_findClassByID,
+	GET_findClassesBySubjectId,
+	POST_insertClass,
+	PUT_updateClass,
+} from '../controllers/classController';
 import {
 	DELETE_DeleteSubject,
 	GET_GetCourseSubjects,
@@ -32,6 +55,7 @@ import {
 import multer from "multer";
 
 const router = Router();
+const upload = multer({ dest: "uploads/" });
 const upload = multer({ dest: "uploads/" });
 
 // --- ROTAS DA INSTITUIÇÃO ---
@@ -127,6 +151,10 @@ router.post('/class/:id/import', upload.single("file"), (req, res) => {
 	console.log(`POST /api/class/${req.params.id}/import`);
 });
 
+router.post('/class/:id/import', upload.single("file"), (req, res) => {
+	console.log(`POST /api/class/${req.params.id}/import`);
+});
+
 // --- ROTAS DA DISCIPLINA ---
 router.post('/subject', async (req, res) => {
 	console.log('POST /api/subject/');
@@ -142,5 +170,16 @@ router.delete('/subject/:subject_id', async (req, res) => {
 	console.log('DELETE /api/subject/' + req.params.subject_id);
 	await DELETE_DeleteSubject(req, res);
 });
+
+// ROTAS DE PROFESSOR
+router.get('/profile', async (req, res) => {
+	console.log('GET /api/profile');
+	await getCurrentUser(req, res);
+});
+
+router.put('/professor/:prof_id', async (req, res) => {
+	console.log('PUT /api/professor/' + req.params.prof_id);
+	await UPDATE_professor(req, res);
+})
 
 export default router;
