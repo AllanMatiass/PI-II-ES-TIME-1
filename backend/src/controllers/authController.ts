@@ -56,17 +56,10 @@ export async function registerController(req: Request, res: Response) {
 			!body['name'] ||
 			!body['phone'] ||
 			!body['email'] ||
-			!body['password'] ||
-			!body['confirmPassword']
+			!body['password']
 		) {
-			throw new AppError(400, 'Body must contain email, password, phone, name and confirmPassword');
+			throw new AppError(400, 'Body must contain email, password, phone and name.');
 		}
-
-		// Compara se a senha e a senha de confirmação, caso sejam diferentes, lança erro.
-		if (body['password'] != body['confirmPassword']) {
-			throw new AppError(400, 'The passwords must be equal');
-		}
-
 		
 		// Chama o serviço de regstro.
 		await Register(body['email'], body['password'], body['name'], body['phone']);
