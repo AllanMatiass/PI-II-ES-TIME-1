@@ -17,7 +17,7 @@ loginForm.addEventListener('submit', async (ev) => {
 		// Passa os dados para JSON
 		const json = JSON.stringify({
 			email: data.email,
-			password: data.senha,
+			password: data.password,
 		});
 
 		// Efetua a requisição de login e aguarda a resposta
@@ -35,33 +35,14 @@ loginForm.addEventListener('submit', async (ev) => {
 
 		// Em caso de erro no servidor, mostra a mensagem.
         if (res.status !== 200) {
-            ShowErrorModal("ERRO AO EFETUAR LOGIN!", body.errors);
+            return ShowErrorModal("ERRO AO EFETUAR LOGIN!", body.errors);
 		}
 
 		// Depois de efetuar login, redireciona para a dashboard
 		localStorage.setItem('token', body.token);
 		localStorage.setItem('userId', body.data.id);
 
-		// Coleta as instituicoes linkadas ao professor
-		const linkedInstitutions = await fetch(
-			`${API_URL}/api/institution/by-professor/${body.data.id}`,
-			{
-				method: 'GET',
-				headers: {
-					'Content-Type': 'application/json',
-					Authorization: 'Bearer ' + body.token,
-				},
-			}
-		);
-
-		const linkedJson = await linkedInstitutions.json();
-
-		if (linkedJson.data.length === 0) {
-			window.location.href = '/frontend/pages/conta/gerenciarInst.html';
-			return;
-		}
-
-		window.location.href = '/frontend/pages/conta/dashboard.html';
+		window.location.href = '/frontend/pages/dashboard/institution.html';
     } catch (err) {
         ShowErrorModal("ERRO AO EFETUAR LOGIN!", [err]);
     }

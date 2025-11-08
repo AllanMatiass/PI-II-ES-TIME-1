@@ -4,15 +4,15 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="error-modal-title">Perfil de professor</h5>
+                    <h5 class="modal-title">Perfil de professor</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form>
+                    <form id="profile-form">
                         <!-- Nome -->
                         <div class="mb-2">
                             <label for="nomeTxt" class="form-label mb-0">Nome:</label>
-                            <input type="text" name="nome" id="nomeTxt" class="form-control border border-dark"
+                            <input type="text" name="name" id="nomeTxt" class="form-control border border-dark"
                                 required />
                         </div>
 
@@ -26,7 +26,7 @@
                         <!-- Telefone -->
                         <div class="mb-2">
                             <label for="telefoneTxt" class="form-label mb-0">Telefone:</label>
-                            <input type="tel" id="telefoneTxt" class="form-control border border-dark" name="telefone"
+                            <input type="tel" id="telefoneTxt" class="form-control border border-dark" name="phone"
                                 data-mask="(99) 99999-9999" maxlength="11" required />
                         </div>
                     </form>
@@ -34,8 +34,8 @@
 
 
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary">Sair do sistema</button>
-                    <button type="button" class="btn btn-warning">Salvar alterações</button>
+                    <button type="button" class="btn btn-secondary" id="logout-btn">Sair do sistema</button>
+                    <button type="button" class="btn btn-primary" id="save-changes-btn">Salvar alterações</button>
                 </div>
             </div>
         </div>
@@ -46,13 +46,13 @@
         <div class="container-fluid">
             <a href="#" class="navbar-brand">Nota 10</a>
 
-            <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="navbarNavDropdown"
+            <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="navbar-dropdown"
                 aria-label="Abrir/fechar barra de navegação">
 
                 <span class="navbar-toggler-icon"></span>
             </button>
 
-            <div class="collapse navbar-collapse" id="navbarNavDropdown">
+            <div class="collapse navbar-collapse" id="navbar-dropdown">
                 <ul class="navbar-nav">
                     <li class="navbar-item">
                         <a href="#" class="nav-link active">Gerenciar instituição</a>
@@ -60,7 +60,7 @@
                 </ul>
 
                 <div class="d-flex align-items-center ms-auto">
-                    <button id="openProfileModalBtn"
+                    <button id="open-profile-btn"
                         class="btn btn-outline-light btn-lg d-flex align-items-center px-3 py-2 text-dark">
                         <i class="bi bi-person-circle me-2 fs-5"></i>
                         <span>Perfil</span>

@@ -1,41 +1,54 @@
-export function LoadInstitutionRow(institution, $table) {
-	if (!institution || !$table || !$table.length) return;
+export function LoadInstitutionList(list, $table) {
+	if (!$table || !$table.length) return;
 
-	// Carrega o HTML do arquivo externo
-	$.get('linha-instituicao.html', (html) => {
-		// Substitui os placeholders pelos dados reais
-		html = html
-			.replace('{{id}}', institution.id)
-			.replace('{{nome}}', institution.nome);
+	for (let i = 0; i < list.length; i++) {
+		const institution = list[i];
 
-		// Converte o HTML em um elemento jQuery
-		const $linha = $(html);
+		// Carrega o HTML do arquivo externo
+		$.get('/frontend/components/institution-table/row.html', (html) => {
+			// Substitui os placeholders pelos dados reais
+			html = html
+				.replace('{{count}}', i +1)
+				.replace('{{nome}}', institution.name);
 
-		// Adiciona a linha ao corpo da tabela
-		$table.find('tbody').append($linha);
+			// Converte o HTML em um elemento jQuery
+			const $linha = $(html);
 
-		// Liga os eventos dos botões
-		$linha
-			.find('.bi-folder2-open')
-			.closest('button')
-			.on('click', () => {
-                console.log('Abrir instituição:', institution);
-                window.location.href = "/frontend/pages/dashboard/courses/" + institution.id;
-			});
+			// Adiciona a linha ao corpo da tabela
+			$table.find('tbody').append($linha);
 
-		$linha
-			.find('.bi-pencil')
-			.closest('button')
-			.on('click', () => {
-                console.log('Alterar instituição:', institution);
-                
-			});
+			// Liga os eventos dos botões
+			$linha
+				.find('.bi-folder2-open')
+				.closest('button')
+				.on('click', () => {
+					console.log('Abrir instituição:', institution);
+					window.location.href =
+						'/frontend/pages/dashboard/courses/' + institution.id;
+				});
 
-		$linha
-			.find('.bi-trash')
-			.closest('button')
-			.on('click', () => {
-				console.log('Excluir instituição:', institution);
-			});
-	});
+			$linha
+				.find('.bi-pencil')
+				.closest('button')
+				.on('click', () => {
+					$('#institution-form').attr('data-institution-id', institution.id);
+					$('#institution-name-txt').val(institution.name);
+					$('#institution-modal-title').html('Alterar instituição');
+
+					const modal = new bootstrap.Modal($('#institution-modal')[0]);
+					modal.show();
+				});
+
+			$linha
+				.find('.bi-trash')
+				.closest('button')
+				.on('click', () => {
+					$('#delete-institution-modal').attr('data-institution-id', institution.id);
+					$('#delete-institution-modal-title').html(`Deseja mesmo excluir a instituição ${institution.name}?`);
+
+					const modal = new bootstrap.Modal($('#delete-institution-modal')[0]);
+					modal.show();
+				});
+		});
+	}
 }

@@ -3,7 +3,7 @@
 export function ShowErrorModal(title, errors) {
     if (!$('#errors-modal').length) {
         $.get('/frontend/components/errors-modal/modal.html', (html) => {
-            $('body').append(html);
+            $(document.body).prepend(html);
             InitalizeModal(title, errors);
         });
     } else {
