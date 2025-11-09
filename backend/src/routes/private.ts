@@ -33,7 +33,7 @@ import {
 import multer from "multer";
 import { getCurrentUser } from '../controllers/authController';
 import { UPDATE_professor } from '../controllers/professorController';
-import { insertStudent } from '../controllers/studentController';
+import { insertStudent, listStudents } from '../controllers/studentController';
 
 const router = Router();
 const upload = multer({ dest: 'uploads/' });
@@ -172,6 +172,11 @@ router.put('/professor/:prof_id', async (req, res) => {
 router.post('/student/:classId', async (req, res) => {
 	console.log('POST /api/student/' + req.params.classId);
 	await insertStudent(req, res);
+});
+
+router.get('/students/:classId', async (req, res) => {
+	console.log('POST /api/student/' + req.params.classId);
+	await listStudents(req, res);
 });
 
 export default router;
