@@ -66,7 +66,7 @@ export async function listStudentsInAClass(classId: string): Promise<StudentResp
 
     // Para cada vínculo da tabela, buscamos o estudante na tabela students
     const students: StudentResponseDTO[] = [];
-    
+
     for (const sc of studentClasses) {
         const student = await studentTable.findUnique({id: sc.student_id});
 
@@ -83,4 +83,40 @@ export async function listStudentsInAClass(classId: string): Promise<StudentResp
 
     // Retorna a lista de estudantes encontrados
     return students;
+}
+
+// Função para remover um estudante de uma classe
+export async function removeStudentFromAClass(registration_id: string, classId: string): Promise<StudentResponseDTO> {
+
+    // Verifica se a classe existe
+    const class_ = await classTable.findUnique({ id: classId });
+    if (!class_) throw new AppError(404, 'Class not Found.');
+
+    // Verifica se o aluno existe pelo registration_id
+    const student = await studentTable.findUnique({ registration_id });
+    if (!student) throw new AppError(404, 'Student not Found.');
+
+    // Verifica se o aluno está vinculado à classe
+    const studentInClass = await classStudentsTable.findMany({
+        student_id: student.id,
+        class_id: classId
+    });
+
+    // Se não estiver vinculado, não faz sentido remover
+    if (studentInClass.length === 0) {
+        throw new AppError(400, 'Student is not assigned to this class.');
+    }
+
+    // Remove o vínculo na tabela pivot (class_students)
+    await classStudentsTable.deleteMany({
+        student_id: student.id,
+        class_id: classId
+    });
+
+    // Retorna o aluno após a remoção
+    return {
+        id: student.id,
+        name: student.name,
+        registration_id: student.registration_id
+    };
 }
