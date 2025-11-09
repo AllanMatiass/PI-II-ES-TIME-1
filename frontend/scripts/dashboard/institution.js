@@ -1,4 +1,4 @@
-// Autores: Murilo e Cristian
+// Autor: Murilo Rigoni
 
 import { API_URL } from '../utils/config.js';
 import { ShowErrorModal } from "/frontend/components/errors-modal/modal.js";
@@ -8,7 +8,7 @@ import { GetAuthHeaders } from '../utils/getAuthHeaders.js';
 var institutionList = [];
 var filter = '';
 
-// Check if user is logged in
+// Veririfica se o usuário está logado
 if (!localStorage.getItem('token')) {
 	window.location.href = '/frontend/pages/auth/signin.html';
 }
@@ -21,7 +21,7 @@ $('#institution-search-input').on('keyup', (ev) => {
 $('#open-institution-modal-btn').on('click', () => {
 	$('#institution-form')[0].reset();
 	$('#institution-form').removeAttr('data-institution-id');
-	$('#institution-modal-title').html('Criar instituição');
+	$('#institution-modal-title').html('CRIAR INSTITUIÇÃO');
 
 	const modal = new bootstrap.Modal($('#institution-modal')[0]);
 	modal.show();

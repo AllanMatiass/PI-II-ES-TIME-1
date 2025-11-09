@@ -11,7 +11,7 @@ $.get('/frontend/components/navbar/navbar.html', (html) => {
 
 	$navbar.find('#open-profile-btn')
 		.on('click', async () => {
-			const profile = await fetchProfileInfo();
+			const profile = await FetchProfileInfo();
 			if (!profile) return;
 
 			$navbar.find('#nomeTxt').val(profile.data.name);
@@ -61,7 +61,7 @@ async function UpdateProfileInfo(updatedInfo) {
 	}
 }
 
-async function fetchProfileInfo() {
+async function FetchProfileInfo() {
 	try {
 		const res = await fetch(`${API_URL}/api/profile`, {
 			method: 'GET',
@@ -71,11 +71,11 @@ async function fetchProfileInfo() {
 		const body = await res.json();
 
 		if (res.status != 200) {
-			return ShowErrorModal(body.json);
+			return ShowErrorModal("ERRO AO BAIXAR PERFIL", [body.err]);
 		}
 
 		return body;
 	} catch (err) {
-		ShowErrorModal([err]);
+		ShowErrorModal("ERRO AO BAIXAR PERFIL", [err]);
 	}
 }
