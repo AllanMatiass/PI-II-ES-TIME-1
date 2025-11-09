@@ -35,14 +35,20 @@ export async function POST_CreateCourse(req: Request, res: Response) {
 }
 
 export async function PUT_UpdateCourse(req: Request, res: Response) {
-	const body: CourseDataModel = req.body;
-
+	
 	try {
-		if (!body.id || !body.name || !body.institution_id) {
-			throw new AppError(400, 'Missing course name or institution ID.');
+		const body: CourseDataModel = req.body;
+		const courseId = req.params["course_id"];
+		
+		if (!courseId) {
+			throw new AppError(400, 'Missing param course id.');
+		}
+		
+		if (!body.name) {
+			throw new AppError(400, 'Missing course name.');
 		}
 
-		const success = await UpdateCourse(body);
+		const success = await UpdateCourse(body.name, courseId);
 
 		if (!success) {
 			throw new AppError(500, 'Unable to updated course. Try again later!');

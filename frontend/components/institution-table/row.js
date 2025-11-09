@@ -22,9 +22,7 @@ export function LoadInstitutionList(list, $table) {
 				.find('.bi-folder2-open')
 				.closest('button')
 				.on('click', () => {
-					console.log('Abrir instituição:', institution);
-					window.location.href =
-						'/frontend/pages/dashboard/courses/' + institution.id;
+					window.location.href ='/frontend/pages/dashboard/course.html?institutionId=' + institution.id;
 				});
 
 			$linha
@@ -33,7 +31,7 @@ export function LoadInstitutionList(list, $table) {
 				.on('click', () => {
 					$('#institution-form').attr('data-institution-id', institution.id);
 					$('#institution-name-txt').val(institution.name);
-					$('#institution-modal-title').html('Alterar instituição');
+					$('#institution-modal-title').html('ALTERAR INSTITUIÇÃO');
 
 					const modal = new bootstrap.Modal($('#institution-modal')[0]);
 					modal.show();
@@ -44,7 +42,7 @@ export function LoadInstitutionList(list, $table) {
 				.closest('button')
 				.on('click', () => {
 					$('#delete-institution-modal').attr('data-institution-id', institution.id);
-					$('#delete-institution-modal-title').html(`Deseja mesmo excluir a instituição ${institution.name}?`);
+					$('#delete-institution-modal-title').html(`DESEJA EXCLUIR A INSTITUIÇÃO ${institution.name.toUpperCase()}?`);
 
 					const modal = new bootstrap.Modal($('#delete-institution-modal')[0]);
 					modal.show();

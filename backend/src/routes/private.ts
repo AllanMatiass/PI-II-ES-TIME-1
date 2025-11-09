@@ -11,6 +11,7 @@ import {
 	relateProfessorWithInstitution,
 } from '../controllers/institutionController';
 import {
+	DELETE_DeleteCourse,
 	GET_FindInstitutionCourses,
 	POST_CreateCourse,
 	PUT_UpdateCourse,
@@ -79,9 +80,14 @@ router.post('/course', async (req, res) => {
 	await POST_CreateCourse(req, res);
 });
 
-router.put('/course', async (req, res) => {
+router.put('/course/:course_id', async (req, res) => {
 	console.log('PUT /api/course');
 	await PUT_UpdateCourse(req, res);
+});
+
+router.delete('/course/:course_id', async (req, res) => {
+	console.log('DELETE /api/course/:course_id');
+	await DELETE_DeleteCourse(req, res);
 });
 
 router.get('/courses/:institution_id', async (req, res) => {
