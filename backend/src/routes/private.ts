@@ -32,9 +32,10 @@ import {
 import multer from "multer";
 import { getCurrentUser } from '../controllers/authController';
 import { UPDATE_professor } from '../controllers/professorController';
+import { insertStudent } from '../controllers/studentController';
 
 const router = Router();
-const upload = multer({ dest: "uploads/" });
+const upload = multer({ dest: 'uploads/' });
 
 // --- ROTAS DA INSTITUIÇÃO ---
 router.post('/institution', async (req, res) => {
@@ -129,6 +130,10 @@ router.post('/class/:id/import', upload.single("file"), (req, res) => {
 	console.log(`POST /api/class/${req.params.id}/import`);
 });
 
+router.post('/class/:id/import', upload.single("file"), (req, res) => {
+	console.log(`POST /api/class/${req.params.id}/import`);
+});
+
 // --- ROTAS DA DISCIPLINA ---
 router.post('/subject', async (req, res) => {
 	console.log('POST /api/subject/');
@@ -154,6 +159,13 @@ router.get('/profile', async (req, res) => {
 router.put('/professor/:prof_id', async (req, res) => {
 	console.log('PUT /api/professor/' + req.params.prof_id);
 	await UPDATE_professor(req, res);
-})
+});
+
+
+// ROTAS DE ALUNOS
+router.post('/student/:classId', async (req, res) => {
+	console.log('POST /api/student/' + req.params.classId);
+	await insertStudent(req, res);
+});
 
 export default router;

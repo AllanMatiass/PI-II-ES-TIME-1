@@ -1,4 +1,5 @@
 backend/node_modules/
 backend/dist/
 backend/uploads/
+frontend/node_modules
 *.env

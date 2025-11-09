@@ -13,13 +13,7 @@ const classTable = db.table<ClassDataModel>('classes');
 
 
 export async function insertClass(data: ClassRegisterRequestDTO): Promise<ClassResponseDTO> {
-    const {subject_id, course_id, name, classroom_location, class_time, class_date} = data;
-
-    const course = await courseTable.findUnique({id: course_id});
-
-    if (!course){
-        throw new AppError(404, 'Course not found.');
-    }
+    const {subject_id, name, classroom_location, class_time, class_date} = data;
 
     const subject = await subjectTable.findUnique({id: subject_id});
     

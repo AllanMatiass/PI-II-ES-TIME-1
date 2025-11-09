@@ -35,7 +35,6 @@ export async function POST_insertClass(req: Request, res: Response) {
 		// Verifica campos obrigatórios
 		const requiredFields = {
 			subject_id,
-			course_id,
 			name,
 			classroom_location,
 			class_time,
@@ -50,7 +49,6 @@ export async function POST_insertClass(req: Request, res: Response) {
 		// Sanitização e validações extras
 		const sanitizedData = {
 			subject_id: String(subject_id),
-			course_id: String(course_id),
 			name: String(name).trim(),
 			classroom_location: String(classroom_location).trim(),
 			class_time: String(class_time).trim(),
