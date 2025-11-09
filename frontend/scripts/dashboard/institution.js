@@ -4,6 +4,7 @@ import { API_URL } from '../utils/config.js';
 import { ShowErrorModal } from "/frontend/components/errors-modal/modal.js";
 import { LoadInstitutionList } from '/frontend/components/institution-table/row.js';
 import { GetAuthHeaders } from '../utils/getAuthHeaders.js';
+import { isValidToken } from '../utils/verifyToken.js';
 
 var institutionList = [];
 var filter = '';
@@ -55,11 +56,20 @@ async function CreateInstitution(institutionData) {
 			body: JSON.stringify(Object.fromEntries(institutionData)),
 		});
 
+		
+
 		const body = await res.json();
+
+		if (!isValidToken(res)){
+			window.location.href = '/frontend/pages/auth/signin.html';
+			return;
+		}
 
 		if (res.status != 200) {
 			return ShowErrorModal('ERRO AO CRIAR INSTITUIÇÃO', [body.error]);
 		}
+
+		
 
 		institutionList.push(body.data);
 		ShowInstitutions();
@@ -76,7 +86,14 @@ async function AlterInstitution(id, data) {
 			body: JSON.stringify(Object.fromEntries(data)),
 		});
 
+		
+
 		const body = await res.json();
+
+		if (!isValidToken(res)){
+			window.location.href = '/frontend/pages/auth/signin.html';
+			return;
+		}
 		
 		if (res.status != 200) {
 			return ShowErrorModal('ERRO AO ALTERAR INSTITUIÇÃO', [body.error]);
@@ -95,7 +112,14 @@ async function DeleteInstitution(id) {
 			headers: GetAuthHeaders()
 		});
 
+		
+
 		const body = await res.json();
+
+		if (!isValidToken(res)){
+			window.location.href = '/frontend/pages/auth/signin.html';
+			return;
+		}
 
 		if (res.status != 200) {
 			return ShowErrorModal('ERRO AO EXCLUIR INSTITUIÇÃO', [body.error]);
@@ -119,6 +143,10 @@ async function FetchInstitutions() {
 
 		const body = await res.json();
 
+		if (!isValidToken(res)){
+			window.location.href = '/frontend/pages/auth/signin.html';
+			return;
+		}
 		if (res.status != 200) {
 			return ShowErrorModal('ERRO AO CARREGAR INSTITUIÇÕES', [body.message]);
 		}
@@ -126,6 +154,7 @@ async function FetchInstitutions() {
 		let dataSet = body.data.filter((data) =>
 			data.professors.find((prof) => prof.id == localStorage.getItem('userId'))
 		);
+
 		institutionList = dataSet.map((data) => data.institution);
 		ShowInstitutions();
 	} catch (err) {

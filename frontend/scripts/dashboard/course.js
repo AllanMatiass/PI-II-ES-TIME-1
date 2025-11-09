@@ -4,6 +4,7 @@ import { API_URL } from '../utils/config.js';
 import { ShowErrorModal } from "/frontend/components/errors-modal/modal.js";
 import { LoadCoursesList } from '/frontend/components/course-table/row.js';
 import { GetAuthHeaders } from '../utils/getAuthHeaders.js';
+import { isValidToken } from '../utils/verifyToken.js';
 
 var coursesList = [];
 var filter = '';
@@ -25,7 +26,7 @@ if (!instituionId) {
 
 $('#course-search-input').on('keyup', (ev) => {
     filter = ev.currentTarget.value;
-    Showcourses();
+    ShowCourses();
 });
 
 $('#open-course-modal-btn').on('click', () => {
@@ -71,7 +72,13 @@ async function CreateCourse(courseName) {
             })
         });
 
+
         const body = await res.json();
+
+        if (!isValidToken(res)){
+			window.location.href = '/frontend/pages/auth/signin.html';
+			return;
+		}
 
         if (res.status != 200) {
             return ShowErrorModal('ERRO AO CRIAR INSTITUIÇÃO', [body.error]);
@@ -94,7 +101,13 @@ async function AlterCourse(id, courseName) {
             }),
         });
 
+
         const body = await res.json();
+
+        if (!isValidToken(res)){
+			window.location.href = '/frontend/pages/auth/signin.html';
+			return;
+		}
         
         if (res.status != 200) {
             return ShowErrorModal('ERRO AO ALTERAR INSTITUIÇÃO', [body.error]);
@@ -113,7 +126,13 @@ async function DeleteCourse(id) {
             headers: GetAuthHeaders()
         });
 
+
         const body = await res.json();
+
+        if (!isValidToken(res)){
+			window.location.href = '/frontend/pages/auth/signin.html';
+			return;
+		}
 
         if (res.status != 200) {
             return ShowErrorModal('ERRO AO EXCLUIR INSTITUIÇÃO', [body.error]);
@@ -135,7 +154,13 @@ async function FetchCourses() {
             headers: GetAuthHeaders(),
         });
 
+
         const body = await res.json();
+
+        if (!isValidToken(res)){
+			window.location.href = '/frontend/pages/auth/signin.html';
+			return;
+		}
 
         if (res.status != 200) {
             return ShowErrorModal('ERRO AO CARREGAR CURSOS', [body.message]);
@@ -156,6 +181,11 @@ async function CheckInstitutionExists(id) {
         });
 
         const body = await res.json();
+
+        if (!isValidToken(res)){
+			window.location.href = '/frontend/pages/auth/signin.html';
+			return;
+		}
         
         if (res.status != 200) {
             window.location.href = '/frontend/pages/dashboard/institution.html';
