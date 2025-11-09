@@ -120,3 +120,31 @@ export async function removeStudentFromAClass(registration_id: string, classId: 
         registration_id: student.registration_id
     };
 }
+
+// Service para atualizar dados de um aluno
+export async function updateStudent(studentData: Partial<StudentDTO>, registration_id: string): Promise<StudentResponseDTO> {
+
+    // Verifica se o aluno existe
+    const student = await studentTable.findUnique({ registration_id });
+    if (!student) throw new AppError(404, 'Student not Found.');
+
+    // Monta objeto de update, ignorando campos undefined
+    const updateData: Partial<StudentDTO> = {};
+    if (studentData.name !== undefined) updateData.name = studentData.name;
+    if (studentData.registration_id !== undefined) updateData.registration_id = studentData.registration_id;
+
+    // Se não houver nada para atualizar, não faz sentido prosseguir
+    if (Object.keys(updateData).length === 0) {
+        throw new AppError(400, 'No valid fields to update.');
+    }
+
+    // Atualiza aluno
+    await studentTable.update(updateData, { id: student.id });
+
+    // Retorna dados formatados
+    return {
+        id: student.id,
+        name: updateData.name ?? student.name,
+        registration_id: updateData.registration_id ?? student.registration_id
+    };
+}

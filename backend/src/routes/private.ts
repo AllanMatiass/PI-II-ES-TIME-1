@@ -33,7 +33,7 @@ import {
 import multer from "multer";
 import { getCurrentUser } from '../controllers/authController';
 import { UPDATE_professor } from '../controllers/professorController';
-import { insertStudent, listStudents, removeStudent } from '../controllers/studentController';
+import { insertStudent, listStudents, removeStudent, updateStudentController } from '../controllers/studentController';
 
 const router = Router();
 const upload = multer({ dest: 'uploads/' });
@@ -182,6 +182,11 @@ router.get('/students/:classId', async (req, res) => {
 router.delete('/students/:classId',  async (req, res) => {
 	console.log('DELETE /api/student/' + req.params.classId);
 	await removeStudent(req, res);
+});
+
+router.put('/students/:registration_id',  async (req, res) => {
+	console.log('PUT /api/student/' + req.params.registration_id);
+	await updateStudentController(req, res);
 });
 
 export default router;

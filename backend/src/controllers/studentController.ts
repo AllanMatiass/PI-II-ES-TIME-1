@@ -1,7 +1,7 @@
 // Autor: Allan Giovanni Matias Paes
 import { StudentDTO, StudentResponseDTO } from "dtos";
 import { Request, Response } from "express";
-import { insertStudentIntoAClass, listStudentsInAClass, removeStudentFromAClass } from "../services/studentService";
+import { insertStudentIntoAClass, listStudentsInAClass, removeStudentFromAClass, updateStudent } from "../services/studentService";
 import { AppError } from "../errors/AppError";
 
 // Controller para Inserir um aluno em uma classe
@@ -104,3 +104,41 @@ export async function removeStudent(req: Request, res: Response) {
         return res.status(500).json({ error: 'Unexpected Error' });
     }
 }
+
+// Controller para atualizar dados de um aluno
+export async function updateStudentController(req: Request, res: Response) {
+    try {
+        // Busca o registration_id pela rota
+        const registration_id = req.params.registration_id;
+
+        // Se não passar o registration_id, rota está sendo chamada incorretamente
+        if (!registration_id) throw new AppError(400, 'registration_id is required in params.');
+
+        // Dados a atualizar vêm do body
+        const { name, registration_id: newRegistrationId } = req.body;
+
+        // Chama o service
+        const updatedStudent = await updateStudent(
+            { name, registration_id: newRegistrationId },
+            registration_id
+        );
+
+        // Retorna resposta de sucesso
+        return res.json({
+            message: 'Student was updated successfully.',
+            data: updatedStudent
+        });
+
+    } catch (err: any) {
+
+        // Trata erros conhecidos
+        if (err instanceof AppError) {
+            return res.status(err.code).json({ error: err.message });
+        }
+
+        // Erro inesperado
+        console.error(err);
+        return res.status(500).json({ error: 'Unexpected Error' });
+    }
+}
+
