@@ -1,0 +1,148 @@
+<!--Autor: Emilly Morelatto e Murilo Rigoni -->
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <!-- Define o padrão do documento HTML5 -->
+    <meta charset="UTF-8">
+    <!-- Faz o layout se ajustar ao tamanho da tela (responsivo) -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Título da aba/navegador -->
+    <title>Área do professor</title>
+
+    <!-- Importa os estilos principais -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous" />
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="/frontend/styles/base.css" type="text/css" />
+</head>
+
+<body>
+    <div class="modal fade" id="subject-modal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="subject-modal-title"></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+    
+                <div class="modal-body">
+                    <form id="subject-form">
+                        <!-- Nome -->
+                        <div class="mb-2">
+                            <label for="subject-name-txt" class="form-label mb-0">Nome:</label>
+                            <input type="text" name="subject-name" id="subject-name-txt" class="form-control border border-dark" required />
+                        </div>
+
+                        <!-- Código -->
+                        <div class="mb-2">
+                            <label for="subject-code-txt" class="form-label mb-0">Código: </label>
+                            <input type="text" name="subject-code" class="form-control border border-dark" id="subject-code-txt" required />
+                        </div>
+
+                        <!-- Acrônimo -->
+                        <div class="mb-2">
+                            <label for="subject-acronym-txt" class="form-label mb-0">Acrônimo: </label>
+                            <input type="text" name="subject-acronym" class="form-control border border-dark" id="subject-acronym-txt" required />
+                        </div>
+
+                        <!-- Período -->
+                        <div class="mb-2">
+                            <label for="subject-period-nb" class="form-label mb-0">Períodos (semestres): </label>
+                            <input type="number" name="subject-period" class="form-control border border-dark" id="subject-period-nb" required />
+                        </div>
+
+                        <!-- Data início -->
+                        <div class="mb-2">
+                            <label for="subject-start-date" class="form-label mb-0">Início: </label>
+                            <input type="date" name="subject-start" class="form-control border border-dark" id="subject-start-date" required />
+                        </div>
+
+                        <!-- Data final -->
+                        <div class="mb-2">
+                            <label for="subject-end-date" class="form-label mb-0">Final: </label>
+                            <input type="date" name="subject-end" class="form-control border border-dark" id="subject-end-date" required />
+                        </div>
+                    </form>
+                </div>
+    
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-bs-toggle="modal"
+                        data-bs-target="#subject-modal">Cancelar</button>
+                    <button class="btn btn-primary" id="save-subject-btn">Salvar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="delete-subject-modal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="delete-subject-modal-title"></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-bs-toggle="modal"
+                        data-bs-target="#delete-subject-modal">Cancelar</button>
+                    <button class="btn btn-danger" id="delete-subject-btn">Excluir</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <main class="container-fluid min-vh-100 px-4 py-5 d-flex flex-column align-items-center">
+        <h2 class="mt-5 mb-0">GERENCIAR DISCIPLINAS</h2>
+        <p class="mb-5">Pesquise os disciplinas pelo nome.</p>
+
+        <div class="row col-9 col-md-7 col-lg-5 bg-secondary text-white p-4 rounded-4 bg-light shadow">
+            <form>
+                <div class="text-dark mb-2">
+                    <label class="form-label" for="subject-search-input">Procurar disciplina: </label>
+                    <div class="input-group">
+                        <input type="search" class="form-control border border-secondary" id="subject-search-input" placeholder="Digite o nome da disciplina:" />
+
+                        <button id="return-btn" type="button" class="btn btn-outline-secondary" title="Voltar">
+                            <i class="bi bi-arrow-return-left"></i>
+                        </button>
+
+                        <button id="open-subject-modal-btn" type="button" class="btn btn-outline-secondary" title="Adicionar disciplina">
+                            <i class="bi bi-plus-lg"></i>
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <table id="subject-table"
+            class="table table-striped table-hover mt-5 bg-white rounded shadow text-center align-middle">
+            <thead>
+                <tr>
+                    <th scope="col">Nome</th>
+                    <th scope="col">Código</th>
+                    <th scope="col">Acrônimo</th>
+                    <th scope="col">Períodos</th>
+                    <th scope="col">Início</th>
+                    <th scope="col">Fim</th>
+                    <th scope="col">Ações</th>
+                </tr>
+            </thead>
+            <tbody id="subject-table-body"></tbody>
+        </table>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.min.js"
+        integrity="sha384-G/EV+4j2dNv+tEPo3++6LCgdCROaejBqfUeNjuKAiuXbjrxilcCdDz6ZAVfHWe1Y"
+        crossorigin="anonymous"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"
+        integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <script type="module" src="/frontend/scripts/dashboard/subjects.js"></script>
+    <script type="module" src="/frontend/components/errors-modal/modal.js"></script>
+    <script type="module" src="/frontend/components/navbar/navbar.js"></script>
+</body>
+
+</html>

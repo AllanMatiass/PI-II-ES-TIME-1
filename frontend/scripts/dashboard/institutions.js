@@ -56,8 +56,6 @@ async function CreateInstitution(institutionData) {
 			body: JSON.stringify(Object.fromEntries(institutionData)),
 		});
 
-		
-
 		const body = await res.json();
 
 		if (!isValidToken(res)){
@@ -68,8 +66,6 @@ async function CreateInstitution(institutionData) {
 		if (res.status != 200) {
 			return ShowErrorModal('ERRO AO CRIAR INSTITUIÇÃO', [body.error]);
 		}
-
-		
 
 		institutionList.push(body.data);
 		ShowInstitutions();
@@ -85,8 +81,6 @@ async function AlterInstitution(id, data) {
 			headers: GetAuthHeaders(),
 			body: JSON.stringify(Object.fromEntries(data)),
 		});
-
-		
 
 		const body = await res.json();
 
@@ -111,8 +105,6 @@ async function DeleteInstitution(id) {
 			method: 'DELETE',
 			headers: GetAuthHeaders()
 		});
-
-		
 
 		const body = await res.json();
 

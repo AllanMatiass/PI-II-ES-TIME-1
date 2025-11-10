@@ -19,7 +19,7 @@ const params = new URLSearchParams(window.location.search);
 const instituionId = params.get('institutionId');
 
 if (!instituionId) {
-	window.location.href = '/frontend/pages/dashboard/institution.html';
+	window.location.href = '/frontend/pages/dashboard/institutions.html';
 } else {
     CheckInstitutionExists(instituionId);
 }
@@ -39,7 +39,7 @@ $('#open-course-modal-btn').on('click', () => {
 });
 
 $('#return-btn').on('click', () => {
-    window.location.href = `/frontend/pages/dashboard/institution.html`;
+    window.location.href = `/frontend/pages/dashboard/institutions.html`;
 });
 
 $('#save-course-btn').on('click', async () => {
@@ -153,14 +153,13 @@ async function FetchCourses() {
             method: 'GET',
             headers: GetAuthHeaders(),
         });
-
+        
+        if (!isValidToken(res)){
+            window.location.href = '/frontend/pages/auth/signin.html';
+            return;
+        }
 
         const body = await res.json();
-
-        if (!isValidToken(res)){
-			window.location.href = '/frontend/pages/auth/signin.html';
-			return;
-		}
 
         if (res.status != 200) {
             return ShowErrorModal('ERRO AO CARREGAR CURSOS', [body.message]);
@@ -179,20 +178,13 @@ async function CheckInstitutionExists(id) {
             method: 'GET',
             headers: GetAuthHeaders(),
         });
-
-        const body = await res.json();
-
-        if (!isValidToken(res)){
-			window.location.href = '/frontend/pages/auth/signin.html';
-			return;
-		}
         
         if (res.status != 200) {
-            window.location.href = '/frontend/pages/dashboard/institution.html';
+            window.location.href = '/frontend/pages/dashboard/institutions.html';
         }
     } catch (err) {
         ShowErrorModal('ERRO AO VERIFICAR INSTITUIÇÃO', [err.message]);
-        window.location.href = '/frontend/pages/dashboard/institution.html';
+        window.location.href = '/frontend/pages/dashboard/institutions.html';
     }
 }
 
