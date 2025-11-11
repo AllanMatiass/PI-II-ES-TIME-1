@@ -35,14 +35,14 @@ loginForm.addEventListener('submit', async (ev) => {
 
 		// Em caso de erro no servidor, mostra a mensagem.
         if (res.status !== 200) {
-            return ShowErrorModal("ERRO AO EFETUAR LOGIN!", body.errors);
-		}
+					return ShowErrorModal('ERRO AO EFETUAR LOGIN!', [body.error]);
+				}
 
-		// Depois de efetuar login, redireciona para a dashboard
-		localStorage.setItem('token', body.token);
-		localStorage.setItem('userId', body.data.id);
+				// Depois de efetuar login, redireciona para a dashboard
+				localStorage.setItem('token', body.token);
+				localStorage.setItem('userId', body.data.id);
 
-		window.location.href = '/frontend/pages/dashboard/institution.html';
+				window.location.href = '/frontend/pages/dashboard/institutions.html';
     } catch (err) {
         ShowErrorModal("ERRO AO EFETUAR LOGIN!", [err]);
     }

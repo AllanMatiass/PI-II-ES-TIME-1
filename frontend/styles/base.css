@@ -25,7 +25,6 @@ html, body {
     min-height: 100dvh; /* ocupa altura total da tela */
     color: var(--foreground);
     background: #f5f5f5; /* cor de fundo opcional */
-    overflow: hidden;
 }
 
 /* Área principal */
@@ -40,10 +39,10 @@ main {
     font-weight: bold;
 }
 
-table {
+/* table {
     table-layout: fixed; 
     width: 100%;
-}
+} */
 
 .btn-icon {
   width: 38px;

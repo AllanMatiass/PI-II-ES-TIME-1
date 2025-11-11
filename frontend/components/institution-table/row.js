@@ -1,15 +1,11 @@
 export function LoadInstitutionList(list, $table) {
 	if (!$table || !$table.length) return;
 
-	for (let i = 0; i < list.length; i++) {
-		const institution = list[i];
-
+	for (const institution of list) {
 		// Carrega o HTML do arquivo externo
 		$.get('/frontend/components/institution-table/row.html', (html) => {
 			// Substitui os placeholders pelos dados reais
-			html = html
-				.replace('{{count}}', i +1)
-				.replace('{{nome}}', institution.name);
+			html = html.replace('{{name}}', institution.name);
 
 			// Converte o HTML em um elemento jQuery
 			const $linha = $(html);
@@ -22,7 +18,9 @@ export function LoadInstitutionList(list, $table) {
 				.find('.bi-folder2-open')
 				.closest('button')
 				.on('click', () => {
-					window.location.href ='/frontend/pages/dashboard/course.html?institutionId=' + institution.id;
+					window.location.href =
+						'/frontend/pages/dashboard/courses.html?institutionId=' +
+						institution.id;
 				});
 
 			$linha
@@ -41,8 +39,13 @@ export function LoadInstitutionList(list, $table) {
 				.find('.bi-trash')
 				.closest('button')
 				.on('click', () => {
-					$('#delete-institution-modal').attr('data-institution-id', institution.id);
-					$('#delete-institution-modal-title').html(`DESEJA EXCLUIR A INSTITUIÇÃO ${institution.name.toUpperCase()}?`);
+					$('#delete-institution-modal').attr(
+						'data-institution-id',
+						institution.id
+					);
+					$('#delete-institution-modal-title').html(
+						`DESEJA EXCLUIR A INSTITUIÇÃO ${institution.name.toUpperCase()}?`
+					);
 
 					const modal = new bootstrap.Modal($('#delete-institution-modal')[0]);
 					modal.show();
