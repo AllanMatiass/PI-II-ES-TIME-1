@@ -1,35 +1,39 @@
 // Autor: Emilly Morelatto
 import { DatabaseClient } from "../db/DBClient";
+import { AppError } from "../errors/AppError";
+
 const db = new DatabaseClient();
+const classStudentsTable = db.table("class_students");
+const studentsTable = db.table("students");
+const gradesTable = db.table("grades");
+const componentsTable = db.table("grade_components");
+
 // Busca dados e verifica se as notas estão completas
 export async function getClassGradesForExport(classId: string) {
-    const result = await db.query(
-        `
-        SELECT 
-            s.registration_id,
-            s.name AS student_name,
-            gc.name AS component_name,
-            g.automatic_final_grade AS grade
-        FROM class_students cs
-        JOIN students s ON cs.student_id = s.id
-        JOIN grades g ON cs.grade_id = g.id
-        JOIN grade_components gc ON g.grade_component_id = gc.id
-        WHERE cs.class_id = $1
-        ORDER BY s.name, gc.name
-        `,
-        [classId]
-    );
-
-    // Se existir nota null ou '-' → exportação bloqueada
-    const missing = result.rows.some(r =>
-        r.grade === null || r.grade === undefined || r.grade === "-"
-    );
-
-    if (missing) {
-        return null; // Controller entende que exportação deve ser negada
+    const classStudents =await classStudentsTable.findMany({ class_id: classId });
+    if(!classStudents||classStudents.length===0)
+    {
+        throw new AppError(400, "Nenhum aluno encontrado nessa turma");
     }
+    const formattedData = [];
 
-    return result.rows;
+    for (const cs of classStudents) {
+
+        const student = await studentsTable.findUnique({ id: cs.student_id });
+        const grade = await gradesTable.findUnique({ id: cs.grade_id });
+
+        if (!student || !grade) continue;
+
+        const component = await componentsTable.findUnique({ id: grade.grade_component_id });
+
+        // Se alguma nota estiver faltando, sendo nula, indefinidada ou vazia, a exportação é bloqueada
+        if (grade.automatic_final_grade === null ||grade.automatic_final_grade === undefined ||grade.automatic_final_grade === "-") 
+        {
+            throw new AppError(400, "Erro, está faltando nota!"); 
+        }
+        // Monta um objeto contendo os dados do aluno, componente e nota já prontos para exportação, e adiciona no array formattedData
+        formattedData.push({registration_id: student.registration_id,student_name: student.name,component_name: component?.name ?? "Componente",grade: grade.automatic_final_grade});
+    }
 }
 
 // Converte para CSV sem salvar no servidor

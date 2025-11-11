@@ -1,0 +1,87 @@
+<!-- Autor: Cristian Fava -->
+
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <!-- Define o padrão do documento HTML5 -->
+    <meta charset="UTF-8">
+    <!-- Faz o layout se ajustar ao tamanho da tela (responsivo) -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Título da aba/navegador -->
+    <title>Entrar - Nota10</title>
+
+    <!-- Importa os estilos principais -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"           
+        rel="stylesheet"    
+        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous" />
+
+    <link rel="stylesheet" href="/frontend/styles/base.css" type="text/css" />
+</head>
+
+<body>
+    <!-- Conteúdo principal da página -->
+    <main class="container-fluid min-vh-100 d-flex justify-content-center align-items-center">
+        <div class="row col-10 col-md-8 col-lg-6 col-sm-12 bg-secondary text-white p-5 d-flex align-items-center rounded-4 bg-light shadow">
+
+            <!-- Coluna de informações -->
+            <div class="col-md-6 text-dark">
+                <h3 class="my-3">BEM-VINDO!</h3>
+                <p>
+                    Entre para gerenciar suas anotações e continuar de onde parou.
+                    É novo por aqui? Cadastre-se em segundos.
+                </p>
+                <p>
+                    Use um endereço de e-mail profissional ou pessoal.<br>
+                    As senhas devem ter no mínimo 8 caracteres.
+                </p>
+            </div>
+
+            <!-- Coluna do formulário -->
+            <div class="col-md-6 ps-4 text-dark border-start">
+                <form id="login-form" action="#">
+                    <!-- Campo de e-mail -->
+                    <div class="mb-2">
+                        <label for="emailTxt" class="form-label mb-0">E-Mail:</label>
+                        <input type="email" class="form-control border border-dark" id="emailTxt" name="email" required />
+                    </div>
+
+                    <!-- Campo de senha -->
+                    <div class="mb-4">
+                        <label for="senhaTxt" class="form-label mb-0">Senha:</label>
+                        <input type="password" class="form-control border border-dark" id="senhaTxt" name="password" required />
+                    </div>
+
+                    <!-- Botão -->
+                    <div class="text-center">
+                        <button type="submit" class="btn btn-dark w-auto px-4">ENTRAR</button>
+                    </div>
+
+                    <!-- Links -->
+                    <ul class="list-unstyled text-end">
+                        <li>
+                            <a href="/frontend/pages/auth/signup.html" class="text-dark">Criar conta</a>
+                        </li>
+                        <li>
+                            <a href="/frontend/pages/auth/forgotPassword.html" class="text-dark">Esqueceu a senha?</a>
+                        </li>
+                    </ul>
+                </form>
+            </div>
+
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.min.js"
+        integrity="sha384-G/EV+4j2dNv+tEPo3++6LCgdCROaejBqfUeNjuKAiuXbjrxilcCdDz6ZAVfHWe1Y"
+        crossorigin="anonymous"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"
+        integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <script src="/frontend/components/errors-modal/modal.js" type="module"></script>
+    <script src="/frontend/scripts/auth/signin.js" type="module"></script>
+</body>
+
+</html>
