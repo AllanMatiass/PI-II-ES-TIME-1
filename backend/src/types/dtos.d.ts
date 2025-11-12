@@ -36,9 +36,7 @@ declare module 'dtos' {
     interface ClassRegisterRequestDTO {
         subject_id: string;
         name: string;
-        classroom_location: string;
-        class_time: string;
-        class_date: Date;
+        classroom: string;
     }
 
 	interface SubjectRegisterRequestDTO {
@@ -96,9 +94,7 @@ declare module 'dtos' {
         id: string;
         subject_id: string;
         name: string;
-        classroom_location: string;
-        class_time: string;
-        class_date: Date;
+        classroom: string;
     }
 
 	interface StudentResponseDTO {

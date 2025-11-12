@@ -1,5 +1,5 @@
 // Autor: Allan Matias e Cristian Fava
-import fs from "fs";
+import fs from 'fs';
 import { Request, Response } from 'express';
 import { AppError } from '../errors/AppError';
 import { ClassRegisterRequestDTO } from 'dtos';
@@ -11,24 +11,17 @@ import {
 	insertClass,
 	updateClass,
 } from '../services/classService';
-import csvParser from "csv-parser";
+import csvParser from 'csv-parser';
 
 export async function POST_insertClass(req: Request, res: Response) {
 	try {
-		const {
-			subject_id,
-			course_id,
-			name,
-			classroom_location,
-			class_time,
-			class_date,
-		} = req.body || {};
+		const { subject_id, name, classroom } = req.body as ClassRegisterRequestDTO;
 
 		// Verifica se o body existe
 		if (!req.body) {
 			throw new AppError(
 				400,
-				'Body must contain subject_id, institution_id, course_id, name, classroom_location, class_time and class_date.'
+				'Body must contain subject_id, institution_id, course_id, name, classroom.'
 			);
 		}
 
@@ -36,10 +29,9 @@ export async function POST_insertClass(req: Request, res: Response) {
 		const requiredFields = {
 			subject_id,
 			name,
-			classroom_location,
-			class_time,
-			class_date,
+			classroom,
 		};
+
 		for (const [key, value] of Object.entries(requiredFields)) {
 			if (value === undefined || value === null || value === '') {
 				throw new AppError(400, `Field '${key}' is required.`);
@@ -50,15 +42,8 @@ export async function POST_insertClass(req: Request, res: Response) {
 		const sanitizedData = {
 			subject_id: String(subject_id),
 			name: String(name).trim(),
-			classroom_location: String(classroom_location).trim(),
-			class_time: String(class_time).trim(),
-			class_date: new Date(String(class_date).trim()),
+			classroom: String(classroom).trim(),
 		} as ClassRegisterRequestDTO;
-
-		// Verificação para ver se está no formato HH:MM.
-		if (!/^\d{2}:\d{2}$/.test(sanitizedData.class_time)) {
-			throw new AppError(400, "class_time must be in 'HH:MM' format.");
-		}
 
 		const class_ = await insertClass(sanitizedData);
 		res.status(201).json({
@@ -77,8 +62,8 @@ export async function POST_insertClass(req: Request, res: Response) {
 
 export async function GET_findClassByID(req: Request, res: Response) {
 	try {
-        const { params } = req;
-        
+		const { params } = req;
+
 		// Verifica se o body existe
 		if (!req.params || !params.id) {
 			throw new AppError(400, 'You must provide the class ID as a parameter.');
@@ -151,13 +136,11 @@ export async function PUT_updateClass(req: Request, res: Response) {
 			throw new AppError(400, 'Body must contain something.');
 		}
 
-		const { name, classroom_location, class_time, class_date } = body;
+		const { name, classroom } = body as ClassRegisterRequestDTO;
 
 		const class_ = await updateClass(params.id, {
 			name,
-			classroom_location,
-			class_time,
-			class_date,
+			classroom,
 		});
 		return res.json({
 			message: 'Class updated.',
@@ -198,31 +181,31 @@ export async function DELETE_deleteClass(req: Request, res: Response) {
 }
 
 export async function POST_ImportClass(req: Request, res: Response) {
-    try {
-        const classId = req.params.id;
-        const filePath = req.file?.path;
-        const data: any = [];
+	try {
+		const classId = req.params.id;
+		const filePath = req.file?.path;
+		const data: any = [];
 
-        if (!classId) {
-            throw new AppError(400, "Missing propperty id.");
-        }
+		if (!classId) {
+			throw new AppError(400, 'Missing propperty id.');
+		}
 
-        if (!filePath) {
-            throw new AppError(400, "Missing csv file!");
-        }
+		if (!filePath) {
+			throw new AppError(400, 'Missing csv file!');
+		}
 
-        const stream = fs.createReadStream(filePath);
-        stream.pipe(csvParser());
+		const stream = fs.createReadStream(filePath);
+		stream.pipe(csvParser());
 
-        stream.on("data", (line) => data.push(line));
-        
-        await new Promise((resolve: any) => {
-            stream.on("end", resolve);
-        });
+		stream.on('data', (line) => data.push(line));
 
-        data.forEach((a: any) => console.log(a));
-        res.sendStatus(200);
-    } catch (err) {
+		await new Promise((resolve: any) => {
+			stream.on('end', resolve);
+		});
+
+		data.forEach((a: any) => console.log(a));
+		res.sendStatus(200);
+	} catch (err) {
 		if (err instanceof AppError) {
 			return res.status(err.code).json({ error: err.message });
 		}

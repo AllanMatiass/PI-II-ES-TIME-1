@@ -1,4 +1,4 @@
-export function LoadSubjectsList(list, $table) {
+export function LoadClassesList(list, $table) {
 	if (!$table || !$table.length) return;
 
 	const formatOptions = { year: 'numeric', month: '2-digit', day: '2-digit' };
