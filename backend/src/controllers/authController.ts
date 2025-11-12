@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { ProfessorLoginRequestDTO, ProfessorRegisterRequestDTO, ProfessorResponseDTO } from 'dtos';
-import { Login, Register } from '../services/auth';
+import { getLoggedUser, Login, Register } from '../services/auth';
 import { AppError } from '../errors/AppError';
 import jwt from 'jsonwebtoken';
 
@@ -56,17 +56,10 @@ export async function registerController(req: Request, res: Response) {
 			!body['name'] ||
 			!body['phone'] ||
 			!body['email'] ||
-			!body['password'] ||
-			!body['confirmPassword']
+			!body['password']
 		) {
-			throw new AppError(400, 'Body must contain email, password, phone, name and confirmPassword');
+			throw new AppError(400, 'Body must contain email, password, phone and name.');
 		}
-
-		// Compara se a senha e a senha de confirmação, caso sejam diferentes, lança erro.
-		if (body['password'] != body['confirmPassword']) {
-			throw new AppError(400, 'The passwords must be equal');
-		}
-
 		
 		// Chama o serviço de regstro.
 		await Register(body['email'], body['password'], body['name'], body['phone']);
@@ -84,4 +77,29 @@ export async function registerController(req: Request, res: Response) {
         return res.status(500).json({error: 'Unexpected Error'});
     }
 	
+}
+
+export async function getCurrentUser(req: Request, res: Response) {
+	try{
+		const auth = req.headers.authorization;
+
+		if (!auth){
+			throw new AppError(404, 'Professor not found.')
+		}
+
+		const professor = await getLoggedUser(auth);
+		return res.status(200).json({
+			message: 'Professor found',
+			data: professor
+		})
+
+
+	}catch (err: any){
+        if (err instanceof AppError){
+            return res.status(err.code).json({error: err.message})
+        }
+
+        console.error(err);
+        return res.status(500).json({error: 'Unexpected Error'});
+    }
 }

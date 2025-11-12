@@ -65,5 +65,17 @@ declare module 'dataModels' {
         start_date: Date;
         end_date: Date;
     }
+
+    interface StudentDataModel {
+        id: string;
+        name: string;
+        registration_id: string;
+    }
+
+    interface ClassStudentsDataModel {
+        id: string;
+        class_id: string;
+        student_id: string;
+    }
 }
 
