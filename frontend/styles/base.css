@@ -39,10 +39,10 @@ main {
     font-weight: bold;
 }
 
-/* table {
+table {
     table-layout: fixed; 
     width: 100%;
-} */
+}
 
 .btn-icon {
   width: 38px;

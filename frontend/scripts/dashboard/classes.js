@@ -30,7 +30,7 @@ $('#class-search-input').on('keyup', (ev) => {
 $('#open-class-modal-btn').on('click', () => {
     $('#class-form')[0].reset();
     $('#class-form').removeAttr('data-class-id');
-    $('#class-modal-title').html('CRIAR DISCIPLINA');
+    $('#class-modal-title').html('CRIAR TURMA');
 
     const modal = new bootstrap.Modal($('#class-modal')[0]);
     modal.show();
@@ -59,19 +59,15 @@ $('#delete-class-btn').on('click', async () => {
     await DeleteClass(classId);
 });
 
-async function CreateClass(data) {
+async function CreateClass(formData) {
     try {
         const res = await fetch(`${API_URL}/api/class`, {
             method: 'POST',
             headers: GetAuthHeaders(),
             body: JSON.stringify({
                 subject_id: subjectId,
-                name: data.get('class-name'),
-                classroom_location: data.get('class-location'),
-                class_time: data.get('class_time'),
-                class_: parseInt(data.get('class-period'), 10),
-                start_date: data.get('class-start'),
-                end_date: data.get('class-end'),
+                name: formData.get('class-name'),
+                classroom: formData.get('classroom')
             }),
         });
 
@@ -93,13 +89,14 @@ async function CreateClass(data) {
     }
 }
 
-async function AlterClass(id, className) {
+async function AlterClass(id, formData) {
     try {
         const res = await fetch(`${API_URL}/api/class/${id}`, {
             method: 'PUT',
             headers: GetAuthHeaders(),
             body: JSON.stringify({
-                name: className
+                name: formData.get('class-name'),
+                classroom: formData.get('classroom')
             }),
         });
 
