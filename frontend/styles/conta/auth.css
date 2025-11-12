@@ -1,0 +1,639 @@
+/* ========================================
+   Autor: Cristian Fava e Emilly Morelatto
+   ======================================== */
+
+/* Importa a fonte personalizada */
+@import url('../fonts/JosefinSans.ttf');
+
+/* ========================================
+   Centraliza o conteúdo principal
+   ======================================== */
+main {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* ========================================
+   Estiliza o formulário
+   ======================================== */
+form {
+    display: block;
+    padding: 2rem;
+    border-radius: 8px;
+    background-color: var(--form-background);
+    width: min(400px, 100%);
+    font-family: "Josefin Sans", sans-serif;
+}
+
+/* Estilos básicos para inputs e botões */
+form input,
+form button {
+    outline: none;
+    text-indent: 4px;
+    border-radius: 6px;
+}
+
+/* Define tamanho dos inputs */
+form input {
+    width: 100%;
+    height: 2rem;
+}
+
+/* Estilo dos labels */
+form label {
+    display: block;
+    margin: 1rem 0 5px;
+    color: #000;
+ 
+}
+
+/* Bordas padrão dos inputs e da área de senha */
+form input,
+.input-senha {
+    border: 2px solid #929599;
+    transition: 200ms linear;
+    border-radius: 12px;
+}
+
+/* Efeito ao passar o mouse nos inputs e senha */
+/*form input:focus,
+.input-senha:focus {
+    border: 2px #97acc8 solid;
+}*/
+
+/* ========================================
+   Container da senha (input + botão)
+   ======================================== */
+.input-senha {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    /* border-color: red; */
+}
+
+/* #input_texto_s{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    border-color: rgb(0, 255, 119);
+
+} */
+
+/* Remove borda interna do input dentro da área de senha */
+.input-senha input {
+    border: 0;
+}
+
+/* Botão de exibir senha */
+.input-senha button {
+    text-align: center;
+    margin: 0 5px;
+    border: 0;
+    aspect-ratio: 1 / 1;
+    cursor: pointer;
+}
+
+.input-senha img {
+    vertical-align: middle;
+}
+
+/* ========================================
+   Botão de envio (submit)
+   ======================================== */
+.entrarBtn {
+    display: block;
+    border: none;
+    border-radius: 15px;
+    /* width: 50%; */
+    background: #164581;
+    color: #fff;
+    margin: 2rem auto 1rem;
+    padding: 0.7rem 1rem;
+    font-size: 0.95rem;
+    font-weight: 500;
+    text-transform: none;
+    text-align: start;
+    line-height: 1;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    transition: 0.3s;
+}
+
+/* Efeito hover */
+.entrarBtn:hover {
+    background: #2f4f77;
+}
+
+/* ========================================
+   Container de links adicionais
+   ======================================== */
+.links {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+/* Espaçamento entre os links */
+.links li {
+    margin: 4px 0;
+}
+
+/* Estilo dos links */
+.links a {
+    color: #164581;
+    text-decoration: none;
+}
+
+/* Efeito hover nos links */
+.links a:hover {
+    text-decoration: underline;
+}
+
+/* ========================================
+   Wrapper geral de login
+   ======================================== */
+.wrapper-login {
+    font-family: "Josefin Sans", sans-serif;
+    width: 100dvw;
+    margin: 0;
+    padding: 0;
+}
+
+/* ========================================
+   Coluna de informações de login
+   ======================================== */
+.login-info {
+    font-family: "Josefin Sans", sans-serif;
+    background-color: #eef4fc;
+    padding: 40px;
+    width: 100dvw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    border-radius: 20px;
+    color: #4b515c;
+}
+
+/* ========================================
+   Coluna do formulário de login
+   ======================================== */
+.login-form {
+    background-color: #ffffff;
+    padding: 40px;
+    width: 100dvw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border-radius: 20px;
+}
+
+/* ========================================
+   Logo
+   ======================================== */
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 30px;
+}
+
+.logo-icon {
+    background-color: #1e3a8a;
+    color: white;
+    padding: 10px;
+    border-radius: 8px;
+    font-weight: bold;
+}
+
+.logo-text {
+    font-weight: bold;
+    font-size: 1.2em;
+    color: #1e3a8a;
+}
+
+/* ========================================
+   Títulos e textos
+   ======================================== */
+h1 {
+    font-size: 2em;
+    color: #1e3a8a;
+    margin-bottom: 15px;
+}
+
+p {
+    color: #6b7280;
+    line-height: 1.5;
+}
+
+.note {
+    margin-top: 20px;
+    font-size: 0.85em;
+    color: #9ca3af;
+}
+h2 {
+    font-size: 2em;
+    margin-bottom: 15px;
+    margin-top: 20px
+
+}
+
+body {
+    font-family: "Josefin Sans", sans-serif;
+    background-color: #f9fafb;
+    color: #111827;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+}
+
+.wrapper {
+    max-width: 850px;
+    margin: 40px auto;
+    background-color: #fff;
+    border-radius: 16px;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+    padding: 40px 60px;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 12px;
+    font-size: 20px;
+    font-weight: 600;
+    color: #1e3a8a;
+}
+
+.logo-icon {
+    background-color:#164581;
+    color: white;
+    font-weight: bold;
+    padding: 8px 12px;
+    border-radius: 8px;
+}
+
+.logo-text {
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.setup {
+    margin-left: auto;
+    font-size: 14px;
+    background-color: #eff6ff;
+    color: #1e3a8a;
+    padding: 4px 10px;
+    border-radius: 6px;
+}
+
+hr {
+    border: none;
+    border-top: 1px solid #e5e7eb;
+    margin: 20px 0;
+}
+
+
+.sideBar h2 {
+    font-size: 22px;
+    margin-bottom: 10px;
+    color: #111827;
+}
+
+.sideBar p {
+    font-size: 14px;
+    color: #6b7280;
+    line-height: 1.5;
+    margin-bottom: 20px;
+}
+
+label {
+    display: block;
+    font-weight: 500;
+    margin-bottom: 8px;
+    color: #374151;
+}
+
+input[type="text"] {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 14px;
+    margin-bottom: 20px;
+    transition: border-color 0.2s;
+}
+
+input[type="text"]:focus {
+    border-color:#164581;
+    outline: none;
+}
+
+textarea{
+     width: 100%;
+    padding: 10px 14px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 14px;
+    margin-bottom: 20px;
+    transition: border-color 0.2s;
+}
+
+.ajudaTxt {
+    font-size: 14px;
+    color: #4b5563;
+    margin-top: 30px;
+    margin-bottom: 10px;
+}
+
+.btnInst {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+button {
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btnVoltar {
+    background-color: #eff6ff;
+    color: #374151;
+}
+
+.btnContinuar {
+    background-color:#164581;
+    color: white;
+}
+
+.topBar {
+    margin-top: 40px;
+}
+
+.topBar p {
+    font-size: 14px;
+    color: #6b7280;
+    margin: 6px 0;
+}
+
+.topBar label {
+    margin-top: 10px;
+}
+
+.topBar .btnInst {
+    margin-top: 20px;
+}
+
+#nomeTxt, #emailTxt{
+    border: 2px solid #929599;
+    border-radius: 12px;
+}
+#cadForm{
+    background-color: #ffffff;
+    padding: 40px;
+    width: 100dvw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    border-radius: 20px;
+    gap: 10px; /* espaço entre os elementos */
+   
+    max-width: 300px; 
+    margin:4.5%;
+
+}
+
+
+
+/* Faz os labels ficarem alinhados à esquerda */
+#cadForm label {
+  font-weight: bold;
+  margin-bottom: 3px;
+  color: #333;
+  text-align: left;
+  width: 100%;
+}
+
+/* Deixa todos os inputs com o mesmo tamanho */
+#cadForm input[type="text"],
+#cadForm input[type="tel"],
+#cadForm input[type="password"],
+#cadForm input[type="email"] {
+  width: 100%;
+  padding: 10px;
+  border-radius: 10px;
+  font-size: 15px;
+  box-sizing: border-box;
+}
+
+/* Garante que os inputs de senha dentro do .input-senha também fiquem alinhados */
+.input-senha {
+  width: 100%;
+}
+
+
+
+/* ===== PAINEL PRINCIPAL ===== */
+body.painel {
+  background-color: #f0f4f8;
+  font-family: "Josefin Sans", sans-serif;
+  color: #1e293b;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  justify-content: center; 
+  align-items: flex-start;
+}
+
+/* Wrapper principal */
+body.painel .wrapper {
+  display: flex;
+  max-width: 1000px;    
+  width: 100%;
+  height: 1000px;          
+  min-height: 400px;     
+  gap: 20px;             
+  background-color: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  overflow: hidden;
+  
+
+}
+
+/* ===== Sidebar ===== */
+body.painel .login-info {
+  flex: 0 0 250px;
+  background-color: #e9f1ff;
+  padding: 20px 15px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start; 
+  align-items: center;    
+  border-radius: 20px 0 0 20px;
+}
+
+/* Logo */
+body.painel .header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 30px;
+}
+
+body.painel .logo-icon {
+  background-color: #1e3a8a;
+  color: white;
+  font-weight: bold;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 18px;
+}
+
+body.painel .logo-text {
+  font-weight: 700;
+  color: #1e3a8a;
+  font-size: 18px;
+}
+
+/* Menu */
+body.painel .menu {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+body.painel .menu-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background-color: #fafafc;
+  border: none;
+  color: #1e3a8a;
+  font-weight: 300;
+  font-size: 15px;
+  padding: 10px 14px;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+}
+
+body.painel .menu-btn:hover {
+  background-color: #dbeafe;
+}
+
+/* ===== Área de conteúdo (coluna direita) ===== */
+body.painel .login-form {
+  flex: 1;                    
+  padding:  0 40px 10px;;          
+  overflow-y: auto;          
+  display: flex;
+  flex-direction: column;
+  gap: 15px;                   
+  align-items: flex-start;  
+}
+
+/* Topo do painel */
+body.painel h1 {
+  font-size: 28px;
+  font-weight: 600;
+  color: #0f172a;
+  padding: 0;
+  margin: 0;
+}
+
+body.painel p {
+  color: #64748b;
+  margin-bottom: 3px;
+}
+
+/* ===== Cards ===== */
+.card {
+  background-color: #ffffff;
+  border-radius: 12px;
+  border: 2px solid #e5e7eb;
+  padding: 15px;
+  width: 100%;                 
+  min-height: 10px;
+  max-width: 500px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  box-sizing: border-box;
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start; 
+
+
+}
+.botoes {
+  display: flex;         
+  gap: 4px;             
+  flex-wrap: wrap;        
+  margin-top: 10px;       
+}
+
+.botoes .btnContinuar {
+  width: auto;            
+  padding: 8px 18px;      
+  margin: 0;           
+}
+
+
+/* Botões dentro dos cards */
+body.painel .btnContinuar {
+  background-color: #1e3a8a;
+  color: white;
+  font-weight: 20;
+  font-size: 15px;
+  border: none;
+  border-radius: 300px;
+  padding: 5px 15px;
+  margin: 5px 6px 0 0;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+body.painel .btnContinuar:hover {
+  background-color: #2a4ab8;
+}
+
+.card .btnContinuar {
+  width: auto;
+  padding: 8px 20px;
+  margin-top: 10px;
+  align-self: center;
+}
+
+
+body.painel .btnSecundario {
+  background-color: #f1f5ff;
+  color: #1e3a8a;
+  border-radius: 14px;
+  padding: 8px 18px;
+  border: 1px solid #c7d2fe;
+  font-weight: 500;
+  font-size: 14px;
+  margin-right: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+body.painel .btnSecundario:hover {
+  background-color: #e0e7ff;
+}
+
