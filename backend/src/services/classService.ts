@@ -1,6 +1,6 @@
 // Autor: Allan Giovanni Matias Paes
 
-import { ClassRegisterRequestDTO, ClassResponseDTO, StudentRegisterDTO } from 'dtos';
+import { ClassRegisterRequestDTO, ClassResponseDTO, CSVResponseDTO, StudentRegisterDTO } from 'dtos';
 import { AppError } from '../errors/AppError';
 import { DatabaseClient } from '../db/DBClient';
 import {
@@ -147,7 +147,8 @@ export async function GetClassGradesForExport(classId: string) {
     {
         throw new AppError(400, "Nenhum aluno encontrado nessa turma");
     }
-    const formattedData = [];
+
+    const formattedData: CSVResponseDTO[]  = [];
 
     for (const cs of classStudents) {
 
@@ -163,13 +164,16 @@ export async function GetClassGradesForExport(classId: string) {
         {
             throw new AppError(400, "Erro, está faltando nota!"); 
         }
+
         // Monta um objeto contendo os dados do aluno, componente e nota já prontos para exportação, e adiciona no array formattedData
         formattedData.push({registration_id: student.registration_id,student_name: student.name,component_name: component?.name ?? "Componente",grade: grade.automatic_final_grade});
-    }
+		
+	}
+	return formattedData;
 }
 
 // Converte para CSV sem salvar no servidor
-export function GenerateCSVBuffer(data: any[]) {
+export function GenerateCSVBuffer(data: CSVResponseDTO[]) {
     let csv = "Matrícula,Aluno,Componente,Nota\n"; 
 
     data.forEach(row => {

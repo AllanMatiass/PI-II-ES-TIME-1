@@ -102,6 +102,13 @@ declare module 'dtos' {
 		name: string;
 		registration_id: string;
 	}
+
+	interface CSVResponseDTO {
+  		registration_id: string;
+  		student_name: string;
+  		component_name: string;
+  		grade: number;
+	}
    
 }
 
