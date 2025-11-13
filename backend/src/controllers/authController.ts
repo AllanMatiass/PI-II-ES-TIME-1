@@ -81,12 +81,14 @@ export async function registerController(req: Request, res: Response) {
 
 export async function getCurrentUser(req: Request, res: Response) {
 	try{
+		// Pega o token JWT de authorization
 		const auth = req.headers.authorization;
 
 		if (!auth){
 			throw new AppError(404, 'Professor not found.')
 		}
 
+		// Pega o professor logado e retorna ele.
 		const professor = await getLoggedUser(auth);
 		return res.status(200).json({
 			message: 'Professor found',
