@@ -12,8 +12,8 @@ O objetivo do projeto é oferecer aos docentes uma ferramenta simples e eficient
   - Cristian Eduardo Fava – 25000636
   - Allan Giovanni Matias Paes - 25008211
   - Murilo Rigoni - 25006049
-  - Nome do integrante 4 – RA   
-  - Nome do integrante 5 – RA  
+  - Mateus de Souza Campos – 25009935   
+  - Emilly Morelatto Barbosa – 25503163  
 
 ## ⚙️ Funcionalidades Principais
 1. Autenticação de Usuário  
