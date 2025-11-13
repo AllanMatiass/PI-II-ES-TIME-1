@@ -46,14 +46,14 @@ $('#delete-institution-btn').on('click', async () => {
 	const institutionId = $('#delete-institution-modal').attr('data-institution-id');
 	await DeleteInstitution(institutionId);
 });
-// Abre o modal de criação de instituição
 
-async function CreateInstitution(institutionData) {
+// Abre o modal de criação de instituição
+async function CreateInstitution(formData) {
 	try {
 		const res = await fetch(`${API_URL}/api/institution`, {
 			method: 'POST',
 			headers: GetAuthHeaders(),
-			body: JSON.stringify(Object.fromEntries(institutionData)),
+			body: JSON.stringify(Object.fromEntries(formData)),
 		});
 
 		const body = await res.json();
@@ -67,9 +67,10 @@ async function CreateInstitution(institutionData) {
 			return ShowErrorModal('ERRO AO CRIAR INSTITUIÇÃO', [body.error]);
 		}
 
-		institutionList.push(body.data);
+		FetchInstitutions();
 		ShowInstitutions();
 	} catch (err) {
+		console.log(err);
 		ShowErrorModal('ERRO AO CRIAR INSTITUIÇÃO', [err.message]);
 	}
 }
@@ -126,7 +127,7 @@ async function DeleteInstitution(id) {
 	modal.hide();
 }
 
-async function FetchInstitutions() {
+export async function FetchInstitutions() {
 	try {
 		const res = await fetch(`${API_URL}/api/institution/all`, {
 			method: 'GET',
@@ -143,11 +144,7 @@ async function FetchInstitutions() {
 			return ShowErrorModal('ERRO AO CARREGAR INSTITUIÇÕES', [body.message]);
 		}
 
-		let dataSet = body.data.filter((data) =>
-			data.professors.find((prof) => prof.id == localStorage.getItem('userId'))
-		);
-
-		institutionList = dataSet.map((data) => data.institution);
+		institutionList = body.data;
 		ShowInstitutions();
 	} catch (err) {
 		ShowErrorModal('ERRO AO CARREGAR INSTITUIÇÕES', [err.message]);
@@ -157,9 +154,12 @@ async function FetchInstitutions() {
 function ShowInstitutions() {
 	$('#institution-table').find('tbody').html('');
 
-	const filteredList = institutionList.filter((inst) =>
-		inst.name.toLowerCase().startsWith(filter.toLowerCase())
+	const filteredList = institutionList.filter(({ institution }) =>
+		institution.name
+			.toLowerCase()
+			.startsWith(filter.toLowerCase())
 	);
+
 	LoadInstitutionList(filteredList, $('#institution-table'));
 }
 
