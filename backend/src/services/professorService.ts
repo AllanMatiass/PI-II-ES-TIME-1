@@ -1,8 +1,11 @@
-// Autor: Allan Giovanni Matias Paes
+// Autor: Allan Giovanni Matias Paes e Murilo Rigoni
 import { ProfessorDataModel } from "dataModels";
 import { DatabaseClient } from "../db/DBClient";
 import { ProfessorResponseDTO } from "dtos";
 import { AppError } from "../errors/AppError";
+import { sendEmail } from "./emailService";
+import crypto from "crypto";
+import bcrypt from "bcryptjs"
 
 // cria instância do banco
 const db = new DatabaseClient();
@@ -28,4 +31,51 @@ export async function updateProfessor(_id: string, update: Partial<ProfessorData
 
     // retorna somente os campos necessários
     return {id, name, email, phone, created_at}
+}
+
+export async function generateRecoveryToken(resetTokens: Map<string, string>, email: string) {
+    const professor =await professorsTable.findUnique({email});
+
+
+    if (!professor){
+        throw new AppError(404, 'Professor não encontrado.');
+    }
+	
+
+	// gera token e salva temporariamente
+	const token = crypto.randomBytes(32).toString("hex");
+	resetTokens.set(token, email);
+
+	// link de redefinição (ajuste o domínio se for necessário)
+	const resetLink = `http://localhost:5500/reset-password?token=${token}`;
+
+	const subject = "Redefinição de senha - Sistema Nota Dez";
+	const message = `
+	  Você solicitou a redefinição da sua senha.<br><br>
+	  Clique no link abaixo para criar uma nova senha:<br>
+	  <a href="${resetLink}">${resetLink}</a><br><br>
+	  Se você não solicitou, ignore este e-mail.
+	`;
+
+	// envia o e-mail
+	const emailStatus = await sendEmail(email, message, subject);
+
+	if (!emailStatus.success) {
+        throw new AppError(500, 'Falha ao enviar e-mail.');
+	}
+    
+}
+
+export async function recoverPassword(resetTokens: Map<string, string>,token: string, email: string, newPassword: string) {
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+	await db.query("UPDATE professors SET password = ? WHERE email = ?", [hashedPassword, email]);
+    const professorExist= await professorsTable.findUnique({email});
+
+    if (!professorExist){
+        throw new AppError (404, "Professor não existe.");
+    }
+
+    await professorsTable.update({password: newPassword}, {email});
+
+	resetTokens.delete(token);
 }
