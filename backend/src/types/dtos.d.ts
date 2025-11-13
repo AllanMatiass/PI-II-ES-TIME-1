@@ -49,7 +49,7 @@ declare module 'dtos' {
         end_date: Date;
 	}
 
-	interface StudentDTO {
+	interface StudentRegisterDTO {
 		name: string;
 		registration_id: string;
 	}

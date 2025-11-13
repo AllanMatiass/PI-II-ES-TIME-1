@@ -1,23 +1,15 @@
 export function LoadClassesList(list, $table) {
 	if (!$table || !$table.length) return;
 
-	const formatOptions = { year: 'numeric', month: '2-digit', day: '2-digit' };
-	
-	for (const subject of list) {
-
-		const startDate = new Date(subject.start_date);
-		const endDate = new Date(subject.end_date);
+	for (const _class of list) {
+		console.log(_class.id);
 
 		// Carrega o HTML do arquivo externo
-		$.get('/frontend/components/subject-table/row.html', (html) => {
+		$.get('/frontend/components/class-table/row.html', (html) => {
 			// Substitui os placeholders pelos dados reais
 			html = html
-				.replace('{{name}}', subject.name)
-				.replace('{{code}}', subject.code)
-				.replace('{{period}}', subject.period)
-				.replace('{{acronym}}', subject.acronym)
-				.replace('{{start}}', startDate.toLocaleDateString('pt-BR', formatOptions))
-				.replace('{{end}}', endDate.toLocaleDateString('pt-BR', formatOptions));
+				.replace('{{name}}', _class.name)
+				.replace('{{location}}', _class.classroom)
                 
 			// Converte o HTML em um elemento jQuery
 			const $linha = $(html);
@@ -30,18 +22,19 @@ export function LoadClassesList(list, $table) {
 				.find('.bi-folder2-open')
 				.closest('button')
 				.on('click', () => {
-					window.location.href ='/frontend/pages/dashboard/classes.html?subjectId=' + subject.id;
+					window.location.href ='/frontend/pages/dashboard/class.html?classId=' + _class.id;
 				});
 
 			$linha
 				.find('.bi-pencil')
 				.closest('button')
 				.on('click', () => {
-					$('#subject-form').attr('data-subject-id', subject.id);
-					$('#subject-name-txt').val(subject.name);
-					$('#subject-modal-title').html('ALTERAR DISCIPLINA');
+					$('#class-form').attr('data-class-id', _class.id);
+					$('#class-name-txt').val(_class.name);
+					$('#class-location-txt').val(_class.classroom);
+					$('#class-modal-title').html('ALTERAR TURMA');
 
-					const modal = new bootstrap.Modal($('#subject-modal')[0]);
+					const modal = new bootstrap.Modal($('#class-modal')[0]);
 					modal.show();
 				});
 
@@ -49,10 +42,10 @@ export function LoadClassesList(list, $table) {
 				.find('.bi-trash')
 				.closest('button')
 				.on('click', () => {
-					$('#delete-subject-modal').attr('data-subject-id', subject.id);
-					$('#delete-subject-modal-title').html(`DESEJA EXCLUIR A DISCIPLINA ${subject.name.toUpperCase()}?`);
+					$('#delete-class-modal').attr('data-class-id', _class.id);
+					$('#delete-class-modal-title').html(`DESEJA EXCLUIR A TURMA ${_class.name.toUpperCase()}?`);
 
-					const modal = new bootstrap.Modal($('#delete-subject-modal')[0]);
+					const modal = new bootstrap.Modal($('#delete-class-modal')[0]);
 					modal.show();
 				});
 		});
