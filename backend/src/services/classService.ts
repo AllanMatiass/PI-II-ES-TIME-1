@@ -4,7 +4,11 @@
 import { ClassRegisterRequestDTO, ClassResponseDTO, CSVResponseDTO, StudentRegisterDTO } from 'dtos';
 import { AppError } from '../errors/AppError';
 import { DatabaseClient } from '../db/DBClient';
-import { ClassDataModel, StudentDataModel, SubjectDataModel } from 'dataModels';
+import {
+	ClassDataModel,
+	StudentDataModel,
+	SubjectDataModel,
+} from 'dataModels';
 
 // Cria instância do cliente de banco de dados
 const db = new DatabaseClient();
@@ -162,8 +166,6 @@ export async function GetClassGradesForExport(classId: string) {
         throw new AppError(400, "Nenhum aluno encontrado nessa turma");
     }
 
-    const formattedData: CSVResponseDTO[]  = [];
-
 	// Array final que armazenará os dados prontos para exportação
 	const formattedData: CSVResponseDTO[] = [];
 
@@ -187,13 +189,6 @@ export async function GetClassGradesForExport(classId: string) {
         formattedData.push({registration_id: student.registration_id,student_name: student.name,component_name: component?.name ?? "Componente",grade: grade.automatic_final_grade});
 		
 	}
-	return formattedData;
-}
-
-// Converte para CSV sem salvar no servidor
-export function GenerateCSVBuffer(data: CSVResponseDTO[]) {
-    let csv = "Matrícula,Aluno,Componente,Nota\n"; 
-
 	return formattedData;
 }
 

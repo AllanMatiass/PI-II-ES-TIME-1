@@ -7,13 +7,13 @@ O objetivo do projeto é oferecer aos docentes uma ferramenta simples e eficient
 
 
 ## 👥 Equipe
-- Time X (substituir pelo número do time no CANVAS)  
+- Time 1  
 - Integrantes:
   - Cristian Eduardo Fava – 25000636
   - Allan Giovanni Matias Paes - 25008211
   - Murilo Rigoni - 25006049
-  - Nome do integrante 4 – RA   
-  - Nome do integrante 5 – RA  
+  - Mateus de Souza Campos – 25009935   
+  - Emilly Morelatto Barbosa – 25503163  
 
 ## ⚙️ Funcionalidades Principais
 1. Autenticação de Usuário  
@@ -50,16 +50,16 @@ O objetivo do projeto é oferecer aos docentes uma ferramenta simples e eficient
 
 ## 🖥️ Tecnologias Utilizadas
 - Backend: Node.js (última versão LTS) com TypeScript  
-- Frontend: HTML5, CSS3, Bootstrap (opcional)  
-- Banco de Dados: MySQL, PostgreSQL ou Oracle  
-- IDE: Visual Studio Code ou JetBrains WebStorm  
+- Frontend: HTML5, CSS3, Bootstrap
+- Banco de Dados: MySQL
+- IDE: Visual Studio Code
 - Controle de Versão: Git + GitHub  
 
 ## 🚀 Como Executar o Projeto
 
 ### 1. Clonar o Repositório
-git clone https://github.com/SEU-USUARIO/PI_II_ES_TIME_X.git  
-cd PI_II_ES_TIME_X  
+git clone https://github.com/AllanMatiass/PI-II-ES-TIME-1/
+cd PI_II_ES_TIME_1 
 
 ### 2. Instalar Dependências
 npm install  
@@ -71,27 +71,60 @@ Configurar credenciais no arquivo `.env`:
 DB_HOST=localhost  
 DB_USER=usuario  
 DB_PASS=senha  
-DB_NAME=notadez  
+DB_NAME=nota_dez_db  
 
 ### 4. Executar o Backend
 npm run dev  
 
 ### 5. Acessar o Frontend
-http://localhost:3000  
+Iniciar pelo Liver Server  
 
 ## 📂 Estrutura do Repositório
-PI_II_ES_TIME_X/  
-│── src/  
-│   ├── backend/        # Código do servidor Node.js  
-│   ├── frontend/       # HTML, CSS, JS  
-│   ├── database/       # Scripts SQL  
-│── docs/               # Documentação adicional  
-│── README.md           # Este arquivo  
-│── package.json  
-│── .gitignore  
+PI_II_ES_TIME_1/
+│
+├── backend/
+│   ├── src/                    # Código do servidor Node.js
+│   │   ├── controllers/
+│   │   ├── db/
+│   │   ├── errors/
+│   │   ├── middlewares/
+│   │   ├── routes/
+│   │   ├── services/
+│   │   ├── tests/
+│   │   ├── types/
+│   │   └── server.ts
+│   │
+│   ├── uploads/
+│   ├── dist/
+│   ├── node_modules/
+│   ├── .env
+│   ├── .env-example
+│   ├── package.json
+│   ├── package-lock.json
+│   ├── tsconfig.json
+│
+├── docs/                       # Documentação adicional
+│   ├── Conceitual PI.brM3
+│   ├── LógicoPI.brM3
+│   ├── MAPA MENTAL - Sistema Nota 10.pdf
+│   └── Requisitos RF PI2 atualizado removidos.pdf
+│
+├── frontend/
+│   ├── components/
+│   ├── fonts/
+│   ├── node_modules/
+│   ├── pages/
+│   ├── scripts/
+│   ├── styles/
+│   ├── jsconfig.json
+│   ├── package.json
+│   ├── package-lock.json
+│
+├── .gitignore
+├── README.md
 
 ## 📝 Regras do Projeto
-- Nome do repositório: PI_II_ES_TIME_X (substituir X pelo número do time no CANVAS).  
+- Nome do repositório: PI_II_ES_TIME_1  
 - Criar branches para cada funcionalidade antes de integrar na main.  
 - Criar TAG de release final: 1.0.0-final.  
 - Todos os arquivos devem conter comentários explicativos e identificação do autor.  
