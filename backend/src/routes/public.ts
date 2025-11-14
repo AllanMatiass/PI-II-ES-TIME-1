@@ -14,6 +14,12 @@ router.post('/register', async (req, res) => {
     console.log('POST /api/register');
     await registerController(req, res);
 });
+// --- EXPORTAÇÃO EM CSV ---
+router.get('/export/csv/:classId', async (req, res) => {
+    console.log(`GET /api/export/csv/${req.params.classId} received`);
+    await exportClassCSVController(req, res);
+});
+
 
 
 router.post("/forgot-password", async (req, res) => {
