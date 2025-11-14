@@ -3,7 +3,7 @@ import { Request, Response } from 'express';
 import { AppError } from '../errors/AppError';
 import { generateRecoveryToken, recoverPassword, updateProfessor } from '../services/professorService';
 
-const resetTokens = new Map<string, string>(); // token -> email
+const resetTokens = new Map<number, string>(); // token -> email
 
 export async function UPDATE_professor(req: Request, res: Response) {
 	try {
@@ -70,6 +70,8 @@ export const resetPassword = async (req: Request, res: Response) => {
   const { token, newPassword } = req.body;
 
   const email = resetTokens.get(token);
+  console.log(email);
+  console.log(resetTokens);
   if (!email) {
 	return res.status(400).json({ error: "Token inválido ou expirado." });
   }
@@ -86,6 +88,7 @@ export const resetPassword = async (req: Request, res: Response) => {
   try {
 	await recoverPassword(resetTokens, token, email, newPassword);
 	res.json({ message: "Senha redefinida com sucesso!" });
+
   }catch (err: any) {
 		// Caso o erro seja do tipo AppError (erro controlado),
 		// retorna o código e a mensagem definidos na exceção.

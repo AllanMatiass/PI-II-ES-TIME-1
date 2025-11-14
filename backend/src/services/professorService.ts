@@ -33,7 +33,7 @@ export async function updateProfessor(_id: string, update: Partial<ProfessorData
     return {id, name, email, phone, created_at}
 }
 
-export async function generateRecoveryToken(resetTokens: Map<string, string>, email: string) {
+export async function generateRecoveryToken(resetTokens: Map<number, string>, email: string) {
     const professor =await professorsTable.findUnique({email});
 
 
@@ -41,19 +41,15 @@ export async function generateRecoveryToken(resetTokens: Map<string, string>, em
         throw new AppError(404, 'Professor não encontrado.');
     }
 	
-
 	// gera token e salva temporariamente
-	const token = crypto.randomBytes(32).toString("hex");
+	const token = Math.floor(100000 + Math.random() * 900000);
 	resetTokens.set(token, email);
-
-	// link de redefinição (ajuste o domínio se for necessário)
-	const resetLink = `http://localhost:5500/reset-password?token=${token}`;
 
 	const subject = "Redefinição de senha - Sistema Nota Dez";
 	const message = `
 	  Você solicitou a redefinição da sua senha.<br><br>
-	  Clique no link abaixo para criar uma nova senha:<br>
-	  <a href="${resetLink}">${resetLink}</a><br><br>
+	  O código para redefinição de senha é:<br>
+	  <strong><p>${token}</p><strong><br><br>
 	  Se você não solicitou, ignore este e-mail.
 	`;
 
@@ -63,19 +59,17 @@ export async function generateRecoveryToken(resetTokens: Map<string, string>, em
 	if (!emailStatus.success) {
         throw new AppError(500, 'Falha ao enviar e-mail.');
 	}
-    
 }
 
-export async function recoverPassword(resetTokens: Map<string, string>,token: string, email: string, newPassword: string) {
+export async function recoverPassword(resetTokens: Map<number, string>,token: number, email: string, newPassword: string) {
     const hashedPassword = await bcrypt.hash(newPassword, 10);
-	await db.query("UPDATE professors SET password = ? WHERE email = ?", [hashedPassword, email]);
     const professorExist= await professorsTable.findUnique({email});
 
     if (!professorExist){
         throw new AppError (404, "Professor não existe.");
     }
 
-    await professorsTable.update({password: newPassword}, {email});
+    await professorsTable.update({password: hashedPassword}, {email});
 
 	resetTokens.delete(token);
 }
