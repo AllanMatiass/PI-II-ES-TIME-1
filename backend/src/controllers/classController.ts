@@ -1,4 +1,4 @@
-// Autor: Allan Matias e Cristian Fava
+// Autores: Allan Matias, Cristian Fava e Emilly Morelatto
 import fs from 'fs';
 import { Request, Response } from 'express';
 import { AppError } from '../errors/AppError';
