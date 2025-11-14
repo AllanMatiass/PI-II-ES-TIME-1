@@ -1,4 +1,4 @@
-// Autor: Allan Giovanni Matias Paes
+// Autores: Allan Giovanni Matias Paes e Emilly Morelatto
 
 // Importa os tipos e DTOs necessários
 import { ClassRegisterRequestDTO, ClassResponseDTO, CSVResponseDTO, StudentRegisterDTO } from 'dtos';
