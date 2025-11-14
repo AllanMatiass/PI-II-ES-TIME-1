@@ -157,9 +157,10 @@ export async function GetClassGradesForExport(classId: string) {
 	// Busca todos os alunos vinculados à turma
 	const classStudents = await classStudentsTable.findMany({ class_id: classId });
 	
-	if (!classStudents || classStudents.length === 0) {
-		throw new AppError(400, "Nenhum aluno encontrado nessa turma");
-	}
+    if(!classStudents||classStudents.length===0)
+    {
+        throw new AppError(400, "Nenhum aluno encontrado nessa turma");
+    }
 
 	// Array final que armazenará os dados prontos para exportação
 	const formattedData: CSVResponseDTO[] = [];
