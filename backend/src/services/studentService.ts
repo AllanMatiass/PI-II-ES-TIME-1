@@ -1,7 +1,7 @@
 // Autor: Allan Giovanni Matias Paes
 import { ClassDataModel, ClassStudentsDataModel, StudentDataModel } from "dataModels";
 import { DatabaseClient } from "../db/DBClient";
-import { StudentDTO, StudentResponseDTO } from "dtos";
+import { StudentRegisterDTO, StudentResponseDTO } from "dtos";
 import { AppError } from "../errors/AppError";
 
 // Instância da DB e tabelas usadas no código.
@@ -11,7 +11,7 @@ const classStudentsTable = db.table<ClassStudentsDataModel>('class_students');
 const classTable = db.table<ClassDataModel>('classes');
 
 // Função para inserir um estudante em uma classe
-export async function insertStudentIntoAClass(student: StudentDTO, classId: string): Promise<StudentResponseDTO> {
+export async function insertStudentIntoAClass(student: StudentRegisterDTO, classId: string): Promise<StudentResponseDTO> {
     
     // Verifica se a classe existe
     const class_ = await classTable.findUnique({id: classId});
@@ -122,14 +122,14 @@ export async function removeStudentFromAClass(registration_id: string, classId: 
 }
 
 // Service para atualizar dados de um aluno
-export async function updateStudent(studentData: Partial<StudentDTO>, registration_id: string): Promise<StudentResponseDTO> {
+export async function updateStudent(studentData: Partial<StudentRegisterDTO>, registration_id: string): Promise<StudentResponseDTO> {
 
     // Verifica se o aluno existe
     const student = await studentTable.findUnique({ registration_id });
     if (!student) throw new AppError(404, 'Student not Found.');
 
     // Monta objeto de update, ignorando campos undefined
-    const updateData: Partial<StudentDTO> = {};
+    const updateData: Partial<StudentRegisterDTO> = {};
     if (studentData.name !== undefined) updateData.name = studentData.name;
     if (studentData.registration_id !== undefined) updateData.registration_id = studentData.registration_id;
 

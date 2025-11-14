@@ -11,7 +11,7 @@ export async function uptadeScoreController(req: Request, res: Response) {
         const {class_id, componentId}=req.params;
         const notas=req.body;
 
-        const result= await scoreService.uptadeScoreService(class_id, componentId, notas);
+        const result= await uptadeScoreService(class_id, componentId, notas);
 
         res.status(200).json({message: 'Grades successfully submitted', data:result});
     }catch(err: any) {
@@ -23,7 +23,7 @@ export async function listGrades(req: Request, res: Response) {
     try {
         const{class_id}=req.params;
 
-        const result =await scoreService.listScoreService(class_id);
+        const result =await listScoreService(class_id);
         res.status(200).json({message: 'The grades were listed successfully', data:result});
 
     }catch(err: any) {
@@ -36,7 +36,7 @@ export async function defineFormula(req: Request, res: Response) {
         const{subject_id}=req.params;
         const formula=req.body;
 
-        const result= await scoreService.defineFormulaService(subject_id, req.body);
+        const result= await defineFormulaService(subject_id, req.body);
         res.status(200).json({message:'Formula was defined succesfully', data:result});
     }catch(err:any) {
         console.error(err);
@@ -47,7 +47,7 @@ export async function calculateFinalGrades(req: Request, res: Response) {
     try {
         const {class_id}=req.params;
 
-        const result= await scoreService.calculateFinalGradesService(class_id);
+        const result= await calculateFinalGradesService(class_id);
         res.status(500).json({message: 'Final Grades was succesfully calculate', data:result});
     }catch(err:any) {
         console.error(err);

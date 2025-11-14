@@ -14,7 +14,7 @@ if (!localStorage.getItem('token')) {
     window.location.href = '/frontend/pages/auth/signin.html';
 }
 
-// Verifica se o ID da instituição está na URL
+// Verifica se o ID da MATÉRIA está na URL
 const params = new URLSearchParams(window.location.search);
 const courseId = params.get('courseId');
 
@@ -83,13 +83,13 @@ async function CreateSubject(data) {
         }
 
         if (res.status != 200) {
-            return ShowErrorModal('ERRO AO CRIAR INSTITUIÇÃO', [body.error]);
+            return ShowErrorModal('ERRO AO CRIAR MATÉRIA', [body.error]);
         }
 
         subjectsList.push(body.data);
         ShowSubjects();
     } catch (err) {
-        ShowErrorModal('ERRO AO CRIAR INSTITUIÇÃO', [err.message]);
+        ShowErrorModal('ERRO AO CRIAR MATÉRIA', [err.message]);
     }
 }
 
@@ -111,12 +111,12 @@ async function AlterSubject(id, subjectName) {
         }
         
         if (res.status != 200) {
-            return ShowErrorModal('ERRO AO ALTERAR INSTITUIÇÃO', [body.error]);
+            return ShowErrorModal('ERRO AO ALTERAR MATÉRIA', [body.error]);
         }
 
         await FetchSubjects();
     } catch (err) {
-        ShowErrorModal('ERRO AO ALTERAR INSTITUIÇÃO', [err.message]);
+        ShowErrorModal('ERRO AO ALTERAR MATÉRIA', [err.message]);
     }
 }
 
@@ -135,12 +135,12 @@ async function DeleteSubject(id) {
         }
 
         if (res.status != 200) {
-            return ShowErrorModal('ERRO AO EXCLUIR INSTITUIÇÃO', [body.error]);
+            return ShowErrorModal('ERRO AO EXCLUIR MATÉRIA', [body.error]);
         }
 
         await FetchSubjects();
     } catch (err) {
-        ShowErrorModal('ERRO AO EXCLUIR INSTITUIÇÃO', [err.message]);
+        ShowErrorModal('ERRO AO EXCLUIR MATÉRIA', [err.message]);
     }
 
     const modal = bootstrap.Modal.getInstance($('#delete-subject-modal')[0]);
@@ -162,13 +162,13 @@ async function FetchSubjects() {
         }
 
         if (res.status != 200) {
-            return ShowErrorModal('ERRO AO CARREGAR CURSOS', [body.message]);
+            return ShowErrorModal('ERRO AO CARREGAR MATÉRIAS', [body.message]);
         }
 
         subjectsList = body.data;
         ShowSubjects();
     } catch (err) {
-        ShowErrorModal('ERRO AO CARREGAR CURSOS', [err.message]);
+        ShowErrorModal('ERRO AO CARREGAR MATÉRIAS', [err.message]);
     }
 }
 

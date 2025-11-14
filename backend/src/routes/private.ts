@@ -21,6 +21,7 @@ import {
 	GET_findAllClasses,
 	GET_findClassByID,
 	GET_findClassesBySubjectId,
+	POST_ImportClass,
 	POST_insertClass,
 	PUT_updateClass,
 } from '../controllers/classController';
@@ -34,7 +35,7 @@ import multer from "multer";
 import { getCurrentUser } from '../controllers/authController';
 import { UPDATE_professor } from '../controllers/professorController';
 import { insertStudent, listStudents, removeStudent, updateStudentController } from '../controllers/studentController';
-import{} from '../controllers/scoreController';
+import {uptadeScoreController, calculateFinalGrades, listGrades, defineFormula} from '../controllers/scoreController';
 
 const router = Router();
 const upload = multer({ dest: 'uploads/' });
@@ -133,11 +134,12 @@ router.delete('/class/:id', async (req, res) => {
 	await DELETE_deleteClass(req, res);
 });
 
-router.post('/class/:id/import', upload.single("file"), (req, res) => {
+router.post('/class/:id/import', upload.single("file"), async (req, res) => {
 	console.log(`POST /api/class/${req.params.id}/import`);
+	await POST_ImportClass(req, res);
 });
 
-router.post('/class/:id/import', upload.single("file"), (req, res) => {
+router.get('/class/:id/export', async (req, res) => {
 	console.log(`POST /api/class/${req.params.id}/import`);
 });
 
