@@ -1,4 +1,4 @@
-// Autor: Allan Matias e Cristian Fava
+// Autores: Allan Matias, Cristian Fava e Emilly Morelatto
 import fs from 'fs';
 import { Request, Response } from 'express';
 import { AppError } from '../errors/AppError';
@@ -50,8 +50,9 @@ export async function POST_insertClass(req: Request, res: Response) {
 		// Insere a turma no banco de dados
 		const class_ = await insertClass(sanitizedData);
 
+
 		// Retorna sucesso com os dados da turma criada
-		res.status(201).json({
+		res.status(200).json({
 			message: 'Class created successfully',
 			data: class_,
 		});
@@ -62,7 +63,6 @@ export async function POST_insertClass(req: Request, res: Response) {
 		}
 
 		// Loga e retorna erro inesperado
-		console.error(err);
 		return res.status(500).json({ error: 'Unexpected Error' });
 	}
 }
@@ -127,7 +127,8 @@ export async function GET_findClassesBySubjectId(req: Request, res: Response) {
 		// Busca as turmas associadas a uma disciplina
 		const classes = await findClassBySubjectId(params.subId);
 
-		return res.json({
+
+		return res.status(200).json({
 			message: 'Classes by subject ID found.',
 			data: classes,
 		});
@@ -158,13 +159,18 @@ export async function PUT_updateClass(req: Request, res: Response) {
 
 		const { name, classroom } = body as ClassRegisterRequestDTO;
 
+		if (!name || !classroom) {
+			throw new AppError(400, 'Body must contain name and classroom.');
+		}
+
 		// Atualiza a turma no banco
 		const class_ = await updateClass(params.id, {
 			name,
 			classroom,
 		});
 
-		return res.json({
+
+		return res.status(200).json({
 			message: 'Class updated.',
 			data: class_,
 		});
@@ -197,7 +203,7 @@ export async function DELETE_deleteClass(req: Request, res: Response) {
 		}
 
 		// Retorna status 204 (sem conteúdo)
-		return res.status(204).send();
+		return res.status(200).json({ message: 'Class removed successfully.' });
 	} catch (err) {
 		if (err instanceof AppError) {
 			return res.status(err.code).json({ error: err.message });
