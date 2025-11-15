@@ -37,6 +37,7 @@ import { UPDATE_professor } from '../controllers/professorController';
 import { insertStudent, listStudents, removeStudent, updateStudentController } from '../controllers/studentController';
 import {updateScoreController, calculateFinalGradesController, listGradesController} from '../controllers/scoreController';
 
+
 const router = Router();
 const upload = multer({ dest: 'uploads/' });
 
