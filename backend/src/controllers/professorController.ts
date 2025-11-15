@@ -46,9 +46,13 @@ export const requestPasswordReset = async (req: Request, res: Response) => {
   }
 
   try {
-	await generateRecoveryToken(resetTokens, email);
+	const token = await generateRecoveryToken(resetTokens, email);
 
-	res.json({ message: "E-mail de redefinição enviado com sucesso!" });
+	res.json({ message: "E-mail de redefinição enviado com sucesso!", data: {
+		token: token
+	}}
+);
+
   }catch (err: any) {
 		// Caso o erro seja do tipo AppError (erro controlado),
 		// retorna o código e a mensagem definidos na exceção.
