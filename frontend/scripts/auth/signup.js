@@ -16,10 +16,10 @@ cadForm.addEventListener("submit", async (ev) => {
     try {
         // Passa os dados para JSON
         const json = JSON.stringify({
-            name: data.name,
+            name: data.name.trim(),
             phone: data.phone,
-            email: data.email,
-            password: data.password
+            email: data.email.trim(),
+            password: data.password.trim()
         });
 
         // Efetua a requisição de login e aguarda a resposta
