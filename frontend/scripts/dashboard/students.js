@@ -6,7 +6,7 @@ import { LoadStudentsList } from '/frontend/components/students-table/row.js';
 import { GetAuthHeaders } from '../utils/getAuthHeaders.js';
 import { isValidToken } from '../utils/verifyToken.js';
 
-var studentList = [];
+var studentsList = [];
 var gradesList = [];
 var filter = '';
 
@@ -61,7 +61,6 @@ $('#delete-student-btn').on('click', async () => {
 
 async function CreateStudent(studentData) {
     try {
-        console.log(Object.fromEntries(studentData));
 
         const res = await fetch(`${API_URL}/api/student/${classId}`, {
             method: 'POST',
@@ -80,7 +79,7 @@ async function CreateStudent(studentData) {
             return ShowErrorModal('ERRO AO CRIAR ESTUDANTE', [body.error]);
         }
 
-        studentList.push(body.data);
+        await FetchStudents();
         ShowStudents();
     } catch (err) {
         ShowErrorModal('ERRO AO CRIAR ESTUDANTE', [err.message]);
@@ -152,11 +151,12 @@ async function FetchStudents() {
             window.location.href = '/frontend/pages/auth/signin.html';
             return;
         }
+        
         if (!res.ok) {
-            return ShowErrorModal('ERRO AO CARREGAR OS ALUNOS', [body.message]);
+            return ShowErrorModal('ERRO AO CARREGAR OS ALUNOS', [body.error]);
         }
 
-        studentList = body.data;
+        studentsList = body.data;
         ShowStudents();
     } catch (err) {
         ShowErrorModal('ERRO AO CARREGAR OS ALUNOS', [err.message]);
@@ -181,9 +181,8 @@ async function FetchStudentsGrades() {
             return ShowErrorModal('ERRO AO CARREGAR AS NOTAS', [body.error]);
         }
 
-
         gradesList = body.data;
-        ShowStudents();
+        FetchStudents();
     } catch (err) {
         ShowErrorModal('ERRO AO CARREGAR AS NOTAS', [err.message]);
     }
@@ -192,12 +191,10 @@ async function FetchStudentsGrades() {
 function ShowStudents() {
     $('#students-table').find('tbody').html('');
 
-    const filteredList = studentList.filter((inst) =>
+    const filteredList = studentsList.filter((inst) =>
         inst.name.toLowerCase().startsWith(filter.toLowerCase())
     );
     LoadStudentsList(filteredList, gradesList, $('#students-table'));
 }
 
 FetchStudentsGrades();
-FetchStudents();
-ShowStudents();

@@ -29,10 +29,13 @@ $('#component-search-input').on('keyup', (e) => {
 // Abrir modal e carregar fórmula
 $('#open-formula-modal-btn').on('click', async () => {
 	try {
-		const res = await fetch(`${API_URL}/api/subject/${subjectId}/final-formula`, {
-			method: 'GET',
-			headers: GetAuthHeaders(),
-		});
+		const res = await fetch(
+			`${API_URL}/api/subject/${subjectId}/final-formula`,
+			{
+				method: 'GET',
+				headers: GetAuthHeaders(),
+			}
+		);
 
 		if (!isValidToken(res)) {
 			return (window.location.href = '/frontend/pages/auth/signin.html');
@@ -96,17 +99,20 @@ $('#delete-component-btn').on('click', async () => {
 // FUNÇÕES API
 async function SaveFormula(formula) {
 	try {
-		const res = await fetch(`${API_URL}/api/subject/${subjectId}/final-formula`, {
-			method: 'POST',
-			headers: GetAuthHeaders(),
-			body: JSON.stringify({ formula_text: formula }),
-		});
+		const res = await fetch(
+			`${API_URL}/api/subject/${subjectId}/final-formula`,
+			{
+				method: 'POST',
+				headers: GetAuthHeaders(),
+				body: JSON.stringify({ formula_text: formula }),
+			}
+		);
 
 		const body = await res.json();
 
-        if (!isValidToken(res)) {
-            window.location.href = '/frontend/pages/auth/signin.html';
-        }
+		if (!isValidToken(res)) {
+			window.location.href = '/frontend/pages/auth/signin.html';
+		}
 
 		if (!res.ok) {
 			ShowErrorModal('Erro ao salvar fórmula', [
@@ -169,7 +175,7 @@ async function CreateComponent(data) {
 			return ShowErrorModal('Erro ao criar componente', [body.error]);
 		}
 
-		componentsList.push(body.data);
+        FetchComponents();
 		ShowComponents();
 	} catch (err) {
 		ShowErrorModal('Erro ao criar componente', [err.message]);

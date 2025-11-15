@@ -1,19 +1,16 @@
-<tr data-student-id="{{student_id}}">
-    <th scope="row">{{registration_id}}</th>
-    <td>{{name}}</td>
+<tr class="student-row" data-student-id="{{student_id}}">
+    <td class="registration-cell">{{registration_id}}</td>
+    <td class="name-cell">{{name}}</td>
 
-    <!-- Notas dos componentes -->
-    <td class="notes-cell">
-        {{notes_html}}
-    </td>
+    <!-- As notas serão colocadas dentro desta célula -->
+    <td class="notes-cell"></td>
 
-    <!-- Ações padrão -->
-    <td>
-        <button class="btn btn-secondary btn-icon rounded-circle me-2 edit-student-btn" title="Alterar aluno">
-            <i class="bi bi-pencil text-light"></i>
+    <td class="actions-cell">
+        <button class="btn btn-warning btn-sm edit-student-btn" title="Alterar aluno">
+            <i class="bi bi-pencil"></i>
         </button>
 
-        <button class="btn btn-secondary btn-icon rounded-circle me-2 delete-student-btn" title="Excluir aluno">
+        <button class="btn btn-danger btn-sm delete-student-btn" title="Excluir aluno">
             <i class="bi bi-trash"></i>
         </button>
     </td>
