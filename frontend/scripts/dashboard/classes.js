@@ -60,113 +60,113 @@ $('#delete-class-btn').on('click', async () => {
 });
 
 async function CreateClass(formData) {
-    try {
-        const res = await fetch(`${API_URL}/api/class`, {
-            method: 'POST',
-            headers: GetAuthHeaders(),
-            body: JSON.stringify({
-                subject_id: subjectId,
-                name: formData.get('class-name'),
-                classroom: formData.get('classroom')
-            }),
-        });
+	try {
+		const res = await fetch(`${API_URL}/api/class`, {
+			method: 'POST',
+			headers: GetAuthHeaders(),
+			body: JSON.stringify({
+				subject_id: subjectId,
+				name: formData.get('class-name'),
+				classroom: formData.get('classroom'),
+			}),
+		});
 
-        const body = await res.json();
+		const body = await res.json();
 
-        if (!isValidToken(res)){
-            window.location.href = '/frontend/pages/auth/signin.html';
-            return;
-        }
+		if (!isValidToken(res)) {
+			window.location.href = '/frontend/pages/auth/signin.html';
+			return;
+		}
 
-        if (res.status != 200) {
-            return ShowErrorModal('ERRO AO CRIAR CLASSE', [body.error]);
-        }
+		if (!res.ok) {
+			return ShowErrorModal('ERRO AO CRIAR CLASSE', [body.error]);
+		}
 
-        classsList.push(body.data);
-        ShowClasses();
-    } catch (err) {
-        ShowErrorModal('ERRO AO CRIAR CLASSE', [err.message]);
-    }
+		classsList.push(body.data);
+		ShowClasses();
+	} catch (err) {
+		ShowErrorModal('ERRO AO CRIAR CLASSE', [err.message]);
+	}
 }
 
 async function AlterClass(id, formData) {
-    try {
-        const res = await fetch(`${API_URL}/api/class/${id}`, {
-            method: 'PUT',
-            headers: GetAuthHeaders(),
-            body: JSON.stringify({
-                name: formData.get('class-name'),
-                classroom: formData.get('classroom')
-            }),
-        });
+	try {
+		const res = await fetch(`${API_URL}/api/class/${id}`, {
+			method: 'PUT',
+			headers: GetAuthHeaders(),
+			body: JSON.stringify({
+				name: formData.get('class-name'),
+				classroom: formData.get('classroom'),
+			}),
+		});
 
-        const body = await res.json();
+		const body = await res.json();
 
-        if (!isValidToken(res)){
-            window.location.href = '/frontend/pages/auth/signin.html';
-            return;
-        }
-        
-        if (res.status != 200) {
-            return ShowErrorModal('ERRO AO ALTERAR CLASSE', [body.error]);
-        }
+		if (!isValidToken(res)) {
+			window.location.href = '/frontend/pages/auth/signin.html';
+			return;
+		}
 
-        await FetchClasses();
-    } catch (err) {
-        ShowErrorModal('ERRO AO ALTERAR CLASSE', [err.message]);
-    }
+		if (!res.ok) {
+			return ShowErrorModal('ERRO AO ALTERAR CLASSE', [body.error]);
+		}
+
+		await FetchClasses();
+	} catch (err) {
+		ShowErrorModal('ERRO AO ALTERAR CLASSE', [err.message]);
+	}
 }
 
 async function DeleteClass(id) {
-    try {
-        const res = await fetch(`${API_URL}/api/class/${id}`, {
-            method: 'DELETE',
-            headers: GetAuthHeaders()
-        });
+	try {
+		const res = await fetch(`${API_URL}/api/class/${id}`, {
+			method: 'DELETE',
+			headers: GetAuthHeaders(),
+		});
 
-        const body = await res.json();
+		const body = await res.json();
 
-        if (!isValidToken(res)){
-            window.location.href = '/frontend/pages/auth/signin.html';
-            return;
-        }
+		if (!isValidToken(res)) {
+			window.location.href = '/frontend/pages/auth/signin.html';
+			return;
+		}
 
-        if (res.status != 200) {
-            return ShowErrorModal('ERRO AO EXCLUIR CLASSE', [body.error]);
-        }
+		if (!res.ok) {
+			return ShowErrorModal('ERRO AO EXCLUIR CLASSE', [body.error]);
+		}
 
-        await FetchClasses();
-    } catch (err) {
-        ShowErrorModal('ERRO AO EXCLUIR CLASSE', [err.message]);
-    }
+		await FetchClasses();
+	} catch (err) {
+		ShowErrorModal('ERRO AO EXCLUIR CLASSE', [err.message]);
+	}
 
-    const modal = bootstrap.Modal.getInstance($('#delete-class-modal')[0]);
-    modal.hide();
+	const modal = bootstrap.Modal.getInstance($('#delete-class-modal')[0]);
+	modal.hide();
 }
 
-async function FetchClasses() {    
-    try {
-        const res = await fetch(`${API_URL}/api/classes/by-subject/${subjectId}`, {
-            method: 'GET',
-            headers: GetAuthHeaders(),
-        });
+async function FetchClasses() {
+	try {
+		const res = await fetch(`${API_URL}/api/classes/by-subject/${subjectId}`, {
+			method: 'GET',
+			headers: GetAuthHeaders(),
+		});
 
-        const body = await res.json();
+		const body = await res.json();
 
-        if (!isValidToken(res)){
-            window.location.href = '/frontend/pages/auth/signin.html';
-            return;
-        }
+		if (!isValidToken(res)) {
+			window.location.href = '/frontend/pages/auth/signin.html';
+			return;
+		}
 
-        if (res.status != 200) {
-            return ShowErrorModal('ERRO AO CARREGAR AS TURMAS', [body.message]);
-        }
+		if (!res.ok) {
+			return ShowErrorModal('ERRO AO CARREGAR AS TURMAS', [body.message]);
+		}
 
-        classsList = body.data;
-        ShowClasses();
-    } catch (err) {
-        ShowErrorModal('ERRO AO CARREGAR AS TURMAS', [err.message]);
-    }
+		classsList = body.data;
+		ShowClasses();
+	} catch (err) {
+		ShowErrorModal('ERRO AO CARREGAR AS TURMAS', [err.message]);
+	}
 }
 
 function ShowClasses() {

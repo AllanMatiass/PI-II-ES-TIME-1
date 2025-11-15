@@ -1,295 +1,319 @@
-//autores: Emilly Morelatto e Mateus Campos
-import { ClassStudentsDataModel, GradeComponentDataModel, GradeDataModel, StudentDataModel, SubjectDataModel } from "dataModels";
-import { DatabaseClient } from "../db/DBClient";
-import { AppError } from "../errors/AppError";
-import { CreateGradeRequestDTO, GradeComponentRequestDTO, ScoreRequestDTO, ScoreResponseDto } from "dtos";
+import {
+	ClassStudentsDataModel,
+	GradeDataModel,
+	GradeComponentDataModel,
+	StudentDataModel,
+	SubjectDataModel,
+	GradeComponentValueDataModel,
+	SubjectFinalFormulaDataModel,
+} from 'dataModels';
+
+import { DatabaseClient } from '../db/DBClient';
+import { AppError } from '../errors/AppError';
+
+import {
+	ScoreRequestDTO,
+	GradeComponentRequestDTO,
+	CreateGradeRequestDTO,
+} from 'dtos';
 
 const db = new DatabaseClient();
-const gradesTable = db.table<GradeDataModel>("grades");
-const componentsTable = db.table<GradeComponentDataModel>("grade_components");
-const studentsTable = db.table<StudentDataModel>("students");
-const classStudentsTable = db.table<ClassStudentsDataModel>("class_students");
+
+const gradesTable = db.table<GradeDataModel>('grades');
+const componentsTable = db.table<GradeComponentDataModel>('grade_components');
+const componentValuesTable = db.table<GradeComponentValueDataModel>(
+	'grade_component_values'
+);
+const formulaTable = db.table<SubjectFinalFormulaDataModel>(
+	'subject_final_formula'
+);
+
+const studentsTable = db.table<StudentDataModel>('students');
+const classStudentsTable = db.table<ClassStudentsDataModel>('class_students');
 const subjectTable = db.table<SubjectDataModel>('subjects');
 
-// ============================================================
-// 1. Update Score (apenas média simples)
-// ============================================================
+// 1. ATUALIZAR NOTAS
 
-export async function updateScoreService(subjectId: string, notas: ScoreRequestDTO) {
-    if (!Array.isArray(notas.scores) || notas.scores.length === 0) {
-        throw new AppError(400, "Nenhuma nota enviada.");
-    }
+export async function updateScoreService(
+	subjectId: string,
+	score: ScoreRequestDTO
+) {
+	const { student_id, component_id, grade_value } = score;
 
-    let response: ScoreResponseDto[] = [];
+	const student = await studentsTable.findUnique({ id: student_id });
+	if (!student) {
+		throw new AppError(404, 'Student not found.');
+	}
 
-    for (const nota of notas.scores) {
-        const { student_id, component_id, grade_value } = nota;
+	const comp = await componentsTable.findUnique({ id: component_id });
 
-        // Validações básicas
-        const studentExist = await studentsTable.findUnique({ id: student_id });
-        if (!studentExist) throw new AppError(404, 'Student not found.');
+	if (!comp) {
+		throw new AppError(404, 'Component not found.');
+	}
 
-        const component = await componentsTable.findUnique({ id: component_id });
-        if (!component) throw new AppError(404, 'Component not found.');
+	if (comp.subject_id !== subjectId) {
+		throw new AppError(400, 'Componente não pertence à disciplina.');
+	}
 
-        if (component.subject_id !== subjectId) {
-            throw new AppError(400, "Componente inválido para esta disciplina.");
-        }
+	// Normaliza nota
+	const parsed = Math.min(Math.max(Number(grade_value) || 0, 0), 10);
 
-        const grade = await gradesTable.findUnique({ id: component.grade_id });
-        if (!grade) throw new AppError(404, "Grade não encontrada.");
+	// Descobrir ou criar o registro do componente para o aluno
+	const existing = await componentValuesTable.findUnique({
+		student_id,
+		component_id,
+	});
 
-        if (grade.student_id !== student_id) {
-            throw new AppError(409, "Este componente não pertence a este aluno.");
-        }
+	if (existing) {
+		await componentValuesTable.update(
+			{ grade_value: parsed },
+			{ id: existing.id }
+		);
+	} else {
+		await componentValuesTable.insert({
+			component_id,
+			student_id,
+			grade_value: parsed,
+		});
+	}
 
-        // Sanitiza nota
-        const parsed = Math.min(Math.max(Number(grade_value) || 0, 0), 10);
+	await db.query('CALL recalc_student_final_grade(?, ?)', [
+		student_id,
+		subjectId,
+	]);
 
-        // Atualiza a grade existente
-        await componentsTable.update(
-            { grade_value: parsed },
-            { id: component_id }
-        );
+	let grade = await gradesTable.findUnique({
+		student_id,
+		subject_id: subjectId,
+	});
 
-        response.push({
-            student_id,
-            grade_id: component.grade_id,
-            grade_component_value: parsed
-        });
-    }
+	if (!grade) {
+		await gradesTable.insert({
+			student_id,
+			subject_id: subjectId,
+			final_grade: 0,
+			entry_date: new Date(),
+		});
 
-    // Recalcular médias APÓS todas as notas atualizadas
-    await calculateFinalGradesService(subjectId);
+		await db.query('CALL recalc_student_final_grade(?, ?)', [
+			student_id,
+			subjectId,
+		]);
 
-    return response;
+		grade = await gradesTable.findUnique({
+			student_id,
+			subject_id: subjectId,
+		});
+	}
+
+	// O SQL recalcula automaticamente via triggers
+	return grade;
 }
 
-
-// ============================================================
-// 2. Lista de notas por aluno
-// ============================================================
+// 2. LISTAR NOTAS DE UMA TURMA
 
 export async function listScoreService(classId: string, subjectId: string) {
-    const classStudents = await classStudentsTable.findMany({ class_id: classId });
-    if (!classStudents.length) {
-        throw new AppError(404, "Nenhum aluno encontrado nesta turma.");
-    }
+	const classStudents = await classStudentsTable.findMany({
+		class_id: classId,
+	});
+	const components = await componentsTable.findMany({ subject_id: subjectId });
 
-    const components = await componentsTable.findMany({ subject_id: subjectId });
+	const result = [];
 
-    const result = [];
-    
-    await calculateFinalGradesService(subjectId);
+	for (const cs of classStudents) {
+		const student = await studentsTable.findUnique({ id: cs.student_id });
+		if (!student) continue;
 
-    for (const cs of classStudents) {
-        const student = await studentsTable.findUnique({ id: cs.student_id });
-        if (!student) continue;
+		const studentValues = await componentValuesTable.findMany({
+			student_id: student.id,
+		});
 
-        const detailed: {
-            component_name: string;
-            formula_acronym: string;
-            grade_value: number;
-        }[] = [];
+		const detailed = components.map((comp) => {
+			const val = studentValues.find((v) => v.component_id === comp.id);
 
-        // Filtra os componentes que pertencem a este aluno
-        const studentComponents = components.filter(c => {
-            return c.grade_id && gradesTable.findUnique({ id: c.grade_id }).then(g => g?.student_id === student.id);
-        });
+			return {
+				component_id: comp.id,
+				component_name: comp.name,
+				formula_acronym: comp.formula_acronym,
+				grade_value: Number(val?.grade_value ?? 0),
+			};
+		});
 
-        // Preenche detalhes e evita duplicações
-        const seen = new Set<string>();
-        for (const comp of studentComponents) {
-            if (seen.has(comp.formula_acronym)) continue;
-            seen.add(comp.formula_acronym);
+		const grade = await gradesTable.findUnique({
+			student_id: student.id,
+			subject_id: subjectId,
+		});
 
-            detailed.push({
-                component_name: comp.name,
-                formula_acronym: comp.formula_acronym,
-                grade_value: Number(comp.grade_value ?? 0)
-            });
-        }
+		result.push({
+			student_id: student.id,
+			student_name: student.name,
+			registration_id: student.registration_id,
+			components: detailed,
+			final_grade: Number(grade?.final_grade ?? 0),
+		});
+	}
 
-        // Pega o final_grade do aluno (cada aluno tem 1 grade_id por disciplina)
-        const studentGrades = await gradesTable.findUnique({ student_id: student.id, subject_id: subjectId });
-        const finalGrade = Number(studentGrades?.automatic_final_grade ?? 0);
-        
-
-        result.push({
-            student_id: student.id,
-            student_name: student.name,
-            registration_id: student.registration_id,
-            grades: detailed,
-            final_grade: finalGrade
-        });
-    }
-
-    return {
-        message: "Grades listed successfully",
-        data: result
-    };
+	return result;
 }
 
-export async function calculateFinalGradesService(subjectId: string) {
-    const subjectExist = await subjectTable.findUnique({id: subjectId});
-    if (!subjectExist){
-        throw new AppError(404, 'Subject not found.');
-    }
+// 3. ADICIONAR COMPONENTE
 
-    const components = await componentsTable.findMany({ subject_id: subjectId });
-    if (!components.length) {
-        throw new AppError(404, "Nenhum componente encontrado.");
-    }
+export async function addComponentService(data: GradeComponentRequestDTO) {
+	const { subject_id, name, formula_acronym, description } = data;
 
-    const updated = [];
+	const subject = await subjectTable.findUnique({ id: subject_id });
+	if (!subject) throw new AppError(404, 'Subject not found.');
 
-    // Junta valores por grade_id (todos componentes do aluno apontam para o mesmo grade_id)
-    const gradesByGradeId = new Map<string, number[]>();
+	const exists = await componentsTable.findUnique({
+		formula_acronym,
+		subject_id,
+	});
 
-    for (const comp of components) {
-        if (!comp.grade_id) continue;
+	if (exists) throw new AppError(409, 'Acrônimo já existe nesta disciplina.');
 
-        if (!gradesByGradeId.has(comp.grade_id)) {
-            gradesByGradeId.set(comp.grade_id, []);
-        }
+	const id = await componentsTable.insert({
+		name,
+		subject_id,
+		formula_acronym,
+		description,
+	});
 
-        // Agora pegamos o valor do componente, não do Grade
-        gradesByGradeId.get(comp.grade_id)!.push(Number(comp.grade_value ?? 0));
-    }
-
-    // Calcular a média de cada grade_id (cada aluno)
-    for (const [gradeId, values] of gradesByGradeId.entries()) {
-        const sum = values.reduce((a, b) => a + b, 0);
-        const avg = values.length ? sum / values.length : 0;
-        const rounded = Math.round(avg * 100) / 100;
-
-        // Atualiza o registro Grade correto
-        await gradesTable.update(
-            { automatic_final_grade: rounded },
-            { id: gradeId }
-        );
-
-        // Pega o grade atualizado para retorno
-        const grade = await gradesTable.findUnique({ id: gradeId });
-
-        updated.push({
-            student_id: grade!.student_id,
-            final_grade: rounded
-        });
-    }
-
-    return { message: "Média simples calculada com sucesso!", updated };
+	return {
+		message: 'Componente criado.',
+		component_id: id,
+	};
 }
 
-
-
-export async function addComponentService(studentId: string, data: GradeComponentRequestDTO) {
-    
-    const { subject_id, name, formula_acronym, description, grade_id, grade_value } = data;
-
-    // Se não vier valor, define como 0.0
-    const val = grade_value ?? 0.0;
-
-    // 1. Verifica se a disciplina existe
-    const subjectExist = await subjectTable.findUnique({id: subject_id});
-    if (!subjectExist){
-        throw new AppError(404, 'Subject not found.');
-    }
-
-    // 2. Validar se o grade_id existe
-    const grade = await gradesTable.findUnique({ id: grade_id });
-    if (!grade) {
-        throw new AppError(404, "Grade not found.");
-    }
-
-    // 3. Validar se o grade_id pertence ao aluno correto
-    if (grade.student_id !== studentId) {
-        throw new AppError(409, "Este grade_id não pertence ao aluno informado.");
-    }
-
-    // 4. Validar se o grade_id é da mesma disciplina
-    if (grade.subject_id !== subject_id) {
-        throw new AppError(400, "O grade_id informado não pertence a esta disciplina.");
-    }
-
-    const gp = await componentsTable.findUnique({formula_acronym});
-    if (gp) throw new AppError(409, 'Formula Acronym already exists');
-
-    // 5. Inserir componente
-    const createdId = await componentsTable.insert({
-        subject_id,
-        name,
-        formula_acronym,
-        description,
-        grade_id,
-        grade_value: val
-    });
-
-    // 6. Buscar componente recém-criado
-    const res = await componentsTable.findUnique({ id: createdId });
-
-    if (!res) {
-        throw new AppError(500, "Erro inesperado: não foi possível criar o componente.");
-    }
-
-    // 7. Normalizar retorno (MySQL DECIMAL → string)
-    const response = {
-        id: res.id,
-        subject_id: res.subject_id,
-        name: res.name,
-        formula_acronym: res.formula_acronym,
-        description: res.description,
-        grade_id: res.grade_id,
-        grade_value: Number(res.grade_value)
-    };
-
-    return {
-        message: "Componente criado com sucesso!",
-        component: response
-    };
-}
-
+// 4. CRIAR GRADE PARA ALUNO (1 por aluno/subject)
 
 export async function addGradeService(data: CreateGradeRequestDTO) {
+	const { student_id, subject_id } = data;
 
-    const { student_id, subject_id, grade_value } = data;
+	const student = await studentsTable.findUnique({ id: student_id });
+	if (!student) throw new AppError(404, 'Student not found.');
 
-    const studentExist = await studentsTable.findUnique({id: student_id});
-    if (!studentExist){
-        throw new AppError(404, 'Student not found.');
-    }
+	const subject = await subjectTable.findUnique({ id: subject_id });
+	if (!subject) throw new AppError(404, 'Subject not found.');
 
-    const subjectExist = await subjectTable.findUnique({id: subject_id});
-    if (!subjectExist){
-        throw new AppError(404, 'Subject not found.');
-    }
+	const exists = await gradesTable.findUnique({ student_id, subject_id });
+	if (exists)
+		throw new AppError(409, 'Grade já existe para este aluno na disciplina.');
 
-    const gradeAlreadySync = await gradesTable.findUnique({student_id, subject_id});
-    if (gradeAlreadySync) throw new AppError(409, 'This grade is already sync with student.');
+	const id = await gradesTable.insert({
+		student_id,
+		subject_id,
+		final_grade: 0,
+		entry_date: new Date(),
+	});
 
-    // Sanitizar nota (0 → 10)
-    const parsed = Math.min(Math.max(Number(grade_value) || 0, 0), 10);
-
-    const created = await gradesTable.insert({
-        student_id,
-        subject_id,
-        grade_value: parsed,
-        automatic_final_grade: parsed,
-        entry_date: new Date()
-    });
-
-    return {
-        message: "Nota criada com sucesso!",
-        grade: created
-    };
+	return {
+		message: 'Grade criada.',
+		grade_id: id,
+	};
 }
 
+// 5. DEFINIR / ATUALIZAR FÓRMULA FINAL DA DISCIPLINA
 
-export async function getGradeById(id: string){
+export async function updateFinalFormulaService(
+	subjectId: string,
+	formula: string
+) {
+	try {
+		const subject = await subjectTable.findUnique({ id: subjectId });
+		if (!subject) {
+			throw new AppError(404, 'Subject not found.');
+		}
 
-    const grade = await gradesTable.findUnique({id});
-    if (!grade) throw new AppError(404, 'Grade not found.');
+		const existing = await formulaTable.findUnique({
+			subject_id: subjectId,
+		});
 
-    return grade;
+		if (existing) {
+			await formulaTable.update(
+				{
+					formula_text: formula,
+				},
+				{
+					id: existing.id,
+				}
+			);
 
+			const grades = await gradesTable.findMany({
+				subject_id: subjectId,
+			});
+
+			for (const grade of grades) {
+				await db.query('CALL recalc_student_final_grade(?, ?)', [
+					grade.student_id,
+					subjectId,
+				]);
+			}
+
+			return {
+				message: 'Fórmula atualizada.',
+			};
+		}
+
+		await formulaTable.insert({
+			subject_id: subjectId,
+			formula_text: formula,
+		});
+
+		return {
+			message: 'Fórmula criada.',
+		};
+	} catch (err: any) {
+		if (err?.code === 'ER_SIGNAL_EXCEPTION' || err?.errno === 1644) {
+			const clean = err.sqlMessage.replace('Erro: ', '');
+			throw new AppError(400, clean);
+		}
+
+		console.error('Database error:', err);
+		throw new AppError(500, 'Erro ao salvar fórmula.');
+	}
+}
+
+// 6. GET fórmula final
+export async function getFinalFormulaService(subjectId: string) {
+	const subject = await subjectTable.findUnique({ id: subjectId });
+	if (!subject) throw new AppError(404, 'Subject not found.');
+
+	const formula = await formulaTable.findUnique({ subject_id: subjectId });
+
+	if (!formula) {
+		return { formula_text: null };
+	}
+
+	return {
+		formula_text: formula.formula_text,
+	};
+}
+
+// 7. GET GRADE BY ID
+
+export async function getGradeById(id: string) {
+	const grade = await gradesTable.findUnique({ id });
+	if (!grade) throw new AppError(404, 'Grade not found.');
+	return grade;
+}
+
+export async function getComponentsBySubjectService(subjectId: string) {
+	return await componentsTable.findMany({
+		subject_id: subjectId,
+	});
+}
+
+export async function updateComponentService(
+	componentId: string,
+	data: Partial<GradeComponentRequestDTO>
+) {
+	await componentsTable.update(data, {
+		id: componentId,
+	});
+}
+
+export async function deleteComponentService(componentId: string) {
+	await componentsTable.deleteMany({
+		id: componentId,
+	});
 }
