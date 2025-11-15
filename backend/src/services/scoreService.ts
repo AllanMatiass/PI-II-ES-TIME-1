@@ -13,7 +13,6 @@ import { AppError } from '../errors/AppError';
 
 import {
 	ScoreRequestDTO,
-	ScoreResponseDto,
 	GradeComponentRequestDTO,
 	CreateGradeRequestDTO,
 } from 'dtos';
@@ -33,60 +32,82 @@ const studentsTable = db.table<StudentDataModel>('students');
 const classStudentsTable = db.table<ClassStudentsDataModel>('class_students');
 const subjectTable = db.table<SubjectDataModel>('subjects');
 
-// 1. ATUALIZAR NOTAS (NÃO USA grade_components.grade_value - AGORA É grade_component_values)
+// 1. ATUALIZAR NOTAS
 
 export async function updateScoreService(
 	subjectId: string,
-	notas: ScoreRequestDTO
+	score: ScoreRequestDTO
 ) {
-	if (!Array.isArray(notas.scores) || notas.scores.length === 0)
-		throw new AppError(400, 'Nenhuma nota enviada.');
+	const { student_id, component_id, grade_value } = score;
 
-	const response: ScoreResponseDto[] = [];
+	const student = await studentsTable.findUnique({ id: student_id });
+	if (!student) {
+		throw new AppError(404, 'Student not found.');
+	}
 
-	for (const nota of notas.scores) {
-		const { student_id, component_id, grade_value } = nota;
+	const comp = await componentsTable.findUnique({ id: component_id });
 
-		const student = await studentsTable.findUnique({ id: student_id });
-		if (!student) throw new AppError(404, 'Student not found.');
+	if (!comp) {
+		throw new AppError(404, 'Component not found.');
+	}
 
-		const comp = await componentsTable.findUnique({ id: component_id });
-		if (!comp) throw new AppError(404, 'Component not found.');
+	if (comp.subject_id !== subjectId) {
+		throw new AppError(400, 'Componente não pertence à disciplina.');
+	}
 
-		if (comp.subject_id !== subjectId)
-			throw new AppError(400, 'Componente não pertence à disciplina.');
+	// Normaliza nota
+	const parsed = Math.min(Math.max(Number(grade_value) || 0, 0), 10);
 
-		// Normaliza nota
-		const parsed = Math.min(Math.max(Number(grade_value) || 0, 0), 10);
+	// Descobrir ou criar o registro do componente para o aluno
+	const existing = await componentValuesTable.findUnique({
+		student_id,
+		component_id,
+	});
 
-		// Descobrir ou criar o registro do componente para o aluno
-		const existing = await componentValuesTable.findUnique({
-			student_id,
+	if (existing) {
+		await componentValuesTable.update(
+			{ grade_value: parsed },
+			{ id: existing.id }
+		);
+	} else {
+		await componentValuesTable.insert({
 			component_id,
+			student_id,
+			grade_value: parsed,
+		});
+	}
+
+	await db.query('CALL recalc_student_final_grade(?, ?)', [
+		student_id,
+		subjectId,
+	]);
+
+	let grade = await gradesTable.findUnique({
+		student_id,
+		subject_id: subjectId,
+	});
+
+	if (!grade) {
+		await gradesTable.insert({
+			student_id,
+			subject_id: subjectId,
+			final_grade: 0,
+			entry_date: new Date(),
 		});
 
-		if (existing) {
-			await componentValuesTable.update(
-				{ grade_value: parsed },
-				{ id: existing.id }
-			);
-		} else {
-			await componentValuesTable.insert({
-				component_id,
-				student_id,
-				grade_value: parsed,
-			});
-		}
-
-		response.push({
+		await db.query('CALL recalc_student_final_grade(?, ?)', [
 			student_id,
-			grade_component_value: parsed,
-			component_id,
+			subjectId,
+		]);
+
+		grade = await gradesTable.findUnique({
+			student_id,
+			subject_id: subjectId,
 		});
 	}
 
 	// O SQL recalcula automaticamente via triggers
-	return response;
+	return grade;
 }
 
 // 2. LISTAR NOTAS DE UMA TURMA
@@ -216,6 +237,17 @@ export async function updateFinalFormulaService(
 					id: existing.id,
 				}
 			);
+
+			const grades = await gradesTable.findMany({
+				subject_id: subjectId,
+			});
+
+			for (const grade of grades) {
+				await db.query('CALL recalc_student_final_grade(?, ?)', [
+					grade.student_id,
+					subjectId,
+				]);
+			}
 
 			return {
 				message: 'Fórmula atualizada.',

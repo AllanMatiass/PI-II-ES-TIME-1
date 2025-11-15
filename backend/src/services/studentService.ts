@@ -63,7 +63,6 @@ export async function listStudentsInAClass(classId: string): Promise<StudentResp
     // Se não houver registros, retorna lista vazia
     if (studentClasses.length === 0) return [];
 
-
     // Para cada vínculo da tabela, buscamos o estudante na tabela students
     const students: StudentResponseDTO[] = [];
 
