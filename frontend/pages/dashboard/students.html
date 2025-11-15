@@ -1,0 +1,134 @@
+<!-- Autor: Emilly Morelatto -->
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lançamento de Notas</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" />
+    <link rel="stylesheet" href="/frontend/styles/base.css" type="text/css" />
+</head>
+
+<body>
+
+    <!-- Modal: Importar CSV -->
+    <div class="modal fade" id="import-csv-modal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class="modal-title">Importar alunos via CSV</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+                    <form id="csv-form">
+                        <div class="mb-3">
+                            <label class="form-label">Selecione o arquivo CSV:</label>
+                            <input type="file" id="csv-file" accept=".csv"
+                                class="form-control border border-dark" required />
+                        </div>
+                    </form>
+                </div>
+
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button class="btn btn-primary" id="import-csv-btn">Importar</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Confirmar Exportação -->
+    <div class="modal fade" id="export-csv-modal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class="modal-title">Exportar notas</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+                    <p>Deseja exportar todas as notas da turma em formato CSV?</p>
+                </div>
+
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button class="btn btn-success" id="export-csv-btn">Exportar</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <main class="container-fluid min-vh-100 px-4 py-5 d-flex flex-column align-items-center">
+
+        <!-- Cabeçalho -->
+        <h2 class="mt-5 mb-0">LANÇAMENTO DE NOTAS</h2>
+        <p class="mb-4">Lançamento das notas da turma selecionada</p>
+
+        <!-- Informações da instituição/curso/disciplina/turma -->
+        <div class="col-10 col-md-8 col-lg-6 bg-light p-4 rounded-4 shadow mb-4">
+            <h5 class="mb-1">Instituição: <span id="institution-name" class="fw-semibold"></span></h5>
+            <h5 class="mb-1">Curso: <span id="course-name" class="fw-semibold"></span></h5>
+            <h5 class="mb-1">Disciplina: <span id="subject-name" class="fw-semibold"></span></h5>
+            <h5 class="mb-0">Turma: <span id="class-name" class="fw-semibold"></span></h5>
+        </div>
+
+        <!-- Selecionar componente de nota -->
+        <div class="col-10 col-md-8 col-lg-6 bg-secondary bg-opacity-10 p-4 rounded-4 shadow mb-5">
+            <label class="form-label fw-semibold mb-1" for="grade-component-select">
+                Selecione o componente para editar:
+            </label>
+            <div class="input-group">
+                <select class="form-select border border-secondary" id="grade-component-select">
+                    <option value="" selected disabled>Escolha um componente</option>
+                </select>
+
+                <button class="btn btn-outline-secondary" data-bs-toggle="modal"
+                    data-bs-target="#import-csv-modal" title="Importar alunos via CSV">
+                    <i class="bi bi-file-spreadsheet"></i>
+                </button>
+
+                <button class="btn btn-outline-success" data-bs-toggle="modal"
+                    data-bs-target="#export-csv-modal" title="Exportar notas">
+                    <i class="bi bi-download"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Tabela de notas -->
+        <table id="grades-table"
+            class="table table-striped table-hover bg-white rounded shadow text-center align-middle">
+
+            <thead id="grades-table-head">
+                <tr>
+                    <th scope="col">Matrícula</th>
+                    <th scope="col">Nome</th>
+                    <!-- As colunas dos componentes serão inseridas dinamicamente -->
+                    <!-- Ex: P1 | P2 | Trabalho | Prova Final -->
+                    <th scope="col">Nota Final</th>
+                </tr>
+            </thead>
+
+            <tbody id="grades-table-body"></tbody>
+
+        </table>
+
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+    <script type="module" src="/frontend/scripts/dashboard/grades.js"></script>
+    <script type="module" src="/frontend/components/errors-modal/modal.js"></script>
+    <script type="module" src="/frontend/components/navbar/navbar.js"></script>
+
+</body>
+
+</html>

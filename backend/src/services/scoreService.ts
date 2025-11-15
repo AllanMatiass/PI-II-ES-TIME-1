@@ -184,4 +184,5 @@ export async function calculateFinalGradesService(classId: string) {
 
     console.log("[calculateFinalGradesService] Cálculo de notas finais concluído!");
     return { message: "Cálculo de notas finais concluído!", updated };
+
 }
