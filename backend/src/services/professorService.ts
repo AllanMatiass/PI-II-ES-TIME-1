@@ -4,7 +4,6 @@ import { DatabaseClient } from "../db/DBClient";
 import { ProfessorResponseDTO } from "dtos";
 import { AppError } from "../errors/AppError";
 import { sendEmail } from "./emailService";
-import crypto from "crypto";
 import bcrypt from "bcryptjs"
 
 // cria instância do banco
@@ -34,7 +33,7 @@ export async function updateProfessor(_id: string, update: Partial<ProfessorData
 }
 
 export async function generateRecoveryToken(resetTokens: Map<number, string>, email: string) {
-    const professor =await professorsTable.findUnique({email});
+    const professor = await professorsTable.findUnique({email});
 
 
     if (!professor){
@@ -59,6 +58,8 @@ export async function generateRecoveryToken(resetTokens: Map<number, string>, em
 	if (!emailStatus.success) {
         throw new AppError(500, 'Falha ao enviar e-mail.');
 	}
+
+    return token;
 }
 
 export async function recoverPassword(resetTokens: Map<number, string>,token: number, email: string, newPassword: string) {
