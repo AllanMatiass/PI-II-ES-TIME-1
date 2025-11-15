@@ -1,7 +1,12 @@
 // Autores: Allan Giovanni Matias Paes e Emilly Morelatto
 
 // Importa os tipos e DTOs necessários
-import { ClassRegisterRequestDTO, ClassResponseDTO, CSVResponseDTO, StudentRegisterDTO } from 'dtos';
+import {
+	ClassRegisterRequestDTO,
+	ClassResponseDTO,
+	CSVResponseDTO,
+	StudentRegisterDTO,
+} from 'dtos';
 import { AppError } from '../errors/AppError';
 import { DatabaseClient } from '../db/DBClient';
 import { ClassDataModel, StudentDataModel, SubjectDataModel } from 'dataModels';
@@ -13,14 +18,16 @@ const db = new DatabaseClient();
 const subjectTable = db.table<SubjectDataModel>('subjects');
 const classTable = db.table<ClassDataModel>('classes');
 const studentsTable = db.table<StudentDataModel>('students');
-const classStudentsTable = db.table("class_students");
-const gradesTable = db.table("grades");
-const componentsTable = db.table("grade_components");
+const classStudentsTable = db.table('class_students');
+const gradesTable = db.table('grades');
+const componentsTable = db.table('grade_components');
 
 /**
  * Cria uma nova turma
  */
-export async function insertClass(data: ClassRegisterRequestDTO): Promise<ClassResponseDTO> {
+export async function insertClass(
+	data: ClassRegisterRequestDTO
+): Promise<ClassResponseDTO> {
 	const { subject_id, name, classroom } = data;
 
 	// Verifica se a disciplina existe
@@ -66,7 +73,9 @@ export async function findClassByID(id: string): Promise<ClassResponseDTO> {
 /**
  * Retorna todas as turmas relacionadas a uma disciplina
  */
-export async function findClassBySubjectId(subId: string): Promise<ClassResponseDTO[]> {
+export async function findClassBySubjectId(
+	subId: string
+): Promise<ClassResponseDTO[]> {
 	const subject = await subjectTable.findUnique({ id: subId });
 
 	if (!subject) {
@@ -80,7 +89,10 @@ export async function findClassBySubjectId(subId: string): Promise<ClassResponse
 /**
  * Atualiza informações de uma turma
  */
-export async function updateClass(id: string, data: Partial<ClassRegisterRequestDTO>): Promise<ClassResponseDTO> {
+export async function updateClass(
+	id: string,
+	data: Partial<ClassRegisterRequestDTO>
+): Promise<ClassResponseDTO> {
 	const classExist = await classTable.findUnique({ id });
 
 	if (!classExist) {
@@ -139,7 +151,7 @@ export async function ImportClass(data: StudentRegisterDTO[]) {
 		// Verifica se a linha tem os campos mínimos necessários
 		if (row.name && row.registration_id) {
 			const studentExists = studentsTable.findUnique({
-				registration_id: row.registration_id
+				registration_id: row.registration_id,
 			});
 
 			// Se o aluno ainda não existir, ele é inserido
@@ -155,12 +167,13 @@ export async function ImportClass(data: StudentRegisterDTO[]) {
  */
 export async function GetClassGradesForExport(classId: string) {
 	// Busca todos os alunos vinculados à turma
-	const classStudents = await classStudentsTable.findMany({ class_id: classId });
-	
-    if(!classStudents||classStudents.length===0)
-    {
-        throw new AppError(400, "Nenhum aluno encontrado nessa turma");
-    }
+	const classStudents = await classStudentsTable.findMany({
+		class_id: classId,
+	});
+
+	if (!classStudents || classStudents.length === 0) {
+		throw new AppError(400, 'Nenhum aluno encontrado nessa turma');
+	}
 
 	// Array final que armazenará os dados prontos para exportação
 	const formattedData: CSVResponseDTO[] = [];
@@ -173,23 +186,25 @@ export async function GetClassGradesForExport(classId: string) {
 		// Pula caso aluno ou nota não sejam encontrados
 		if (!student || !grade) continue;
 
-		const component = await componentsTable.findUnique({ id: grade.grade_component_id });
+		const component = await componentsTable.findUnique({
+			id: grade.grade_component_id,
+		});
 
 		// Impede exportação se alguma nota estiver ausente
 		if (
 			grade.automatic_final_grade === null ||
 			grade.automatic_final_grade === undefined ||
-			grade.automatic_final_grade === "-"
+			grade.automatic_final_grade === '-'
 		) {
-			throw new AppError(400, "Erro, está faltando nota!");
+			throw new AppError(400, 'Erro, está faltando nota!');
 		}
 
 		// Monta o objeto de resposta e adiciona ao array final
 		formattedData.push({
 			registration_id: student.registration_id,
 			student_name: student.name,
-			component_name: component?.name ?? "Componente",
-			grade: grade.automatic_final_grade
+			component_name: component?.name ?? 'Componente',
+			grade: grade.automatic_final_grade,
 		});
 	}
 
@@ -202,10 +217,10 @@ export async function GetClassGradesForExport(classId: string) {
  */
 export function GenerateCSVBuffer(data: CSVResponseDTO[]) {
 	// Cabeçalho do CSV
-	let csv = "Matrícula,Aluno,Componente,Nota\n";
+	let csv = 'Matrícula,Aluno,Componente,Nota\n';
 
 	// Adiciona cada linha de aluno ao CSV
-	data.forEach(row => {
+	data.forEach((row) => {
 		csv += `${row.registration_id},${row.student_name},${row.component_name},${row.grade}\n`;
 	});
 

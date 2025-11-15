@@ -1,45 +1,54 @@
 declare module 'dtos' {
-	// requests
-	interface ProfessorLoginRequestDTO {
-		email: string;
-		password: string;
-	}
-	// requests
-	interface ProfessorLoginRequestDTO {
-		email: string;
-		password: string;
-	}
 
-	interface ProfessorRegisterRequestDTO {
-		name: string;
-		phone: string;
-		email: string;
-		password: string;
-		confirmPassword: string;
-	}
-	interface ProfessorRegisterRequestDTO {
-		name: string;
-		phone: string;
-		email: string;
-		password: string;
-		confirmPassword: string;
-	}
+    // ===============================================
+    // LOGIN & PROFESSOR
+    // ===============================================
+    
+    interface ProfessorLoginRequestDTO {
+        email: string;
+        password: string;
+    }
+
+    interface ProfessorRegisterRequestDTO {
+        name: string;
+        phone: string;
+        email: string;
+        password: string;
+        confirmPassword: string;
+    }
+
+    interface ProfessorResponseDTO {
+        id: string;
+        name: string;
+        phone: string;
+        email: string;
+        created_at: Date;
+    }
+
+    // ===============================================
+    // INSTITUIÇÃO / CURSO / DISCIPLINA / TURMA
+    // ===============================================
 
     interface InstitutionRegisterRequestDTO {
         name: string;
     }
 
-     interface CourseRegisterRequestDTO {
+    interface InstitutionResponseDTO {
+        id: string;
+        name: string;
+    }
+
+    interface InstitutionWithProfessorsResponseDTO {
+        institution: InstitutionResponseDTO;
+        professors: ProfessorResponseDTO[];
+    }
+
+    interface CourseRegisterRequestDTO {
         name: string;
         institution_id: string;
     }
-    interface ClassRegisterRequestDTO {
-        subject_id: string;
-        name: string;
-        classroom: string;
-    }
 
-	interface SubjectRegisterRequestDTO {
+    interface SubjectRegisterRequestDTO {
         course_id: string;
         name: string;
         code: string;
@@ -47,48 +56,13 @@ declare module 'dtos' {
         period: number;
         start_date: Date;
         end_date: Date;
-	}
+    }
 
-	interface StudentRegisterDTO {
-		name: string;
-		registration_id: string;
-	}
-
-	// responses
-	interface ProfessorResponseDTO {
-		id: string;
-		name: string;
-		phone: string;
-		email: string;
-		created_at: Date;
-	}
-
-
-	interface ProfessorResponseDTO {
-		id: string;
-		name: string;
-		phone: string;
-		email: string;
-		created_at: Date;
-	}
-
-	interface InstitutionResponseDTO {
-		id: string;
-		name: string;
-	}
-	interface InstitutionResponseDTO {
-		id: string;
-		name: string;
-	}
-
-	interface InstitutionWithProfessorsResponseDTO {
-		institution: InstitutionResponseDTO;
-		professors: ProfessorResponseDTO[];
-	}
-	interface InstitutionWithProfessorsResponseDTO {
-		institution: InstitutionResponseDTO;
-		professors: ProfessorResponseDTO[];
-	}
+    interface ClassRegisterRequestDTO {
+        subject_id: string;
+        name: string;
+        classroom: string;
+    }
 
     interface ClassResponseDTO {
         id: string;
@@ -97,58 +71,79 @@ declare module 'dtos' {
         classroom: string;
     }
 
-	interface StudentResponseDTO {
-		id: string;
-		name: string;
-		registration_id: string;
-	}
+    // ===============================================
+    // ALUNOS
+    // ===============================================
 
-	interface CSVResponseDTO {
-  		registration_id: string;
-  		student_name: string;
-  		component_name: string;
-  		grade: number;
-	}
-
-	interface ScoreResponseDto {
-        student_id: string;
-        grade_id: string;
-		grade_component_value: number;
+    interface StudentRegisterDTO {
+        name: string;
+        registration_id: string;
     }
 
-	interface ScoreRequestDTO {
-		scores: {
-			student_id: string;
-			component_id: string;
-			grade_value: number;
-		}[]
-	}
-	
-	interface GradeComponentRequestDTO {
-		subject_id: string;
+    interface StudentResponseDTO {
+        id: string;
+        name: string;
+        registration_id: string;
+    }
+
+    // ===============================================
+    // NOTAS
+    // ===============================================
+
+    // Atualização de notas (componentes)
+    interface ScoreRequestDTO {
+        scores: {
+            student_id: string;
+            component_id: string;
+            grade_value: number;
+        }[];
+    }
+
+    interface ScoreResponseDto {
+        student_id: string;
+        component_id: string;
+        grade_component_value: number;
+    }
+
+    // Criar componente da disciplina
+    interface GradeComponentRequestDTO {
+        subject_id: string;
         name: string;
         formula_acronym: string;
         description: string;
-        grade_id: string;
-		grade_value: number;
-	}
+    }
 
-	interface GradeComponentResponseDTO {
-		id: string;
-		subject_id: string;
-		name: string;
-		formula_acronym: string;
-		description: string;
-		grade_id: string;
-		grade_value: number;
-	}
+    interface GradeComponentResponseDTO {
+        id: string;
+        subject_id: string;
+        name: string;
+        formula_acronym: string;
+        description: string;
+    }
 
-	interface CreateGradeRequestDTO {
-		student_id: string;
-		subject_id: string;
-		grade_value: number;
-	}
+    // Criar grade (nota final do aluno na disciplina)
+    interface CreateGradeRequestDTO {
+        student_id: string;
+        subject_id: string;
+    }
 
-   
+    // CSV / exportação
+    interface CSVResponseDTO {
+        registration_id: string;
+        student_name: string;
+        component_name: string;
+        grade: number;
+    }
+
+    // Fórmula final da disciplina
+    interface UpdateFormulaRequestDTO {
+        subject_id: string;
+        formula_text: string;
+    }
+
+    interface FormulaResponseDTO {
+        id: string;
+        subject_id: string;
+        formula_text: string;
+    }
 }
-

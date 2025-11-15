@@ -1,139 +1,260 @@
-//Autores: Emilly Morelatto e Mateus Campos
-import { Request, Response } from "express";
-import { AppError } from "../errors/AppError";
+// Autores originais: Emilly Morelatto e Mateus Campos
+// Versão corrigida por ChatGPT
+
+import { Request, Response } from 'express';
+import { AppError } from '../errors/AppError';
 import {
-  updateScoreService,
-  listScoreService,
-  calculateFinalGradesService,
-  addComponentService,
-  addGradeService,
-  getGradeById
-} from "../services/scoreService";
-import { GradeComponentRequestDTO, ScoreRequestDTO } from "dtos";
+	updateScoreService,
+	listScoreService,
+	addComponentService,
+	addGradeService,
+	getGradeById,
+	getComponentsBySubjectService,
+	updateComponentService,
+	deleteComponentService,
+	updateFinalFormulaService,
+	getFinalFormulaService,
+} from '../services/scoreService';
 
-export async function updateScoreController(req: Request, res: Response) {
-  console.log("\n=== [updateScoreController] Requisição recebida ===");
-  try {
-    const { subjectId } = req.params;
+import { GradeComponentRequestDTO, ScoreRequestDTO } from 'dtos';
 
-    if (!subjectId ) {
-      throw new AppError(400, 'Params must contain the following url model: /class/:classId/grades');
-    }
+// 1. ATUALIZAR NOTAS DOS COMPONENTES
+export async function PUT_UpdateScoreController(req: Request, res: Response) {
+	console.log('\n=== [updateScoreController] Requisição recebida ===');
 
-    const { scores } = req.body as ScoreRequestDTO;
+	try {
+		const { subjectId } = req.params;
 
-    const result = await updateScoreService(subjectId, { scores });
+		if (!subjectId) {
+			throw new AppError(
+				400,
+				'Params must contain: /subject/:subjectId/grades'
+			);
+		}
 
-    console.log("[updateScoreController] Notas processadas com sucesso!");
-    return res
-      .status(200)
-      .json({ message: "Grades successfully submitted", data: result });
-  } catch (err: any) {
-    console.error("[updateScoreController] Erro:", err);
+		const { scores } = req.body as ScoreRequestDTO;
 
-    if (err instanceof AppError) {
-      return res.status(err.code).json({ error: err.message });
-    }
+		const result = await updateScoreService(subjectId, { scores });
 
-    return res.status(500).json({ error: "Unexpected Error" });
-  }
+		console.log('[updateScoreController] Notas processadas com sucesso!');
+
+		return res.status(200).json({
+			message: 'Grades successfully submitted',
+			data: result,
+		});
+	} catch (err: any) {
+		console.error('[updateScoreController] Erro:', err);
+
+		if (err instanceof AppError) {
+			return res.status(err.code).json({ error: err.message });
+		}
+
+		return res.status(500).json({ error: 'Unexpected Error' });
+	}
 }
 
-export async function listGradesController(req: Request, res: Response) {
-  console.log("\n=== [listGradesController] Listando notas ===");
-  try {
-    const { classId, subjectId } = req.params;
+// 2. LISTAR NOTAS TERCEIRO
+export async function GET_ListGradesController(req: Request, res: Response) {
+	console.log('\n=== [listGradesController] Listando notas ===');
 
-    if (!classId || !subjectId) {
-      throw new AppError(400, 'Params must follow this structure: class/:classId/:subjectId/grades.');
-    }
+	try {
+		const { classId, subjectId } = req.params;
 
-    const result = await listScoreService(classId, subjectId);
+		if (!classId || !subjectId) {
+			throw new AppError(
+				400,
+				'Params must follow: /class/:classId/subject/:subjectId/grades'
+			);
+		}
 
-    console.log("[listGradesController] Listagem concluída!");
-    return res.status(200).json({
-      message: "Grades listed successfully",
-      data: result,
-    });
-  } catch (err: any) {
-    console.error("[listGradesController] Erro:", err);
+		const result = await listScoreService(classId, subjectId);
 
-    if (err instanceof AppError) {
-      return res.status(err.code).json({ error: err.message });
-    }
+		console.log('[listGradesController] Listagem concluída!');
 
-    return res.status(500).json({ error: "Unexpected Error" });
-  }
+		return res.status(200).json({
+			message: 'Grades listed successfully',
+			data: result,
+		});
+	} catch (err: any) {
+		console.error('[listGradesController] Erro:', err);
+
+		if (err instanceof AppError) {
+			return res.status(err.code).json({ error: err.message });
+		}
+
+		return res.status(500).json({ error: 'Unexpected Error' });
+	}
 }
 
-export async function calculateFinalGradesController(req: Request, res: Response) {
-  console.log("\n=== [calculateFinalGradesController] Calculando notas finais ===");
-  try {
-    const { subjectId } = req.params;
+// 3. CRIAR COMPONENTE DA DISCIPLINA (não envolve aluno)
+export async function POST_AddComponent(req: Request, res: Response) {
+	try {
+		const data = req.body as GradeComponentRequestDTO;
 
-    if (!subjectId) {
-      throw new AppError(400, 'Params must contain subjectId.');
-    }
+		const result = await addComponentService(data);
 
-    const result = await calculateFinalGradesService(subjectId);
+		return res.status(201).json(result);
+	} catch (error: any) {
+		if (error instanceof AppError) {
+			return res.status(error.code).json({ error: error.message });
+		}
 
-    console.log("[calculateFinalGradesController] Cálculo concluído!");
-    return res.status(200).json({
-      message: "Final grades calculated successfully",
-      data: result,
-    });
-  } catch (err: any) {
-    console.error("[calculateFinalGradesController] Erro:", err);
-
-    if (err instanceof AppError) {
-      return res.status(err.code).json({ error: err.message });
-    }
-
-    return res.status(500).json({ error: "Unexpected Error" });
-  }
+		console.error(error);
+		return res.status(500).json({ error: 'Erro interno do servidor.' });
+	}
 }
 
-export async function addComponent(req: Request, res: Response) {
-    try {
-        const studentId = req.params.studentId;
-        const data = req.body as GradeComponentRequestDTO;
+// 4. CRIAR GRADE (associar aluno à disciplina)
+export async function POST_AddGrade(req: Request, res: Response) {
+	try {
+		const { student_id, subject_id } = req.body;
 
-        if (!studentId){
-          throw new AppError(404, 'Student not found.');
-        }
+		if (!student_id || !subject_id)
+			throw new AppError(400, 'student_id e subject_id são obrigatórios.');
 
-        const result = await addComponentService(studentId, data);
+		const creationResult = await addGradeService({
+			student_id,
+			subject_id,
+		});
 
-        return res.status(201).json(result);
+		const grade = await getGradeById(creationResult.grade_id);
 
-    } catch (error) {
-        if (error instanceof AppError) {
-            return res.status(error.code).json({ error: error.message });
-        }
-        console.error(error);
-        return res.status(500).json({ error: "Erro interno do servidor." });
-    }
+		return res.status(201).json({
+			message: 'Grade created successfully!',
+			grade,
+		});
+	} catch (error: any) {
+		if (error instanceof AppError) {
+			return res.status(error.code).json({ error: error.message });
+		}
+
+		console.error(error);
+		return res.status(500).json({ error: 'Erro interno do servidor.' });
+	}
 }
 
-export async function addGrade(req: Request, res: Response) {
-    try {
-        const { student_id, subject_id, grade_value } = req.body;
+// 5. LISTAR COMPONENTES DE NOTA
+export async function GET_GetComponentsBySubject(req: Request, res: Response) {
+	try {
+		const subjectId = req.params.subjectId;
 
-        const gradeId = await addGradeService({
-            student_id,
-            subject_id,
-            grade_value
-        });
-        
-        if (!gradeId) throw new AppError(500, 'Erro interno do servidor.');
-        const result = await getGradeById(gradeId.grade);
+		if (!subjectId) {
+			throw new AppError(400, 'Missing param subject id.');
+		}
 
-        return res.status(201).json(result);
+		const result = await getComponentsBySubjectService(subjectId);
 
-    } catch (error) {
-        if (error instanceof AppError) {
-            return res.status(error.code).json({ error: error.message });
-        }
-        return res.status(500).json({ error: "Erro interno do servidor." });
-    }
+		return res.status(200).json({ data: result });
+	} catch (error: any) {
+		if (error instanceof AppError) {
+			return res.status(error.code).json({ error: error.message });
+		}
+
+		console.error(error);
+		return res.status(500).json({ error: 'Erro interno do servidor.' });
+	}
+}
+
+// 6. ALTERAR COMPONENTES DE NOTA
+export async function PUT_UpdateComponent(req: Request, res: Response) {
+	try {
+		const componentId = req.params.componentId;
+		const data = req.body as Partial<GradeComponentRequestDTO>;
+
+		if (!componentId) {
+			throw new AppError(400, 'Missing param component id.');
+		}
+
+		const result = await updateComponentService(componentId, data);
+
+		return res.status(200).json({ data: result });
+	} catch (error: any) {
+		if (error instanceof AppError) {
+			return res.status(error.code).json({ error: error.message });
+		}
+
+		console.error(error);
+		return res.status(500).json({ error: 'Erro interno do servidor.' });
+	}
+}
+
+// 7. DELETAR COMPONENTE
+export async function DELETE_DeleteComponent(req: Request, res: Response) {
+	try {
+		const componentId = req.params.componentId;
+		const data = req.body as Partial<GradeComponentRequestDTO>;
+
+		if (!componentId) {
+			throw new AppError(400, 'Missing param component id.');
+		}
+
+		const result = await deleteComponentService(componentId);
+
+		return res.status(200).json({ data: result });
+	} catch (error: any) {
+		if (error instanceof AppError) {
+			return res.status(error.code).json({ error: error.message });
+		}
+
+		console.error(error);
+		return res.status(500).json({ error: 'Erro interno do servidor.' });
+	}
+}
+
+// 8. GET - Obter fórmula final
+export async function GET_FinalFormulaController(req: Request, res: Response) {
+	try {
+		const { subjectId } = req.params;
+
+		if (!subjectId) {
+			throw new AppError(400, "Missing param subjectId.");
+		}
+
+		const result = await getFinalFormulaService(subjectId);
+
+		return res.status(200).json({
+			message: "Formula loaded successfully",
+			...result,
+		});
+
+	} catch (err: any) {
+		console.error("[GET_FinalFormulaController] Erro:", err);
+
+		if (err instanceof AppError) {
+			return res.status(err.code).json({ error: err.message });
+		}
+
+		return res.status(500).json({ error: "Unexpected Error" });
+	}
+}
+
+
+// 9. POST - Criar / Atualizar fórmula final
+export async function POST_UpdateFinalFormulaController(req: Request, res: Response) {
+	try {
+		const { subjectId } = req.params;
+		const { formula_text } = req.body;
+
+		if (!subjectId) {
+			throw new AppError(400, "Missing subjectId.");
+		}
+
+		if (!formula_text) {
+			throw new AppError(400, "Missing formula_text.");
+		}
+
+		const result = await updateFinalFormulaService(subjectId, formula_text);
+
+		return res.status(201).json({
+			message: result.message,
+			formula_text,
+		});
+
+	} catch (err: any) {
+		if (err instanceof AppError) {
+			return res.status(err.code).json({ error: err.message });
+		}
+
+		return res.status(500).json({ error: "Unexpected Error" });
+	}
 }

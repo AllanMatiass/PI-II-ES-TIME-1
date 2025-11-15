@@ -34,7 +34,7 @@ loginForm.addEventListener('submit', async (ev) => {
 		const body = await res.json();
 
 		// Em caso de erro no servidor, mostra a mensagem.
-        if (res.status !== 200) {
+        if (!res.ok) {
 					return ShowErrorModal('ERRO AO EFETUAR LOGIN!', [body.error]);
 				}
 
