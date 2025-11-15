@@ -4,17 +4,22 @@ import { AppError } from "../errors/AppError";
 import {
   updateScoreService,
   listScoreService,
-  defineFormulaService,
-  calculateFinalGradesService,
+  calculateFinalGradesService
 } from "../services/scoreService";
+import { ScoreRequestDTO } from "dtos";
 
 export async function updateScoreController(req: Request, res: Response) {
   console.log("\n=== [updateScoreController] Requisição recebida ===");
   try {
-    const { class_id, componentId } = req.params;
-    const notas = req.body;
+    const { subjectId, componentId } = req.params;
 
-    const result = await updateScoreService(class_id, componentId, notas);
+    if (!subjectId || !componentId) {
+      throw new AppError(400, 'Params must contain the following url model: /class/:classId/grades/:componentId');
+    }
+
+    const { scores } = req.body as ScoreRequestDTO;
+
+    const result = await updateScoreService(subjectId, { scores });
 
     console.log("[updateScoreController] Notas processadas com sucesso!");
     return res
@@ -34,9 +39,13 @@ export async function updateScoreController(req: Request, res: Response) {
 export async function listGradesController(req: Request, res: Response) {
   console.log("\n=== [listGradesController] Listando notas ===");
   try {
-    const { class_id } = req.params;
+    const { classId, subjectId } = req.params;
 
-    const result = await listScoreService(class_id);
+    if (!classId || !subjectId) {
+      throw new AppError(400, 'Params must follow this structure: class/:classId/:subjectId/grades.');
+    }
+
+    const result = await listScoreService(classId, subjectId);
 
     console.log("[listGradesController] Listagem concluída!");
     return res.status(200).json({
@@ -54,36 +63,16 @@ export async function listGradesController(req: Request, res: Response) {
   }
 }
 
-export async function defineFormulaController(req: Request, res: Response) {
-  console.log("\n=== [defineFormulaController] Definindo fórmula ===");
-  try {
-    const { subject_id } = req.params;
-    const formula = req.body;
-
-    const result = await defineFormulaService(subject_id, formula);
-
-    console.log("[defineFormulaController] Fórmula registrada com sucesso!");
-    return res.status(200).json({
-      message: "Formula was defined successfully",
-      data: result,
-    });
-  } catch (err: any) {
-    console.error("[defineFormulaController] Erro:", err);
-
-    if (err instanceof AppError) {
-      return res.status(err.code).json({ error: err.message });
-    }
-
-    return res.status(500).json({ error: "Unexpected Error" });
-  }
-}
-
 export async function calculateFinalGradesController(req: Request, res: Response) {
   console.log("\n=== [calculateFinalGradesController] Calculando notas finais ===");
   try {
-    const { class_id } = req.params;
+    const { subjectId } = req.params;
 
-    const result = await calculateFinalGradesService(class_id);
+    if (!subjectId) {
+      throw new AppError(400, 'Params must contain subjectId.');
+    }
+
+    const result = await calculateFinalGradesService(subjectId);
 
     console.log("[calculateFinalGradesController] Cálculo concluído!");
     return res.status(200).json({

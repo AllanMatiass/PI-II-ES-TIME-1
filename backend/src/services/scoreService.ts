@@ -1,95 +1,88 @@
 //autores: Emilly Morelatto e Mateus Campos
+import { ClassStudentsDataModel, GradeComponentDataModel, GradeDataModel, StudentDataModel } from "dataModels";
 import { DatabaseClient } from "../db/DBClient";
 import { AppError } from "../errors/AppError";
+import { ScoreRequestDTO, ScoreResponseDto } from "dtos";
 
 const db = new DatabaseClient();
-const gradesTable = db.table("grades");
-const componentsTable = db.table("grade_components");
-const studentsTable = db.table("students");
-const classStudentsTable = db.table("class_students");
+const gradesTable = db.table<GradeDataModel>("grades");
+const componentsTable = db.table<GradeComponentDataModel>("grade_components");
+const studentsTable = db.table<StudentDataModel>("students");
+const classStudentsTable = db.table<ClassStudentsDataModel>("class_students");
 
-interface NotaInput {
-    student_id: string;
-    grade_value: number;
-}
+// ============================================================
+// 1. Update Score (apenas média simples)
+// ============================================================
 
-// Função para inserção/modificação de notas de um aluno
-
-export async function updateScoreService(classId: string, componentId: string, notas: NotaInput[]) {
-    console.log("\n=== [updateScoreService] Iniciando atualização de notas ===");
-
-    if (!Array.isArray(notas) || notas.length === 0) {
+export async function updateScoreService(subjectId: string, notas: ScoreRequestDTO) {
+    if (!Array.isArray(notas.scores) || notas.scores.length === 0) {
         throw new AppError(400, "Nenhuma nota enviada.");
     }
 
-    for (const nota of notas) {
-        const { student_id, grade_value } = nota;
-        console.log(`→ Processando aluno ${student_id} com nota ${grade_value}`);
+    let response: ScoreResponseDto[]  = [];
+    for (const nota of notas.scores) {
+        const { student_id, component_id, grade_value } = nota;
 
-        let parsedScore = Number(grade_value);
-        if (isNaN(parsedScore) || parsedScore < 0) parsedScore = 0;
-        if (parsedScore > 10) parsedScore = 10;
+        const parsed = Math.min(Math.max(Number(grade_value) || 0, 0), 10);
 
-        const existing = await gradesTable.findMany({
-            student_id,
-            grade_component_id: componentId,
-            class_id: classId
-        });
-
-        if (!existing || existing.length === 0) {
-            await gradesTable.insert({
-                id: crypto.randomUUID(),
-                student_id,
-                grade_component_id: componentId,
-                class_id: classId,
-                grade_value: parsedScore,
-                automatic_final_grade: parsedScore,
-                entry_date: new Date()
-            });
-        } else {
-            const gradeId = existing[0]?.id;
-            if (gradeId) {
-                await gradesTable.update(gradeId, {
-                    grade_value: parsedScore,
-                    automatic_final_grade: parsedScore,
-                    entry_date: new Date()
-                });
-            }
+        const component = await componentsTable.findUnique({ id: component_id });
+        if (!component || component.subject_id !== subjectId) {
+            throw new AppError(400, "Componente inválido para esta disciplina.");
         }
+
+        const data = {
+            student_id,
+            subject_id: subjectId,
+            grade_value: grade_value,
+            automatic_final_grade: parsed,
+            entry_date: new Date()
+        }
+
+        await gradesTable.insert(data);
+
+        response.push(data);
+
     }
 
-    console.log("[updateScoreService] Notas atualizadas com sucesso!");
-    return { message: "Notas atualizadas com sucesso!" };
+    return response;
 }
 
-// Função para apresentar uma lista com os nomes de alunos e suas notas
 
-export async function listScoreService(classId: string) {
-    console.log("\n=== [listScoreService] Listando notas da turma ===");
 
+// ============================================================
+// 2. Lista de notas por aluno
+// ============================================================
+
+export async function listScoreService(classId: string, subjectId: string) {
+    
     const classStudents = await classStudentsTable.findMany({ class_id: classId });
-    if (!classStudents || classStudents.length === 0) {
+    if (!classStudents.length) {
         throw new AppError(404, "Nenhum aluno encontrado nesta turma.");
     }
 
-    const result: any[] = [];
+    const components = await componentsTable.findMany({ subject_id: subjectId });
+
+    const result = [];
 
     for (const cs of classStudents) {
+
         const student = await studentsTable.findUnique({ id: cs.student_id });
         if (!student) continue;
 
-        const grades = await gradesTable.findMany({
-            student_id: cs.student_id,
-            class_id: classId
-        });
+        const detailed = [];
 
-        const detailedGrades = [];
-        for (const g of grades) {
-            const component = await componentsTable.findUnique({ id: g.grade_component_id });
-            detailedGrades.push({
-                component_name: component?.name ?? "Componente desconhecido",
-                grade_value: g.grade_value,
-                final_grade: g.automatic_final_grade
+        for (const comp of components) {
+
+            let grade = null;
+            if (comp.grade_id) {
+                grade = await gradesTable.findUnique({ id: comp.grade_id });
+            }
+
+            detailed.push({
+                component_name: comp.name,
+                formula_acronym: comp.formula_acronym,
+                grade_value: grade?.grade_value ?? null,
+                final_grade: grade?.automatic_final_grade ?? null
             });
         }
 
@@ -97,91 +90,64 @@ export async function listScoreService(classId: string) {
             student_id: student.id,
             student_name: student.name,
             registration_id: student.registration_id,
-            grades: detailedGrades
+            grades: detailed
         });
     }
 
-    console.log(`[listScoreService] Listagem concluída. Total de alunos: ${result.length}`);
     return result;
 }
 
-// Função para definir uma fórmula de cálculo de nota
+export async function calculateFinalGradesService(subjectId: string) {
 
-export async function defineFormulaService(subjectId: string, formula: Record<string, number>) {
-    console.log("\n=== [defineFormulaService] Definindo fórmula ===");
-
-    if (!formula || Object.keys(formula).length === 0) {
-        throw new AppError(400, "Fórmula inválida ou vazia.");
+    const components = await componentsTable.findMany({ subject_id: subjectId });
+    if (!components.length) {
+        throw new AppError(404, "Nenhum componente encontrado.");
     }
 
-    for (const [acronym, weight] of Object.entries(formula)) {
-        const component = await componentsTable.findMany({
-            subject_id: subjectId,
-            formula_acronym: acronym
+    const updated = [];
+
+    // Junta valores por grade_id (pois todos componentes do aluno apontam para o mesmo grade_id)
+    const gradesByGradeId = new Map<string, number[]>();
+
+    for (const comp of components) {
+
+        if (!comp.grade_id) continue;
+
+        const grade = await gradesTable.findUnique({ id: comp.grade_id });
+        if (!grade) continue;
+
+        if (!gradesByGradeId.has(comp.grade_id)) {
+            gradesByGradeId.set(comp.grade_id, []);
+        }
+
+        gradesByGradeId.get(comp.grade_id)!.push(grade.grade_value);
+    }
+
+    // Agora, calcular a média de cada grade_id (cada aluno)
+    for (const [gradeId, values] of gradesByGradeId.entries()) {
+
+        const sum = values.reduce((a, b) => a + b, 0);
+        const avg = values.length ? sum / values.length : 0;
+
+        const rounded = Math.round(avg * 100) / 100;
+
+        // Atualiza o registro Grade correto
+        await gradesTable.update(
+            {
+                automatic_final_grade: rounded
+            },
+            {
+                id: gradeId
+            }
+        );
+
+        const grade = await gradesTable.findUnique({ id: gradeId });
+
+        updated.push({
+            student_id: grade!.student_id,
+            final_grade: rounded
         });
-
-        if (!component || component.length === 0) {
-            console.warn(`[defineFormulaService] Nenhum componente encontrado: ${acronym}`);
-            continue;
-        }
-
-        const compId = component[0]?.id;
-        if (compId) {
-            await componentsTable.update(compId, {
-                description: `Peso ${weight}`
-            });
-        }
     }
 
-    console.log("[defineFormulaService] Fórmula registrada com sucesso!");
-    return { message: "Fórmula registrada com sucesso!", formula };
-}
-
-// Função para realizar o cálculo final de média
-
-export async function calculateFinalGradesService(classId: string) {
-    console.log("\n=== [calculateFinalGradesService] Calculando notas finais ===");
-
-    const classStudents = await classStudentsTable.findMany({ class_id: classId });
-    if (!classStudents || classStudents.length === 0) {
-        throw new AppError(404, "Nenhum aluno encontrado nesta turma.");
-    }
-
-    const updated: any[] = [];
-
-    for (const cs of classStudents) {
-        const grades = await gradesTable.findMany({
-            student_id: cs.student_id,
-            class_id: classId
-        });
-
-        if (!grades || grades.length === 0) continue;
-
-        let weightedSum = 0;
-        let totalWeight = 0;
-
-        for (const g of grades) {
-            const component = await componentsTable.findUnique({ id: g.grade_component_id });
-            if (!component) continue;
-
-            const match = component.description?.match(/Peso\s*([\d.]+)/);
-            const weight = match ? parseFloat(match[1]) : 1;
-
-            weightedSum += (Number(g.grade_value) || 0) * weight;
-            totalWeight += weight;
-        }
-
-        const finalGrade = totalWeight > 0 ? weightedSum / totalWeight : 0;
-
-        for (const g of grades) {
-            await gradesTable.update(g.id, {
-                automatic_final_grade: Math.round(finalGrade * 100) / 100
-            });
-        }
-
-        updated.push({ student_id: cs.student_id, final_grade: finalGrade });
-    }
-
-    console.log("[calculateFinalGradesService] Cálculo de notas finais concluído!");
-    return { message: "Cálculo de notas finais concluído!", updated };
+    return { message: "Média simples calculada com sucesso!", updated };
 }

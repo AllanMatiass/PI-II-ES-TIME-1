@@ -109,6 +109,23 @@ declare module 'dtos' {
   		component_name: string;
   		grade: number;
 	}
+
+	interface ScoreResponseDto {
+        student_id: string;
+        subject_id: string;
+        grade_value: number;
+        automatic_final_grade: number,
+        entry_date: Date;
+    }
+
+	interface ScoreRequestDTO {
+		scores: {
+			student_id: string;
+			component_id: string;
+			grade_value: number;
+		}[]
+	}
+
    
 }
 
