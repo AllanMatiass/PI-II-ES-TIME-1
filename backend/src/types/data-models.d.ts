@@ -66,5 +66,24 @@ declare module 'dataModels' {
         class_id: string;
         student_id: string;
     }
+    
+    interface GradeComponentDataModel {
+        id: string;
+        subject_id: string;
+        name: string;
+        formula_acronym: string;
+        description: string;
+        grade_id: string;
+        grade_value: number;
+    }
+
+    interface GradeDataModel {
+        id: string;
+        student_id: string;
+        subject_id: string;
+        automatic_final_grade: number;
+        entry_date: Date;
+        grade_value: number;
+    }
 }
 

@@ -68,30 +68,37 @@
         registration_id VARCHAR(255) UNIQUE
     );
 
-    -- Grade Components
-    CREATE TABLE grade_components (
-        id VARCHAR(36) NOT NULL PRIMARY KEY,
-        subject_id VARCHAR(36),
-        name VARCHAR(255),
-        formula_acronym VARCHAR(255),
-        description VARCHAR(255),
-        CONSTRAINT fk_gradecomp_subject FOREIGN KEY (subject_id) 
-            REFERENCES subjects(id) ON DELETE CASCADE
-    );
-
+   
     -- Grades
     CREATE TABLE grades (
         id VARCHAR(36) NOT NULL PRIMARY KEY,
         student_id VARCHAR(36),
-        grade_component_id VARCHAR(36),
-        class_id VARCHAR(36),
+        subject_id VARCHAR(36),
         automatic_final_grade DECIMAL(10, 2),
         entry_date DATE,
         grade_value DECIMAL(10,2),
-        CONSTRAINT fk_grade_student FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
-        CONSTRAINT fk_grade_component FOREIGN KEY (grade_component_id) REFERENCES grade_components(id) ON DELETE CASCADE,
-        CONSTRAINT fk_grade_class FOREIGN KEY (class_id) REFERENCES classes(id) ON DELETE CASCADE
+        formula VARCHAR(255),
+        CONSTRAINT fk_grade_student FOREIGN KEY (student_id) 
+            REFERENCES students(id) ON DELETE CASCADE,
+        CONSTRAINT fk_grade_subject FOREIGN KEY (subject_id) 
+            REFERENCES subjects(id) ON DELETE CASCADE
     );
+    
+     -- Grade Components
+    CREATE TABLE grade_components (
+        id VARCHAR(36) NOT NULL PRIMARY KEY,
+        subject_id VARCHAR(36),
+        name VARCHAR(255),
+        formula_acronym VARCHAR(255) NOT NULL,
+        description VARCHAR(255),
+        grade_id VARCHAR(36),
+        grade_value DECIMAL(10, 2),
+        CONSTRAINT fk_gradecomp_subject FOREIGN KEY (subject_id) 
+            REFERENCES subjects(id) ON DELETE CASCADE,
+        CONSTRAINT fk_gradecomp_grade FOREIGN KEY (grade_id)
+            REFERENCES grades(id) ON DELETE CASCADE
+    );
+
 
     -- Class Students
     CREATE TABLE class_students (
@@ -114,70 +121,65 @@
             REFERENCES professors(id) ON DELETE SET NULL
     );
 
-    -- ===============================
-    -- PROCEDURES CORRIGIDAS
-    -- ===============================
+
     DELIMITER $$
 
-    CREATE PROCEDURE get_students_by_class(IN class_name VARCHAR(255))
+    CREATE PROCEDURE create_audit(
+        IN p_professor_id VARCHAR(36),
+        IN p_change_description VARCHAR(255)
+    )
     BEGIN
-        SELECT DISTINCT
-            s.registration_id,
-            s.name as student_name,
-            c.name as class_name,
-            sub.name as subject_name
-        FROM students s
-        JOIN class_students cs ON s.id = cs.student_id
-        JOIN classes c ON cs.class_id = c.id
-        JOIN subjects sub ON c.subject_id = sub.id
-        WHERE c.name = class_name;
+        INSERT INTO audits (
+            id,
+            created_at,
+            change_description,
+            professor_id
+        )
+        VALUES (
+            UUID(),              -- gera ID único
+            NOW(),               -- timestamp automático
+            p_change_description,
+            p_professor_id
+        );
     END$$
 
-    CREATE PROCEDURE get_classes_by_course(IN course_name VARCHAR(255))
+    CREATE TRIGGER tg_component_insert
+    AFTER INSERT ON grade_components
+    FOR EACH ROW
     BEGIN
-        SELECT
-            c.name AS class_name,
-            sub.name AS subject_name,
-            p.name AS professor_name
-        FROM classes c
-        JOIN subjects sub ON c.subject_id = sub.id
-        JOIN courses co ON sub.course_id = co.id
-        JOIN professor_institutions pi ON co.professor_institution_id = pi.id
-        JOIN professors p ON pi.professor_id = p.id
-        WHERE co.name = course_name;
+        UPDATE grades
+        SET automatic_final_grade = (
+            SELECT AVG(grade_value)
+            FROM grade_components
+            WHERE grade_id = NEW.grade_id
+        )
+        WHERE id = NEW.grade_id;
     END$$
 
-    CREATE PROCEDURE get_grade_components_by_class(IN class_name VARCHAR(255))
+    CREATE TRIGGER tg_component_update
+    AFTER UPDATE ON grade_components
+    FOR EACH ROW
     BEGIN
-        SELECT
-            gc.name AS component_name,
-            gc.formula_acronym AS acronym,
-            gc.description AS description,
-            c.name AS class_name,
-            sub.name AS subject_name
-        FROM grade_components gc
-        JOIN subjects sub ON gc.subject_id = sub.id
-        JOIN classes c ON c.subject_id = sub.id
-        WHERE c.name = class_name;
+        UPDATE grades
+        SET automatic_final_grade = (
+            SELECT AVG(grade_value)
+            FROM grade_components
+            WHERE grade_id = NEW.grade_id
+        )
+        WHERE id = NEW.grade_id;
     END$$
 
-    CREATE PROCEDURE get_student_history(IN student_name VARCHAR(255))
+    CREATE TRIGGER tg_component_delete
+    AFTER DELETE ON grade_components
+    FOR EACH ROW
     BEGIN
-        SELECT
-            s.registration_id,
-            s.name AS student_name,
-            sub.name AS subject_name,
-            c.name AS class_name,
-            gc.name AS component_name,
-            g.automatic_final_grade AS grade,
-            g.entry_date AS entry_date
-        FROM students s
-        JOIN grades g ON s.id = g.student_id
-        JOIN grade_components gc ON g.grade_component_id = gc.id
-        JOIN classes c ON g.class_id = c.id
-        JOIN subjects sub ON c.subject_id = sub.id
-        WHERE s.name = student_name
-        ORDER BY g.entry_date DESC;
+        UPDATE grades
+        SET automatic_final_grade = (
+            SELECT AVG(grade_value)
+            FROM grade_components
+            WHERE grade_id = OLD.grade_id
+        )
+        WHERE id = OLD.grade_id;
     END$$
 
-    DELIMITER ;
+    DELIMITER ;    

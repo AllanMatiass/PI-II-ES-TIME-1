@@ -35,7 +35,7 @@ import multer from "multer";
 import { getCurrentUser } from '../controllers/authController';
 import { UPDATE_professor } from '../controllers/professorController';
 import { insertStudent, listStudents, removeStudent, updateStudentController } from '../controllers/studentController';
-import {uptadeScoreController, calculateFinalGrades, listGrades, defineFormula} from '../controllers/scoreController';
+import {updateScoreController, calculateFinalGradesController, listGradesController, addComponent, addGrade} from '../controllers/scoreController';
 
 
 const router = Router();
@@ -195,24 +195,32 @@ router.put('/students/:registration_id',  async (req, res) => {
 //Rota de Notas
 
 //atualizando notas
-router.post('/class/:classId/grades/:componentId', async (req, res) => {
-    console.log(`POST /api/class/${req.params.classId}/grades/${req.params.componentId}`);
-	await uptadeScoreController(req,res);
+router.post('/class/:subjectId/grades', async (req, res) => {
+    console.log(`POST /api/class/${req.params.subjectId}/grades`);
+	await updateScoreController(req,res);
 });
+
 //listando notas
-router.get('class/:classId/grades', async (req,res)=>{
-	console.log(`GET /api/class/${req.params.classId}/grades`);
-	await listGrades(req,res);
+router.get('/class/:classId/:subjectId/grades', async (req,res)=>{
+	console.log(`GET /api/class/${req.params.classId}/${req.params.subjectId}/grades`);
+	await listGradesController(req,res);
 });
-//definir ou atualizar forma de nota
-router.post('subjects/:subject_id/formula', async(req,res)=>{
-	console.log(`POST /api/subjects/${req.params.subject_id}/formula`);
-	await defineFormula(req,res);
-});
+
 //Calcular notas finais
-router.post('class/:class_id/final_grades', async(req,res)=>{
-	console.log(`POST /api/class/${req.params.class_id}/final_grades`);
-	await calculateFinalGrades(req,res);
+router.post('/class/:subjectId/final_grades', async(req,res)=>{
+	console.log(`POST /api/class/${req.params.subjectId}/final_grades`);
+	await calculateFinalGradesController(req,res);
 });
+
+router.post('/component/:studentId', async(req,res)=>{
+	console.log(`POST /api/component/${req.params.studentId}`);
+	await addComponent(req,res);
+});
+
+router.post('/grade', async(req,res)=>{
+	console.log(`POST /api/grade`);
+	await addGrade(req,res);
+});
+
 
 export default router;
