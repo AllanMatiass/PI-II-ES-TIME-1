@@ -68,20 +68,7 @@
         registration_id VARCHAR(255) UNIQUE
     );
 
-    -- Grade Components
-    CREATE TABLE grade_components (
-        id VARCHAR(36) NOT NULL PRIMARY KEY,
-        subject_id VARCHAR(36),
-        name VARCHAR(255),
-        formula_acronym VARCHAR(255),
-        description VARCHAR(255),
-        grade_id VARCHAR(36),
-        CONSTRAINT fk_gradecomp_subject FOREIGN KEY (subject_id) 
-            REFERENCES subjects(id) ON DELETE CASCADE,
-        CONSTRAINT fk_gradecomp_grade FOREIGN KEY (grade_id)
-            REFERENCES grades(id) ON DELETE CASCADE
-    );
-
+   
     -- Grades
     CREATE TABLE grades (
         id VARCHAR(36) NOT NULL PRIMARY KEY,
@@ -96,6 +83,22 @@
         CONSTRAINT fk_grade_subject FOREIGN KEY (subject_id) 
             REFERENCES subjects(id) ON DELETE CASCADE
     );
+    
+     -- Grade Components
+    CREATE TABLE grade_components (
+        id VARCHAR(36) NOT NULL PRIMARY KEY,
+        subject_id VARCHAR(36),
+        name VARCHAR(255),
+        formula_acronym VARCHAR(255) NOT NULL,
+        description VARCHAR(255),
+        grade_id VARCHAR(36),
+        grade_value DECIMAL(10, 2),
+        CONSTRAINT fk_gradecomp_subject FOREIGN KEY (subject_id) 
+            REFERENCES subjects(id) ON DELETE CASCADE,
+        CONSTRAINT fk_gradecomp_grade FOREIGN KEY (grade_id)
+            REFERENCES grades(id) ON DELETE CASCADE
+    );
+
 
     -- Class Students
     CREATE TABLE class_students (
@@ -118,9 +121,7 @@
             REFERENCES professors(id) ON DELETE SET NULL
     );
 
-    -- ===============================
-    -- PROCEDURES CORRIGIDAS
-    -- ===============================
+
     DELIMITER $$
 
     CREATE PROCEDURE create_audit(
@@ -142,4 +143,43 @@
         );
     END$$
 
-    DELIMITER ;
+    CREATE TRIGGER tg_component_insert
+    AFTER INSERT ON grade_components
+    FOR EACH ROW
+    BEGIN
+        UPDATE grades
+        SET automatic_final_grade = (
+            SELECT AVG(grade_value)
+            FROM grade_components
+            WHERE grade_id = NEW.grade_id
+        )
+        WHERE id = NEW.grade_id;
+    END$$
+
+    CREATE TRIGGER tg_component_update
+    AFTER UPDATE ON grade_components
+    FOR EACH ROW
+    BEGIN
+        UPDATE grades
+        SET automatic_final_grade = (
+            SELECT AVG(grade_value)
+            FROM grade_components
+            WHERE grade_id = NEW.grade_id
+        )
+        WHERE id = NEW.grade_id;
+    END$$
+
+    CREATE TRIGGER tg_component_delete
+    AFTER DELETE ON grade_components
+    FOR EACH ROW
+    BEGIN
+        UPDATE grades
+        SET automatic_final_grade = (
+            SELECT AVG(grade_value)
+            FROM grade_components
+            WHERE grade_id = OLD.grade_id
+        )
+        WHERE id = OLD.grade_id;
+    END$$
+
+    DELIMITER ;    

@@ -4,17 +4,20 @@ import { AppError } from "../errors/AppError";
 import {
   updateScoreService,
   listScoreService,
-  calculateFinalGradesService
+  calculateFinalGradesService,
+  addComponentService,
+  addGradeService,
+  getGradeById
 } from "../services/scoreService";
-import { ScoreRequestDTO } from "dtos";
+import { GradeComponentRequestDTO, ScoreRequestDTO } from "dtos";
 
 export async function updateScoreController(req: Request, res: Response) {
   console.log("\n=== [updateScoreController] Requisição recebida ===");
   try {
-    const { subjectId, componentId } = req.params;
+    const { subjectId } = req.params;
 
-    if (!subjectId || !componentId) {
-      throw new AppError(400, 'Params must contain the following url model: /class/:classId/grades/:componentId');
+    if (!subjectId ) {
+      throw new AppError(400, 'Params must contain the following url model: /class/:classId/grades');
     }
 
     const { scores } = req.body as ScoreRequestDTO;
@@ -88,4 +91,49 @@ export async function calculateFinalGradesController(req: Request, res: Response
 
     return res.status(500).json({ error: "Unexpected Error" });
   }
+}
+
+export async function addComponent(req: Request, res: Response) {
+    try {
+        const studentId = req.params.studentId;
+        const data = req.body as GradeComponentRequestDTO;
+
+        if (!studentId){
+          throw new AppError(404, 'Student not found.');
+        }
+
+        const result = await addComponentService(studentId, data);
+
+        return res.status(201).json(result);
+
+    } catch (error) {
+        if (error instanceof AppError) {
+            return res.status(error.code).json({ error: error.message });
+        }
+        console.error(error);
+        return res.status(500).json({ error: "Erro interno do servidor." });
+    }
+}
+
+export async function addGrade(req: Request, res: Response) {
+    try {
+        const { student_id, subject_id, grade_value } = req.body;
+
+        const gradeId = await addGradeService({
+            student_id,
+            subject_id,
+            grade_value
+        });
+        
+        if (!gradeId) throw new AppError(500, 'Erro interno do servidor.');
+        const result = await getGradeById(gradeId.grade);
+
+        return res.status(201).json(result);
+
+    } catch (error) {
+        if (error instanceof AppError) {
+            return res.status(error.code).json({ error: error.message });
+        }
+        return res.status(500).json({ error: "Erro interno do servidor." });
+    }
 }

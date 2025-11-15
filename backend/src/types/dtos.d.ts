@@ -112,10 +112,8 @@ declare module 'dtos' {
 
 	interface ScoreResponseDto {
         student_id: string;
-        subject_id: string;
-        grade_value: number;
-        automatic_final_grade: number,
-        entry_date: Date;
+        grade_id: string;
+		grade_component_value: number;
     }
 
 	interface ScoreRequestDTO {
@@ -124,6 +122,31 @@ declare module 'dtos' {
 			component_id: string;
 			grade_value: number;
 		}[]
+	}
+	
+	interface GradeComponentRequestDTO {
+		subject_id: string;
+        name: string;
+        formula_acronym: string;
+        description: string;
+        grade_id: string;
+		grade_value: number;
+	}
+
+	interface GradeComponentResponseDTO {
+		id: string;
+		subject_id: string;
+		name: string;
+		formula_acronym: string;
+		description: string;
+		grade_id: string;
+		grade_value: number;
+	}
+
+	interface CreateGradeRequestDTO {
+		student_id: string;
+		subject_id: string;
+		grade_value: number;
 	}
 
    

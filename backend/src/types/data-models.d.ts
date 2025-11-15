@@ -74,6 +74,7 @@ declare module 'dataModels' {
         formula_acronym: string;
         description: string;
         grade_id: string;
+        grade_value: number;
     }
 
     interface GradeDataModel {
