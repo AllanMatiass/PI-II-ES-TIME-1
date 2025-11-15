@@ -1,21 +1,3 @@
-<<<<<<< HEAD
-//autor: Emilly Morelatto
-import { DatabaseClient } from "../db/DBClient";
-import { AppError } from "../errors/AppError";
-
-const db= new DatabaseClient();
-export async function uptadeScoreService() {
-    
-}
-export async function listScoreService() {
-    
-}
-export async function defineFormulaService() {
-    
-}
-export async function calculateFinalGradesService() {
-    
-=======
 //autores: Emilly Morelatto e Mateus Campos
 import { DatabaseClient } from "../db/DBClient";
 import { AppError } from "../errors/AppError";
@@ -202,5 +184,5 @@ export async function calculateFinalGradesService(classId: string) {
 
     console.log("[calculateFinalGradesService] Cálculo de notas finais concluído!");
     return { message: "Cálculo de notas finais concluído!", updated };
->>>>>>> 1a878fbe7079a8ca689fcaf38e28d3abe4ef5abf
+
 }

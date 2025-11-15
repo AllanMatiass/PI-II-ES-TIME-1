@@ -35,11 +35,8 @@ import multer from "multer";
 import { getCurrentUser } from '../controllers/authController';
 import { UPDATE_professor } from '../controllers/professorController';
 import { insertStudent, listStudents, removeStudent, updateStudentController } from '../controllers/studentController';
-<<<<<<< HEAD
-import{} from '../controllers/scoreController';
-=======
 import {uptadeScoreController, calculateFinalGrades, listGrades, defineFormula} from '../controllers/scoreController';
->>>>>>> 1a878fbe7079a8ca689fcaf38e28d3abe4ef5abf
+
 
 const router = Router();
 const upload = multer({ dest: 'uploads/' });
