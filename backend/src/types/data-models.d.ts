@@ -26,15 +26,6 @@ declare module 'dataModels' {
         name: string;
     }
 
-    interface ClassDataModel {
-        id: string;
-        subject_id: string;
-        name: string;
-        classroom_location: string;
-        class_time: string;
-        class_date: Date;
-    }
-
     interface SubjectDataModel {
         id: string;
         course_id: string;
@@ -50,9 +41,7 @@ declare module 'dataModels' {
         id: string;
         subject_id: string;
         name: string;
-        classroom_location: string;
-        class_time: string;
-        class_date: Date;
+        classroom: string;
     }
 
     interface SubjectDataModel {

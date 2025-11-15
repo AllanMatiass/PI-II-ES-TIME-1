@@ -70,12 +70,16 @@ const JWT_SECRET = process.env.JWT_SECRET || 'supersecret';
 
 export async function getLoggedUser(authHeader: string): Promise<ProfessorResponseDTO | null> {
     try {
+        // Pega o jwt
         if (!authHeader) return null;
 
         const [, token] = authHeader.split(' '); // "Bearer <token>"
         if (!token) return null;
 
+        // Extrai os dados do usuario
         const decoded = jwt.verify(token, JWT_SECRET) as ProfessorResponseDTO;
+
+        // Pega o id do Payload e retorna o objeto completo
         const {id, email, name, phone, created_at} = await professorTable.findUnique({id: decoded.id}) as ProfessorResponseDTO;
         return {id, email, name, phone, created_at};
 

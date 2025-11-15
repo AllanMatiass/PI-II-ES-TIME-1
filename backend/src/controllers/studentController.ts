@@ -1,5 +1,5 @@
 // Autor: Allan Giovanni Matias Paes
-import { StudentDTO, StudentResponseDTO } from "dtos";
+import { StudentRegisterDTO, StudentResponseDTO } from "dtos";
 import { Request, Response } from "express";
 import { insertStudentIntoAClass, listStudentsInAClass, removeStudentFromAClass, updateStudent } from "../services/studentService";
 import { AppError } from "../errors/AppError";
@@ -14,7 +14,7 @@ export async function insertStudent(req: Request, res: Response) {
         if (!classId) throw new AppError(404, 'Class not found.');
         
         // Extrai os dados do estudante do corpo da requisição
-        const {name, registration_id} = req.body as StudentDTO;
+        const {name, registration_id} = req.body as StudentRegisterDTO;
         
         // Chama o service para inserir o estudante na classe
         const student = await insertStudentIntoAClass({name, registration_id}, classId) as StudentResponseDTO;

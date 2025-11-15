@@ -30,7 +30,7 @@ export function LoadSubjectsList(list, $table) {
 				.find('.bi-folder2-open')
 				.closest('button')
 				.on('click', () => {
-					window.location.href ='/frontend/pages/dashboard/classses.html?subjectId=' + subject.id;
+					window.location.href ='/frontend/pages/dashboard/classes.html?subjectId=' + subject.id;
 				});
 
 			$linha
@@ -39,7 +39,13 @@ export function LoadSubjectsList(list, $table) {
 				.on('click', () => {
 					$('#subject-form').attr('data-subject-id', subject.id);
 					$('#subject-name-txt').val(subject.name);
-					$('#subject-modal-title').html('ALTERAR DISCIPLINA');
+					$('#subject-code-txt').val(subject.code);
+					$('#subject-acronym-txt').val(subject.acronym);
+					$('#subject-period-nb').val(subject.period);
+					$('#subject-start-date').val(startDate.toISOString().split('T')[0]);
+					$('#subject-end-date').val(endDate.toISOString().split('T')[0]);
+					
+					$('#subject-form-title').html('ALTERAR DISCIPLINA');
 
 					const modal = new bootstrap.Modal($('#subject-modal')[0]);
 					modal.show();
