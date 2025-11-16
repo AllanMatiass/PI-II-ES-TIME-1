@@ -138,8 +138,6 @@ async function FetchComponents() {
 			return ShowErrorModal('Erro ao buscar componentes', [body.error]);
 		}
 
-		console.log(body);
-
 		componentsList = body.data;
 		ShowComponents();
 	} catch (err) {
@@ -171,7 +169,6 @@ async function CreateComponent(data) {
 		}
 
         await FetchComponents();
-		ShowComponents();
 	} catch (err) {
 		ShowErrorModal('Erro ao criar componente', [err.message]);
 	}
@@ -231,14 +228,14 @@ async function DeleteComponent(id) {
 
 // Mostrar tabela
 function ShowComponents() {
+	$('#components-table').find('tbody').html('');
+
 	const filtered = componentsList.filter((c) =>
 		c.name.toLowerCase().startsWith(filter.toLowerCase())
 	);
 
-	$('#components-table tbody').html('');
 	LoadComponentList(filtered, $('#components-table'));
 }
 
 // Execução inicial
 FetchComponents();
-ShowComponents();
