@@ -313,7 +313,64 @@ export async function updateComponentService(
 }
 
 export async function deleteComponentService(componentId: string) {
+	const component = await componentsTable.findUnique({
+		id: componentId
+	});
+
+	if (!component) {
+		throw new AppError(404, "Component not found!");
+	}
+
+	const formula = await formulaTable.findUnique({
+		subject_id: component.subject_id
+	});
+
 	await componentsTable.deleteMany({
 		id: componentId,
 	});
+
+	if (formula) {
+		const newFormula = removeComponentFromFormulaSafe(formula.formula_text, component.formula_acronym) ?? "";
+		await formulaTable.update({ formula_text: newFormula }, {
+			id: formula.id
+		});
+	}
+}
+
+function removeComponentFromFormulaSafe(formula: string, comp: string) {
+
+    let f = formula;
+
+    // 1. Substitui o componente por 0
+    f = f.replaceAll(comp, "0");
+
+    // 2. Corrige somas do tipo "+ 0" e "0 +"
+    f = f.replace(/(\+|\-)\s*0(?=[\)\+\-\/\*])?/g, '');
+    f = f.replace(/0\s*(\+|\-)/g, '$1');
+
+    // 3. Detecta divisão por zero no denominador
+    f = f.replace(/\/\s*0\b/g, '/1');
+
+    // 4. Detecta denominação fixa e ajusta
+    const divisorRegex = /\/\s*([0-9]+)/;
+
+    const match = f.match(divisorRegex);
+    if (match) {
+        const oldDiv = Number(match[1]);
+        if (oldDiv > 1) {
+            f = f.replace(divisorRegex, `/ ${oldDiv - 1}`);
+        } else {
+            f = f.replace(divisorRegex, `/ 1`);
+        }
+    }
+
+    // 5. Limpar parênteses vazios
+    f = f.replace(/\(\s*\)/g, '0');
+
+    // 6. Se virar somente espaços ou vazio → retorna NULL
+    if (!f.replace(/[()\d\w\+\-\/*]/g, '').trim() && !f.match(/[A-Za-z0-9]/)) {
+        return null;
+    }
+
+    return f;
 }
