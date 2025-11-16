@@ -218,8 +218,13 @@ export async function updateFinalFormulaService(
 	subjectId: string,
 	formula: string
 ) {
+	if (/\/\s*0(?!\d)/.test(formula)) {
+		throw new AppError(400, "A fórmula contém divisão literal por zero.");
+	}
+
 	const currentFormula = await formulaTable.findUnique({subject_id: subjectId});
 	try {
+		
 		const subject = await subjectTable.findUnique({ id: subjectId });
 		if (!subject) {
 			throw new AppError(404, 'Subject not found.');
@@ -228,6 +233,8 @@ export async function updateFinalFormulaService(
 		const existing = await formulaTable.findUnique({
 			subject_id: subjectId,
 		});
+
+		
 
 		if (existing) {
 			await formulaTable.update(
