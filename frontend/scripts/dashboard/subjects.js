@@ -47,7 +47,7 @@ $('#save-subject-btn').on('click', async () => {
     if (!subjectId) {
         await CreateSubject(formdata);
     } else {
-        await AlterSubject(subjectId, formdata);
+        await AlterSubject(subjectId, courseId, formdata);
     }
 
     const modal = bootstrap.Modal.getInstance($('#subject-modal')[0]);
@@ -78,6 +78,8 @@ function AlterEndDate() {
     const formatted = start.toISOString().split("T")[0];
     $("#subject-end-date").val(formatted);
 }
+
+
 async function CreateSubject(data) {
 	try {
 		const res = await fetch(`${API_URL}/api/subject`, {
@@ -112,33 +114,38 @@ async function CreateSubject(data) {
 	}
 }
 
-async function AlterSubject(id, subjectName) {
-	try {
-		const res = await fetch(`${API_URL}/api/subject/${id}`, {
-			method: 'PUT',
-			headers: GetAuthHeaders(),
-			body: JSON.stringify({
-				name: subjectName,
-			}),
-		});
+async function AlterSubject(id, courseId, formdata) {
+    try {
+        const res = await fetch(`${API_URL}/api/subject/${id}`, {
+            method: 'PUT',
+            headers: GetAuthHeaders(),
+            body: JSON.stringify({
+				course_id: courseId,
+                name: formdata.get('subject-name'),
+                code: formdata.get('subject-code'),
+                acronym: formdata.get('subject-acronym'),
+                period: parseInt(formdata.get('subject-period'), 10),
+                start_date: formdata.get('subject-start'),
+                end_date: formdata.get('subject-end'),
+            }),
+        });
 
-		const body = await res.json();
+        const body = await res.json();
 
-		if (!isValidToken(res)) {
-			window.location.href = '/frontend/pages/auth/signin.html';
-			return;
-		}
+        if (!isValidToken(res)) {
+            window.location.href = '/frontend/pages/auth/signin.html';
+            return;
+        }
 
-		if (!res.ok) {
-			return ShowErrorModal('ERRO AO ALTERAR MATÉRIA', [body.error]);
-		}
+        if (!res.ok) {
+            return ShowErrorModal('ERRO AO ALTERAR MATÉRIA', [body.error]);
+        }
 
-		await FetchSubjects();
-	} catch (err) {
-		ShowErrorModal('ERRO AO ALTERAR MATÉRIA', [err.message]);
-	}
+        await FetchSubjects();
+    } catch (err) {
+        ShowErrorModal('ERRO AO ALTERAR MATÉRIA', [err.message]);
+    }
 }
-
 async function DeleteSubject(id) {
 	try {
 		const res = await fetch(`${API_URL}/api/subject/${id}`, {

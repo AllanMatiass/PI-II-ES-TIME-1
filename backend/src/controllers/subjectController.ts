@@ -18,7 +18,7 @@ import { DeleteSubject, GetCourseSubjectsByCourseId, InsertSubjectInCourse, Upda
  */
 const CheckValidRegisterBody = async (body: SubjectRegisterRequestDTO): Promise<boolean> => {
     // Verifica se o ID do curso é uma string válida
-    if (!body.course_id || typeof body.course_id !== 'string') {
+    if (!body.course_id) {
         throw new AppError(400, 'Subject must have a valid course id.');
     }
 

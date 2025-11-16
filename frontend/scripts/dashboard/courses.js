@@ -108,12 +108,12 @@ async function AlterCourse(id, courseName) {
 		}
 
 		if (!res.ok) {
-			return ShowErrorModal('ERRO AO ALTERAR INSTITUIÇÃO', [body.error]);
+			return ShowErrorModal('ERRO AO ALTERAR CURSO', [body.error]);
 		}
 
 		await FetchCourses();
 	} catch (err) {
-		ShowErrorModal('ERRO AO ALTERAR INSTITUIÇÃO', [err.message]);
+		ShowErrorModal('ERRO AO ALTERAR CURSO', [err.message]);
 	}
 }
 
@@ -132,12 +132,12 @@ async function DeleteCourse(id) {
 		}
 
 		if (!res.ok) {
-			return ShowErrorModal('ERRO AO EXCLUIR INSTITUIÇÃO', [body.error]);
+			return ShowErrorModal('ERRO AO EXCLUIR CURSO', [body.error]);
 		}
 
 		await FetchCourses();
 	} catch (err) {
-		ShowErrorModal('ERRO AO EXCLUIR INSTITUIÇÃO', [err.message]);
+		ShowErrorModal('ERRO AO EXCLUIR CURSO', [err.message]);
 	}
 
 	const modal = bootstrap.Modal.getInstance($('#delete-course-modal')[0]);
