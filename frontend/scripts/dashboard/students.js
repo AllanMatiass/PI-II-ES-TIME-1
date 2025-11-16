@@ -179,6 +179,39 @@ $('#import-csv-btn').on('click', async () => {
     }
 });
 
+$('#export-csv-btn').on('click', async () => {
+
+    const res = await fetch(`${API_URL}/api/class/${classId}/subject/${subjectId}/export`, {
+        method: 'GET',
+        headers: GetAuthHeaders(false),
+    });
+
+    const blob = await res.blob();
+
+    const disposition = res.headers.get('Content-Disposition');
+    console.warn(disposition);
+    let fileName = "arquivo.csv";
+
+    if (disposition) {
+        const match = disposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+        if (match && match[1]) {
+            fileName = match[1].replace(/['"]/g, '');
+        }
+    }
+
+    const url = window.URL.createObjectURL(blob);
+
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = fileName;
+
+    document.body.appendChild(a);
+    a.click();
+
+    a.remove();
+    window.URL.revokeObjectURL(url);
+});
+
 async function FetchStudents() {
     try {
         const res = await fetch(`${API_URL}/api/students/${classId}`, {
