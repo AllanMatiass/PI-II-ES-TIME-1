@@ -425,3 +425,119 @@ BEGIN
 END$$
 
 DELIMITER ;
+
+DELIMITER $$
+
+DROP PROCEDURE IF EXISTS audit_event$$
+
+DELIMITER $$
+
+CREATE PROCEDURE audit_event(
+    IN p_professor_id VARCHAR(36),
+    IN p_event_type VARCHAR(255),
+    IN p_student_id VARCHAR(36),
+    IN p_subject_id VARCHAR(36),
+    IN p_component_id VARCHAR(36),
+    IN p_old_value VARCHAR(255),   -- MUDOU
+    IN p_new_value VARCHAR(255)    -- MUDOU
+)
+BEGIN
+    INSERT INTO audit_grades (
+        id,
+        created_at,
+        student_id,
+        subject_id,
+        component_id,
+        old_value,
+        new_value,
+        message
+    )
+    VALUES (
+        UUID(),
+        NOW(),
+        p_student_id,
+        p_subject_id,
+        p_component_id,
+        p_old_value,
+        p_new_value,
+        CONCAT(
+            DATE_FORMAT(NOW(), '%d/%m/%Y %H:%i:%s'),
+            ' - (Registro de auditoria: ',
+            p_event_type,
+            ')'
+        )
+    );
+END$$
+
+DELIMITER ;
+
+    -- ---------------------------
+    -- Montar mensagens
+    -- ---------------------------
+    CASE p_action_type
+
+        WHEN 'GRADE_UPDATE' THEN
+            SET msg = CONCAT(
+                dt, ' - (Aluno ', studentName, ') - Nota de ',
+                COALESCE(p_old_value, 'NULL'), ' para ',
+                COALESCE(p_new_value, 'NULL'), ' modificada e salva.'
+            );
+
+        WHEN 'GRADE_INSERT' THEN
+            SET msg = CONCAT(
+                dt, ' - (Aluno ', studentName, ') - Nota criada com valor ',
+                COALESCE(p_new_value, 'NULL'), '.'
+            );
+
+        WHEN 'GRADE_DELETE' THEN
+            SET msg = CONCAT(
+                dt, ' - (Aluno ', studentName, ') - Nota ',
+                COALESCE(p_old_value, 'NULL'), ' removida.'
+            );
+
+        WHEN 'COMPONENT_INSERT' THEN
+            SET msg = CONCAT(
+                dt, ' - Componente "', componentName,
+                '" (', acr, ') criado.'
+            );
+
+        WHEN 'COMPONENT_UPDATE' THEN
+            SET msg = CONCAT(
+                dt, ' - Componente "', componentName,
+                '" atualizado.'
+            );
+
+        WHEN 'COMPONENT_DELETE' THEN
+            SET msg = CONCAT(
+                dt, ' - Componente "', componentName,
+                '" (', acr, ') removido.'
+            );
+
+        ELSE
+            SET msg = CONCAT(dt, ' - Evento não reconhecido.');
+    END CASE;
+
+    -- salvar no audit_grades
+    INSERT INTO audit_grades (
+        id,
+        created_at,
+        student_id,
+        subject_id,
+        component_id,
+        old_value,
+        new_value,
+        message
+    )
+    VALUES (
+        UUID(),
+        NOW(),
+        p_student_id,
+        p_subject_id,
+        p_component_id,
+        p_old_value,
+        p_new_value,
+        msg
+    );
+END$$
+
+DELIMITER ;
