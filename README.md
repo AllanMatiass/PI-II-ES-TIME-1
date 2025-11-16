@@ -71,19 +71,23 @@ Configurar credenciais no arquivo `.env`:
 DB_HOST=localhost  
 DB_USER=usuario  
 DB_PASS=senha  
-DB_NAME=nota_dez_db  
+DB_NAME=nota_dez_db 
 
-### 4. Executar o Backend
+### 4. Compilar o typescript do backend
+cd ./backend
+npm run build
+
+### 5. Executar o Backend
 npm run dev  
 
-### 5. Acessar o Frontend
+### 6. Acessar o Frontend
 Iniciar pelo Liver Server  
 
 ## 📂 Estrutura do Repositório
 PI_II_ES_TIME_1/
 │
 ├── backend/
-│   ├── src/                    # Código do servidor Node.js
+│   ├── src/
 │   │   ├── controllers/
 │   │   ├── db/
 │   │   ├── errors/
@@ -92,18 +96,12 @@ PI_II_ES_TIME_1/
 │   │   ├── services/
 │   │   ├── tests/
 │   │   ├── types/
-│   │   └── server.ts
 │   │
 │   ├── uploads/
 │   ├── dist/
 │   ├── node_modules/
-│   ├── .env
-│   ├── .env-example
-│   ├── package.json
-│   ├── package-lock.json
-│   ├── tsconfig.json
 │
-├── docs/                       # Documentação adicional
+├── docs/
 │   ├── Conceitual PI.brM3
 │   ├── LógicoPI.brM3
 │   ├── MAPA MENTAL - Sistema Nota 10.pdf
@@ -116,12 +114,6 @@ PI_II_ES_TIME_1/
 │   ├── pages/
 │   ├── scripts/
 │   ├── styles/
-│   ├── jsconfig.json
-│   ├── package.json
-│   ├── package-lock.json
-│
-├── .gitignore
-├── README.md
 
 ## 📝 Regras do Projeto
 - Nome do repositório: PI_II_ES_TIME_1  
