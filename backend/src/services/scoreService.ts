@@ -218,6 +218,7 @@ export async function updateFinalFormulaService(
 	subjectId: string,
 	formula: string
 ) {
+	const currentFormula = await formulaTable.findUnique({subject_id: subjectId});
 	try {
 		const subject = await subjectTable.findUnique({ id: subjectId });
 		if (!subject) {
@@ -269,7 +270,7 @@ export async function updateFinalFormulaService(
 		}
 
 		console.error('Database error:', err);
-		await formulaTable.update({formula_text: formula}, {subject_id: subjectId});
+		await formulaTable.update({formula_text: currentFormula?.formula_text ?? ''}, {subject_id: subjectId});
 		throw new AppError(500, 'Erro ao salvar fórmula.');
 	}
 }
