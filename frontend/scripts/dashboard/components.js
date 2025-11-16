@@ -29,16 +29,13 @@ $('#component-search-input').on('keyup', (e) => {
 // Abrir modal e carregar fórmula
 $('#open-formula-modal-btn').on('click', async () => {
 	try {
-		const res = await fetch(
-			`${API_URL}/api/subject/${subjectId}/final-formula`,
-			{
+		const res = await fetch(`${API_URL}/api/subject/${subjectId}/final-formula`, {
 				method: 'GET',
 				headers: GetAuthHeaders(),
-			}
-		);
+		});
 
 		if (!isValidToken(res)) {
-			return (window.location.href = '/frontend/pages/auth/signin.html');
+			return window.location.href = '/frontend/pages/auth/signin.html';
 		}
 
 		let body = await res.json();
@@ -70,6 +67,7 @@ $('#save-formula-btn').on('click', async () => {
 // Abrir modal criar
 $('#open-component-modal-btn').on('click', () => {
 	$('#component-form')[0].reset();
+	$('#component-acronym').attr('disabled', false);
 	$('#component-form').removeAttr('data-component-id');
 	$('#component-modal-title').html('CRIAR COMPONENTE');
 
@@ -99,14 +97,11 @@ $('#delete-component-btn').on('click', async () => {
 // FUNÇÕES API
 async function SaveFormula(formula) {
 	try {
-		const res = await fetch(
-			`${API_URL}/api/subject/${subjectId}/final-formula`,
-			{
-				method: 'POST',
-				headers: GetAuthHeaders(),
-				body: JSON.stringify({ formula_text: formula }),
-			}
-		);
+		const res = await fetch(`${API_URL}/api/subject/${subjectId}/final-formula`, {
+			method: 'POST',
+			headers: GetAuthHeaders(),
+			body: JSON.stringify({ formula_text: formula }),
+		});
 
 		const body = await res.json();
 
@@ -143,8 +138,6 @@ async function FetchComponents() {
 			return ShowErrorModal('Erro ao buscar componentes', [body.error]);
 		}
 
-		console.log(body);
-
 		componentsList = body.data;
 		ShowComponents();
 	} catch (err) {
@@ -175,8 +168,7 @@ async function CreateComponent(data) {
 			return ShowErrorModal('Erro ao criar componente', [body.error]);
 		}
 
-        FetchComponents();
-		ShowComponents();
+        await FetchComponents();
 	} catch (err) {
 		ShowErrorModal('Erro ao criar componente', [err.message]);
 	}
@@ -236,14 +228,14 @@ async function DeleteComponent(id) {
 
 // Mostrar tabela
 function ShowComponents() {
+	$('#components-table').find('tbody').html('');
+
 	const filtered = componentsList.filter((c) =>
 		c.name.toLowerCase().startsWith(filter.toLowerCase())
 	);
 
-	$('#components-table tbody').html('');
 	LoadComponentList(filtered, $('#components-table'));
 }
 
 // Execução inicial
 FetchComponents();
-ShowComponents();

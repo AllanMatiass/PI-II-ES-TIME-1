@@ -20,7 +20,11 @@ export function LoadComponentList(list, $table) {
                 $('#component-form').attr('data-component-id', comp.id);
 
                 $('#component-name').val(comp.name);
-                $('#component-acronym').val(comp.formula_acronym);
+
+                $('#component-acronym')
+	                .attr('disabled', true)
+                    .val(comp.formula_acronym);
+
                 $('#component-description').val(comp.description ?? '');
 
                 $('#component-modal-title').html('ALTERAR COMPONENTE');

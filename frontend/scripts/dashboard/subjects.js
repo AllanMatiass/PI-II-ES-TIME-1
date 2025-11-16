@@ -59,6 +59,25 @@ $('#delete-subject-btn').on('click', async () => {
     await DeleteSubject(subjectId);
 });
 
+// Altera a data final
+$("#subject-start-date").on("change", AlterEndDate);
+$("#subject-period-nb").on("change", AlterEndDate);
+
+function AlterEndDate() {
+    const start = new Date($("#subject-start-date").val());
+    const period = parseInt($("#subject-period-nb").val(), 10);
+
+    if (isNaN(start.getTime()) || isNaN(period)) {
+        console.warn("Data inicial ou período inválido.");
+        return;
+    }
+
+    // Cada período = 6 meses
+    start.setMonth(start.getMonth() + period * 6);
+
+    const formatted = start.toISOString().split("T")[0];
+    $("#subject-end-date").val(formatted);
+}
 async function CreateSubject(data) {
 	try {
 		const res = await fetch(`${API_URL}/api/subject`, {

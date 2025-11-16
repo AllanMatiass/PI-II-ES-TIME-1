@@ -54,7 +54,6 @@ export async function POST_insertClass(req: Request, res: Response) {
 		// Insere a turma no banco de dados
 		const class_ = await insertClass(sanitizedData);
 
-
 		// Retorna sucesso com os dados da turma criada
 		res.status(200).json({
 			message: 'Class created successfully',
@@ -131,7 +130,6 @@ export async function GET_findClassesBySubjectId(req: Request, res: Response) {
 		// Busca as turmas associadas a uma disciplina
 		const classes = await findClassBySubjectId(params.subId);
 
-
 		return res.status(200).json({
 			message: 'Classes by subject ID found.',
 			data: classes,
@@ -172,7 +170,6 @@ export async function PUT_updateClass(req: Request, res: Response) {
 			name,
 			classroom,
 		});
-
 
 		return res.status(200).json({
 			message: 'Class updated.',
@@ -237,18 +234,17 @@ export async function POST_ImportClass(req: Request, res: Response) {
 
 		// Cria stream para ler o arquivo CSV
 		fs.createReadStream(filePath)
-		.pipe(csvParser())
-		.on('data', (row) => data.push(row))
-		.on('end', async () => {
-			console.log(data); 
-			await ImportClass(data, classId);
-			res.sendStatus(200);
-		})
-		.on('error', (err) => {
-			console.error(err);
-			res.status(500).json({ error: 'Erro ao processar CSV' });
-		});
-
+			.pipe(csvParser())
+			.on('data', (row) => data.push(row))
+			.on('end', async () => {
+				console.log(data);
+				await ImportClass(data, classId);
+				res.sendStatus(200);
+			})
+			.on('error', (err) => {
+				console.error(err);
+				res.status(500).json({ error: 'Erro ao processar CSV' });
+			});
 	} catch (err) {
 		if (err instanceof AppError) {
 			return res.status(err.code).json({ error: err.message });
@@ -259,45 +255,53 @@ export async function POST_ImportClass(req: Request, res: Response) {
 	}
 }
 
-
 export async function GET_ExportClass(req: Request, res: Response) {
-    try {
-        const { classId, subjectId } = req.params;
-        if (!classId || !subjectId) throw new AppError(404, 'Class or Subject not found.');
+	try {
+		const { classId, subjectId } = req.params;
+		if (!classId || !subjectId)
+			throw new AppError(404, 'Class or Subject not found.');
 
-        const data = await GetClassGradesForExport(classId, subjectId);
-        if (!data || data.length === 0) throw new AppError(404, 'No grades found to export.');
+		const data = await GetClassGradesForExport(classId, subjectId);
+		if (!data || data.length === 0)
+			throw new AppError(404, 'No grades found to export.');
 
-        // Converte JSON para CSV
-        const fields = ['registration_id', 'student_name', 'component_name', 'grade'];
-        const json2csvParser = new Json2CsvParser({ fields });
-        const csv = json2csvParser.parse(data);
+		// Converte JSON para CSV
+		const fields = [
+			'registration_id',
+			'student_name',
+			'component_name',
+			'grade',
+		];
+		const json2csvParser = new Json2CsvParser({ fields });
+		const csv = json2csvParser.parse(data);
 
-        // Busca dados da turma e disciplina para montar o nome do arquivo
-        const cls = await findClassByID(classId);
-        const subject = await findSubjectByID(subjectId);
-        if (!cls || !subject) throw new AppError(404, 'Class or Subject not found');
+		// Busca dados da turma e disciplina para montar o nome do arquivo
+		const cls = await findClassByID(classId);
+		const subject = await findSubjectByID(subjectId);
+		if (!cls || !subject) throw new AppError(404, 'Class or Subject not found');
 
-        // Formata timestamp YYYY-MM-DD_HHmmssms
-        const now = new Date();
-        const pad = (n: number, digits = 2) => n.toString().padStart(digits, '0');
-        const timestamp = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}_` +
-                          `${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}${pad(now.getMilliseconds(),3)}`;
+		// Formata timestamp YYYY-MM-DD_HHmmssms
+		const now = new Date();
+		const pad = (n: number, digits = 2) => n.toString().padStart(digits, '0');
+		const timestamp =
+			`${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}_` +
+			`${pad(now.getHours())}${pad(now.getMinutes())}${pad(
+				now.getSeconds()
+			)}${pad(now.getMilliseconds(), 3)}`;
 
-        // Monta o nome do arquivo
-        const filename = `${timestamp}-${cls.name}_${subject.acronym}.csv`;
+		// Monta o nome do arquivo
+		const filename = `${timestamp}-${cls.name}_${subject.acronym}.csv`;
 
-        // Define headers para download
-        res.header('Content-Type', 'text/csv');
-        res.header('Content-Disposition', `attachment; filename="${filename}"`);
+		// Define headers para download
+		res.header('Content-Type', 'text/csv');
+		res.header('Content-Disposition', `attachment; filename="${filename}"`);
 
-        return res.status(200).send(csv);
-
-    } catch (err) {
-        if (err instanceof AppError) {
-            return res.status(err.code).json({ error: err.message });
-        }
-        console.error(err);
-        return res.status(500).json({ error: 'Unexpected Error' });
-    }
+		return res.status(200).send(csv);
+	} catch (err) {
+		if (err instanceof AppError) {
+			return res.status(err.code).json({ error: err.message });
+		}
+		console.error(err);
+		return res.status(500).json({ error: 'Unexpected Error' });
+	}
 }

@@ -36,7 +36,7 @@ export async function PUT_UpdateScoreController(req: Request, res: Response) {
 			throw new AppError(400, "Invalid body!");
 		}
 
-		const result = await updateScoreService(subjectId, score);
+		const result = await updateScoreService(subjectId, score, req.user!.id);
 
 		return res.status(200).json({
 			message: 'Grades successfully submitted',
@@ -86,7 +86,7 @@ export async function POST_AddComponent(req: Request, res: Response) {
 		let data = req.body as GradeComponentRequestDTO;
 		data.formula_acronym = data.formula_acronym.toUpperCase();
 
-		const result = await addComponentService(data);
+		const result = await addComponentService(data, req.user!.id);
 
 		return res.status(201).json(result);
 	} catch (error: any) {
@@ -94,6 +94,7 @@ export async function POST_AddComponent(req: Request, res: Response) {
 			return res.status(error.code).json({ error: error.message });
 		}
 
+		console.log(error);
 		return res.status(500).json({ error: 'Erro interno do servidor.' });
 	}
 }
@@ -163,7 +164,7 @@ export async function PUT_UpdateComponent(req: Request, res: Response) {
 			throw new AppError(400, 'Missing param component id.');
 		}
 
-		const result = await updateComponentService(componentId, data);
+		const result = await updateComponentService(componentId, data, req.user!.id);
 
 		return res.status(200).json({ data: result });
 	} catch (error: any) {
@@ -186,7 +187,7 @@ export async function DELETE_DeleteComponent(req: Request, res: Response) {
 			throw new AppError(400, 'Missing param component id.');
 		}
 
-		const result = await deleteComponentService(componentId);
+		const result = await deleteComponentService(componentId, req.user!.id);
 
 		return res.status(200).json({ data: result });
 	} catch (error: any) {
@@ -240,7 +241,7 @@ export async function POST_UpdateFinalFormulaController(
 			throw new AppError(400, 'Missing formula_text.');
 		}
 
-		const result = await updateFinalFormulaService(subjectId, formula_text.toUpperCase());
+		const result = await updateFinalFormulaService(subjectId, formula_text.toUpperCase(), req.user!.id);
 
 		return res.status(201).json({
 			message: result.message,

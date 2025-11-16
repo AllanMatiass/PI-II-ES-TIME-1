@@ -1,6 +1,7 @@
-// LoadStudentsList.js
-import { ShowErrorModal } from '/frontend/components/errors-modal/modal.js';
+// Autor Cristian e Allan Matias
+
 import { API_URL } from '/frontend/scripts/utils/config.js';
+import { ShowErrorModal } from '/frontend/components/errors-modal/modal.js';
 import { GetAuthHeaders } from '/frontend/scripts/utils/getAuthHeaders.js';
 
 // Cache templates
@@ -48,9 +49,9 @@ export async function LoadStudentsList(studentsList, gradesList, $table) {
 
 	// Para cada aluno
 	for (const student of studentsList) {
+
 		// encontra info de notas do aluno
-		const gradeInfo =
-			(gradesList || []).find((g) => g.student_id === student.id) || {};
+		const gradeInfo = (gradesList || []).find((g) => g.student_id === student.id) || {};
 		const components = gradeInfo.components || [];
 		const finalGrade = gradeInfo.final_grade ?? '-';
 
@@ -72,7 +73,7 @@ export async function LoadStudentsList(studentsList, gradesList, $table) {
 			const noteHtml = fill(noteTemplate, {
 				grade_key: gradeKey,
 				component_id: comp.component_id,
-				component_name: comp.component_name ?? comp.formula_acronym ?? '',
+				component_name: comp.formula_acronym,
 				value: comp.grade_value === 0 ? '0' : comp.grade_value ?? '-',
 			});
 
@@ -87,7 +88,7 @@ export async function LoadStudentsList(studentsList, gradesList, $table) {
 		// append linha
 		$tbody.append($linha);
 
-		// bind de eventos por linha (delegation local)
+		// bind de eventos por linha (delegation local)	
 		attachRowHandlers($linha, student);
 	}
 }

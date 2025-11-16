@@ -33,36 +33,30 @@ const classStudentsTable = db.table<ClassStudentsDataModel>('class_students');
 const subjectTable = db.table<SubjectDataModel>('subjects');
 
 // 1. ATUALIZAR NOTAS
-
 export async function updateScoreService(
 	subjectId: string,
-	score: ScoreRequestDTO
+	score: ScoreRequestDTO,
+	professorId: string
 ) {
 	const { student_id, component_id, grade_value } = score;
 
 	const student = await studentsTable.findUnique({ id: student_id });
-	if (!student) {
-		throw new AppError(404, 'Student not found.');
-	}
+	if (!student) throw new AppError(404, 'Student not found.');
 
 	const comp = await componentsTable.findUnique({ id: component_id });
+	if (!comp) throw new AppError(404, 'Component not found.');
 
-	if (!comp) {
-		throw new AppError(404, 'Component not found.');
-	}
-
-	if (comp.subject_id !== subjectId) {
+	if (comp.subject_id !== subjectId)
 		throw new AppError(400, 'Componente não pertence à disciplina.');
-	}
 
-	// Normaliza nota
 	const parsed = Math.min(Math.max(Number(grade_value) || 0, 0), 10);
 
-	// Descobrir ou criar o registro do componente para o aluno
 	const existing = await componentValuesTable.findUnique({
 		student_id,
 		component_id,
 	});
+
+	const oldValue = existing?.grade_value ?? null;
 
 	if (existing) {
 		await componentValuesTable.update(
@@ -77,6 +71,18 @@ export async function updateScoreService(
 		});
 	}
 
+	// AUDITORIA (nota alterada)
+	await db.query('CALL audit_event(?, ?, ?, ?, ?, ?, ?)', [
+		professorId,
+		'UPDATE_SCORE',
+		student_id,
+		subjectId,
+		component_id,
+		oldValue,
+		parsed,
+	]);
+
+	// Recalcular final
 	await db.query('CALL recalc_student_final_grade(?, ?)', [
 		student_id,
 		subjectId,
@@ -106,12 +112,10 @@ export async function updateScoreService(
 		});
 	}
 
-	// O SQL recalcula automaticamente via triggers
 	return grade;
 }
 
-// 2. LISTAR NOTAS DE UMA TURMA
-
+// 2. LISTAR NOTAS
 export async function listScoreService(classId: string, subjectId: string) {
 	const classStudents = await classStudentsTable.findMany({
 		class_id: classId,
@@ -130,7 +134,6 @@ export async function listScoreService(classId: string, subjectId: string) {
 
 		const detailed = components.map((comp) => {
 			const val = studentValues.find((v) => v.component_id === comp.id);
-
 			return {
 				component_id: comp.id,
 				component_name: comp.name,
@@ -157,8 +160,10 @@ export async function listScoreService(classId: string, subjectId: string) {
 }
 
 // 3. ADICIONAR COMPONENTE
-
-export async function addComponentService(data: GradeComponentRequestDTO) {
+export async function addComponentService(
+	data: GradeComponentRequestDTO,
+	professorId: string
+) {
 	const { subject_id, name, formula_acronym, description } = data;
 
 	const subject = await subjectTable.findUnique({ id: subject_id });
@@ -178,14 +183,24 @@ export async function addComponentService(data: GradeComponentRequestDTO) {
 		description,
 	});
 
+	// AUDITORIA
+	await db.query('CALL audit_event(?, ?, ?, ?, ?, ?, ?)', [
+		professorId,
+		'ADD_COMPONENT',
+		null,
+		subject_id,
+		id,
+		null,
+		null,
+	]);
+
 	return {
 		message: 'Componente criado.',
 		component_id: id,
 	};
 }
 
-// 4. CRIAR GRADE PARA ALUNO (1 por aluno/subject)
-
+// 4. CRIAR GRADE PARA ALUNO
 export async function addGradeService(data: CreateGradeRequestDTO) {
 	const { student_id, subject_id } = data;
 
@@ -212,11 +227,11 @@ export async function addGradeService(data: CreateGradeRequestDTO) {
 	};
 }
 
-// 5. DEFINIR / ATUALIZAR FÓRMULA FINAL DA DISCIPLINA
-
+// 5. DEFINIR / ATUALIZAR FÓRMULA
 export async function updateFinalFormulaService(
 	subjectId: string,
-	formula: string
+	formula: string,
+	professorId: string
 ) {
 	if (/\/\s*0(?!\d)/.test(formula)) {
 		throw new AppError(400, "A fórmula contém divisão literal por zero.");
@@ -226,29 +241,27 @@ export async function updateFinalFormulaService(
 	try {
 		
 		const subject = await subjectTable.findUnique({ id: subjectId });
-		if (!subject) {
-			throw new AppError(404, 'Subject not found.');
-		}
+		if (!subject) throw new AppError(404, 'Subject not found.');
 
-		const existing = await formulaTable.findUnique({
-			subject_id: subjectId,
-		});
+		const existing = await formulaTable.findUnique({ subject_id: subjectId });
 
 		
 
 		if (existing) {
-			await formulaTable.update(
-				{
-					formula_text: formula,
-				},
-				{
-					id: existing.id,
-				}
-			);
+			await formulaTable.update({ formula_text: formula }, { id: existing.id });
 
-			const grades = await gradesTable.findMany({
-				subject_id: subjectId,
-			});
+			// AUDITORIA DA FÓRMULA
+			await db.query('CALL audit_event(?, ?, ?, ?, ?, ?, ?)', [
+				professorId,
+				'UPDATE_FORMULA',
+				null,
+				subjectId,
+				null,
+				currentFormula?.formula_text ?? null,
+				formula,
+			]);
+
+			const grades = await gradesTable.findMany({ subject_id: subjectId });
 
 			for (const grade of grades) {
 				await db.query('CALL recalc_student_final_grade(?, ?)', [
@@ -257,9 +270,7 @@ export async function updateFinalFormulaService(
 				]);
 			}
 
-			return {
-				message: 'Fórmula atualizada.',
-			};
+			return { message: 'Fórmula atualizada.' };
 		}
 
 		await formulaTable.insert({
@@ -267,9 +278,18 @@ export async function updateFinalFormulaService(
 			formula_text: formula,
 		});
 
-		return {
-			message: 'Fórmula criada.',
-		};
+		// AUDITORIA DA CRIAÇÃO
+		await db.query('CALL audit_event(?, ?, ?, ?, ?, ?, ?)', [
+			professorId,
+			'CREATE_FORMULA',
+			null,
+			subjectId,
+			null,
+			null,
+			formula,
+		]);
+
+		return { message: 'Fórmula criada.' };
 	} catch (err: any) {
 		if (err?.code === 'ER_SIGNAL_EXCEPTION' || err?.errno === 1644) {
 			const clean = err.sqlMessage.replace('Erro: ', '');
@@ -277,7 +297,11 @@ export async function updateFinalFormulaService(
 		}
 
 		console.error('Database error:', err);
-		await formulaTable.update({formula_text: currentFormula?.formula_text ?? ''}, {subject_id: subjectId});
+		await formulaTable.update(
+			{ formula_text: currentFormula?.formula_text ?? '' },
+			{ subject_id: subjectId }
+		);
+
 		throw new AppError(500, 'Erro ao salvar fórmula.');
 	}
 }
@@ -289,40 +313,108 @@ export async function getFinalFormulaService(subjectId: string) {
 
 	const formula = await formulaTable.findUnique({ subject_id: subjectId });
 
-	if (!formula) {
-		return { formula_text: null };
-	}
+	if (!formula) return { formula_text: null };
 
-	return {
-		formula_text: formula.formula_text,
-	};
+	return { formula_text: formula.formula_text };
 }
 
-// 7. GET GRADE BY ID
-
+// 7. GET GRADE
 export async function getGradeById(id: string) {
 	const grade = await gradesTable.findUnique({ id });
 	if (!grade) throw new AppError(404, 'Grade not found.');
 	return grade;
 }
 
+// 8. GET COMPONENTES
 export async function getComponentsBySubjectService(subjectId: string) {
 	return await componentsTable.findMany({
 		subject_id: subjectId,
 	});
 }
 
+// 9. UPDATE COMPONENTE
 export async function updateComponentService(
 	componentId: string,
-	data: Partial<GradeComponentRequestDTO>
+	data: Partial<GradeComponentRequestDTO>,
+	professorId: string
 ) {
-	await componentsTable.update(data, {
-		id: componentId,
-	});
+	const before = await componentsTable.findUnique({ id: componentId });
+
+	await componentsTable.update(data, { id: componentId });
+
+	// AUDITORIA
+	await db.query('CALL audit_event(?, ?, ?, ?, ?, ?, ?)', [
+		professorId,
+		'UPDATE_COMPONENT',
+		null,
+		before?.subject_id ?? null,
+		componentId,
+		before?.formula_acronym ?? null,
+		data.formula_acronym ?? before?.formula_acronym ?? null,
+	]);
 }
 
-export async function deleteComponentService(componentId: string) {
-	await componentsTable.deleteMany({
-		id: componentId,
+// 10. DELETE COMPONENTE
+export async function deleteComponentService(
+	componentId: string,
+	professorId: string
+) {
+	const component = await componentsTable.findUnique({ id: componentId });
+
+	if (!component) throw new AppError(404, 'Component not found!');
+
+	const formula = await formulaTable.findUnique({
+		subject_id: component.subject_id,
 	});
+
+	await componentsTable.deleteMany({ id: componentId });
+
+	await db.query('CALL audit_event(?, ?, ?, ?, ?, ?, ?)', [
+		professorId,
+		'DELETE_COMPONENT',
+		null,
+		component.subject_id,
+		componentId,
+		component.formula_acronym,
+		null,
+	]);
+
+	if (formula) {
+		const newFormula =
+			removeComponentFromFormulaSafe(
+				formula.formula_text,
+				component.formula_acronym
+			) ?? '';
+
+		await formulaTable.update(
+			{ formula_text: newFormula },
+			{
+				id: formula.id,
+			}
+		);
+	}
+}
+
+function removeComponentFromFormulaSafe(formula: string, comp: string) {
+	let f = formula;
+
+	f = f.replaceAll(comp, '0');
+	f = f.replace(/(\+|\-)\s*0(?=[\)\+\-\/\*])?/g, '');
+	f = f.replace(/0\s*(\+|\-)/g, '$1');
+	f = f.replace(/\/\s*0\b/g, '/1');
+
+	const divisorRegex = /\/\s*([0-9]+)/;
+	const match = f.match(divisorRegex);
+	if (match) {
+		const oldDiv = Number(match[1]);
+		f = f.replace(divisorRegex, `/ ${Math.max(oldDiv - 1, 1)}`);
+	}
+
+	f = f.replace(/\(\s*\)/g, '0');
+
+	if (!f.replace(/[()\d\w\+\-\/*]/g, '').trim() && !f.match(/[A-Za-z0-9]/)) {
+		return null;
+	}
+
+	return f;
 }

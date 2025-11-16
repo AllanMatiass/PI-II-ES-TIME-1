@@ -26,7 +26,6 @@ export function isAuth(req: Request, res: Response, next: NextFunction) {
         const decoded = jwt.verify(token, JWT_SECRET);
 
         // O conteúdo decodificado (payload) é atribuído ao objeto `req.user`
-        // Isso permite que outras rotas/middlewares saibam qual usuário está autenticado
         req.user = decoded as ProfessorResponseDTO;
 
         // Chama o próximo middleware ou controller na cadeia de execução
