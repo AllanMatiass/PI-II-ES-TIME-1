@@ -218,8 +218,13 @@ export async function updateFinalFormulaService(
 	subjectId: string,
 	formula: string
 ) {
+	if (/\/\s*0(?!\d)/.test(formula)) {
+		throw new AppError(400, "A fórmula contém divisão literal por zero.");
+	}
+
 	const currentFormula = await formulaTable.findUnique({subject_id: subjectId});
 	try {
+		
 		const subject = await subjectTable.findUnique({ id: subjectId });
 		if (!subject) {
 			throw new AppError(404, 'Subject not found.');
@@ -228,6 +233,8 @@ export async function updateFinalFormulaService(
 		const existing = await formulaTable.findUnique({
 			subject_id: subjectId,
 		});
+
+		
 
 		if (existing) {
 			await formulaTable.update(
@@ -318,4 +325,22 @@ export async function deleteComponentService(componentId: string) {
 	await componentsTable.deleteMany({
 		id: componentId,
 	});
+}
+
+function isNumericExpression(expr: string): boolean {
+    return /^[0-9+\-*/().\s]+$/.test(expr);
+}
+
+// Função auxiliar segura para avaliar apenas números (sem variáveis)
+function safeEval(expr: string): number {
+    // Garante que só tenha números e operadores matemáticos
+    if (!isNumericExpression(expr)) return NaN;
+
+    try {
+        // Avaliação segura — apenas matemática permitida
+        // eslint-disable-next-line no-new-func
+        return Function(`"use strict"; return (${expr})`)();
+    } catch {
+        return NaN;
+    }
 }
