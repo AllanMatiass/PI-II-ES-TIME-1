@@ -471,21 +471,9 @@ END$$
 
 DELIMITER ;
 
-DELIMITER $$
-
-CREATE PROCEDURE build_audit_message(
-    IN p_action_type VARCHAR(50),
-    IN studentName VARCHAR(255),
-    IN componentName VARCHAR(255),
-    IN acr VARCHAR(50),
-    IN p_old_value VARCHAR(255),
-    IN p_new_value VARCHAR(255),
-    OUT msg TEXT
-)
-BEGIN
-    DECLARE dt VARCHAR(25);
-    SET dt = DATE_FORMAT(NOW(), '%d/%m/%Y %H:%i:%s');
-
+    -- ---------------------------
+    -- Montar mensagens
+    -- ---------------------------
     CASE p_action_type
 
         WHEN 'GRADE_UPDATE' THEN
@@ -529,6 +517,27 @@ BEGIN
             SET msg = CONCAT(dt, ' - Evento não reconhecido.');
     END CASE;
 
+    -- salvar no audit_grades
+    INSERT INTO audit_grades (
+        id,
+        created_at,
+        student_id,
+        subject_id,
+        component_id,
+        old_value,
+        new_value,
+        message
+    )
+    VALUES (
+        UUID(),
+        NOW(),
+        p_student_id,
+        p_subject_id,
+        p_component_id,
+        p_old_value,
+        p_new_value,
+        msg
+    );
 END$$
 
 DELIMITER ;
