@@ -326,21 +326,3 @@ export async function deleteComponentService(componentId: string) {
 		id: componentId,
 	});
 }
-
-function isNumericExpression(expr: string): boolean {
-    return /^[0-9+\-*/().\s]+$/.test(expr);
-}
-
-// Função auxiliar segura para avaliar apenas números (sem variáveis)
-function safeEval(expr: string): number {
-    // Garante que só tenha números e operadores matemáticos
-    if (!isNumericExpression(expr)) return NaN;
-
-    try {
-        // Avaliação segura — apenas matemática permitida
-        // eslint-disable-next-line no-new-func
-        return Function(`"use strict"; return (${expr})`)();
-    } catch {
-        return NaN;
-    }
-}
