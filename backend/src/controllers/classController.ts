@@ -2,16 +2,20 @@
 import fs from 'fs';
 import { Request, Response } from 'express';
 import { AppError } from '../errors/AppError';
-import { ClassRegisterRequestDTO } from 'dtos';
+import { ClassRegisterRequestDTO, StudentRegisterDTO } from 'dtos';
 import {
 	deleteClass,
 	findAllClasses,
 	findClassByID,
 	findClassBySubjectId,
+	GetClassGradesForExport,
+	ImportClass,
 	insertClass,
 	updateClass,
 } from '../services/classService';
 import csvParser from 'csv-parser';
+import { Parser as Json2CsvParser } from 'json2csv';
+import { findSubjectByID } from '../services/subjectService';
 
 // Controller responsável por criar uma nova turma
 export async function POST_insertClass(req: Request, res: Response) {
@@ -219,7 +223,7 @@ export async function POST_ImportClass(req: Request, res: Response) {
 	try {
 		const classId = req.params.id;
 		const filePath = req.file?.path;
-		const data: any = [];
+		const data: StudentRegisterDTO[] = [];
 
 		// Verifica se o ID da turma foi enviado
 		if (!classId) {
@@ -232,24 +236,19 @@ export async function POST_ImportClass(req: Request, res: Response) {
 		}
 
 		// Cria stream para ler o arquivo CSV
-		const stream = fs.createReadStream(filePath);
-
-		// Passa o conteúdo pelo parser
-		stream.pipe(csvParser());
-
-		// Adiciona cada linha do CSV no array de dados
-		stream.on('data', (line) => data.push(line));
-
-		// Aguarda o término da leitura
-		await new Promise((resolve: any) => {
-			stream.on('end', resolve);
+		fs.createReadStream(filePath)
+		.pipe(csvParser())
+		.on('data', (row) => data.push(row))
+		.on('end', async () => {
+			console.log(data); 
+			await ImportClass(data, classId);
+			res.sendStatus(200);
+		})
+		.on('error', (err) => {
+			console.error(err);
+			res.status(500).json({ error: 'Erro ao processar CSV' });
 		});
 
-		// Mostra o conteúdo do CSV no console
-		data.forEach((a: any) => console.log(a));
-
-		// Retorna sucesso
-		res.sendStatus(200);
 	} catch (err) {
 		if (err instanceof AppError) {
 			return res.status(err.code).json({ error: err.message });
@@ -258,4 +257,47 @@ export async function POST_ImportClass(req: Request, res: Response) {
 		console.error(err);
 		return res.status(500).json({ error: 'Unexpected Error' });
 	}
+}
+
+
+export async function GET_ExportClass(req: Request, res: Response) {
+    try {
+        const { classId, subjectId } = req.params;
+        if (!classId || !subjectId) throw new AppError(404, 'Class or Subject not found.');
+
+        const data = await GetClassGradesForExport(classId, subjectId);
+        if (!data || data.length === 0) throw new AppError(404, 'No grades found to export.');
+
+        // Converte JSON para CSV
+        const fields = ['registration_id', 'student_name', 'component_name', 'grade'];
+        const json2csvParser = new Json2CsvParser({ fields });
+        const csv = json2csvParser.parse(data);
+
+        // Busca dados da turma e disciplina para montar o nome do arquivo
+        const cls = await findClassByID(classId);
+        const subject = await findSubjectByID(subjectId);
+        if (!cls || !subject) throw new AppError(404, 'Class or Subject not found');
+
+        // Formata timestamp YYYY-MM-DD_HHmmssms
+        const now = new Date();
+        const pad = (n: number, digits = 2) => n.toString().padStart(digits, '0');
+        const timestamp = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}_` +
+                          `${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}${pad(now.getMilliseconds(),3)}`;
+
+        // Monta o nome do arquivo
+        const filename = `${timestamp}-${cls.name}_${subject.acronym}.csv`;
+
+        // Define headers para download
+        res.header('Content-Type', 'text/csv');
+        res.header('Content-Disposition', `attachment; filename="${filename}"`);
+
+        return res.status(200).send(csv);
+
+    } catch (err) {
+        if (err instanceof AppError) {
+            return res.status(err.code).json({ error: err.message });
+        }
+        console.error(err);
+        return res.status(500).json({ error: 'Unexpected Error' });
+    }
 }
