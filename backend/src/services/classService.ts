@@ -9,7 +9,7 @@ import {
 } from 'dtos';
 import { AppError } from '../errors/AppError';
 import { DatabaseClient } from '../db/DBClient';
-import { ClassDataModel, StudentDataModel, SubjectDataModel } from 'dataModels';
+import { ClassDataModel, ClassStudentsDataModel, GradeComponentDataModel, GradeComponentValueDataModel, GradeDataModel, StudentDataModel, SubjectDataModel } from 'dataModels';
 
 // Cria instância do cliente de banco de dados
 const db = new DatabaseClient();
@@ -18,10 +18,10 @@ const db = new DatabaseClient();
 const subjectTable = db.table<SubjectDataModel>('subjects');
 const classTable = db.table<ClassDataModel>('classes');
 const studentsTable = db.table<StudentDataModel>('students');
-const classStudentsTable = db.table('class_students');
-const gradesTable = db.table('grades');
-const componentsTable = db.table('grade_components');
-
+const classStudentsTable = db.table<ClassStudentsDataModel>('class_students');
+const gradesTable = db.table<GradeDataModel>('grades');
+const componentsTable = db.table<GradeComponentDataModel>('grade_components');
+const componentsValuesTable = db.table<GradeComponentValueDataModel>('grade_component_values')
 /**
  * Cria uma nova turma
  */
@@ -146,69 +146,117 @@ export async function deleteClass(id: string): Promise<boolean> {
 /**
  * Importa alunos em lote para uma turma (a partir de uma lista de objetos)
  */
-export async function ImportClass(data: StudentRegisterDTO[]) {
+export async function ImportClass(data: StudentRegisterDTO[], id: string) {
 	for (const row of data) {
+		const student = mapCsvRowToStudent(row);
+		if (!student) continue;
+
 		// Verifica se a linha tem os campos mínimos necessários
-		if (row.name && row.registration_id) {
-			const studentExists = studentsTable.findUnique({
-				registration_id: row.registration_id,
+		if (student?.name && student.registration_id) {
+			const studentExists = await studentsTable.findUnique({
+				registration_id: student.registration_id,
 			});
+			const classExist = await classTable.findUnique({id});
+			if (!classExist) throw new AppError(404, 'Class not found.');
+			
+			const studentIsAlreadyInClass = await classStudentsTable.findUnique({})
+			console.log('studentExists:', studentExists);
 
 			// Se o aluno ainda não existir, ele é inserido
 			if (!studentExists) {
-				await studentsTable.insert(row);
+				await studentsTable.insert(student);
 			}
+
+			const classExist = await classTable.findUnique({id});
+			if (!classExist) throw new AppError(404, 'Class not found.');
+			
+			const studentIsAlreadyInClass = await classStudentsTable.findUnique({
+				student_id: studentExists!.id, 
+				class_id: classExist.id
+			});
+
+			if (studentIsAlreadyInClass) continue;
+			
+			await classStudentsTable.insert({
+				student_id: studentExists!.id, 
+				class_id: classExist.id
+			});
 		}
 	}
 }
 
+function mapCsvRowToStudent(row: any): StudentRegisterDTO | null {
+  const values = Object.values(row).map(
+	v => (v !== undefined && v !== null ? 
+		String(v).trim() : ''
+	));
+
+  if (values.length < 2) return null;
+
+  const registration_id: string | undefined = values[0];
+  const name: string | undefined  = values[1];
+
+  if (!registration_id || !name) return null;
+
+  return { registration_id, name };
+}
+
+
 /**
  * Gera os dados de notas de uma turma, formatados para exportação em CSV
  */
-export async function GetClassGradesForExport(classId: string) {
-	// Busca todos os alunos vinculados à turma
-	const classStudents = await classStudentsTable.findMany({
-		class_id: classId,
-	});
+export async function GetClassGradesForExport(classId: string, subjectId: string): Promise<CSVResponseDTO[]> {
+    // Busca a classe específica e verifica se pertence à disciplina
+    const cls = await classTable.findUnique({ id: classId });
+    if (!cls) throw new AppError(400, 'Classe não encontrada');
 
-	if (!classStudents || classStudents.length === 0) {
-		throw new AppError(400, 'Nenhum aluno encontrado nessa turma');
-	}
+    if (cls.subject_id !== subjectId)
+        throw new AppError(400, 'A classe não pertence a essa disciplina');
 
-	// Array final que armazenará os dados prontos para exportação
-	const formattedData: CSVResponseDTO[] = [];
+    // Busca todos os alunos vinculados à turma
+    const classStudents = await classStudentsTable.findMany({
+        class_id: classId,
+    });
 
-	// Loop para cada aluno da turma
-	for (const cs of classStudents) {
-		const student = await studentsTable.findUnique({ id: cs.student_id });
-		const grade = await gradesTable.findUnique({ id: cs.grade_id });
+    if (!classStudents || classStudents.length === 0) return [];
 
-		// Pula caso aluno ou nota não sejam encontrados
-		if (!student || !grade) continue;
+    const formattedData: CSVResponseDTO[] = [];
 
-		const component = await componentsTable.findUnique({
-			id: grade.grade_component_id,
-		});
+    for (const cs of classStudents) {
+        const student = await studentsTable.findUnique({ id: cs.student_id });
+        if (!student) continue;
 
-		// Impede exportação se alguma nota estiver ausente
-		if (
-			grade.automatic_final_grade === null ||
-			grade.automatic_final_grade === undefined ||
-			grade.automatic_final_grade === '-'
-		) {
-			throw new AppError(400, 'Erro, está faltando nota!');
-		}
+        // Nota final do aluno na disciplina
+        const grade = await gradesTable.findUnique({
+            student_id: student.id, subject_id: subjectId,
+        });
+        if (!grade) continue;
 
-		// Monta o objeto de resposta e adiciona ao array final
-		formattedData.push({
-			registration_id: student.registration_id,
-			student_name: student.name,
-			component_name: component?.name ?? 'Componente',
-			grade: grade.automatic_final_grade,
-		});
-	}
+        // Componentes da disciplina para o aluno
+        const componentValues = await componentsValuesTable.findMany({ student_id: student.id });
 
-	return formattedData;
+        for (const cv of componentValues) {
+            const component = await componentsTable.findUnique({ id: cv.component_id });
+            if (!component) continue;
+
+            formattedData.push({
+                registration_id: student.registration_id,
+                student_name: student.name,
+                component_name: component.name,
+                grade: cv.grade_value,
+            });
+        }
+
+        // Adiciona a nota final
+        formattedData.push({
+            registration_id: student.registration_id,
+            student_name: student.name,
+            component_name: 'Final',
+            grade: grade.final_grade,
+        });
+    }
+
+    return formattedData;
 }
 
 /**

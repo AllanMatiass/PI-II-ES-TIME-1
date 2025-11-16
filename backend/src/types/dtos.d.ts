@@ -143,4 +143,15 @@ declare module 'dtos' {
 		subject_id: string;
 		formula_text: string;
 	}
+
+	interface SubjectResponseDTO {
+		id: string;
+		course_id: string;
+		name: string;
+		code: string;
+		acronym: string;
+		period: number;
+		start_date: Date;
+		end_date: Date;
+	}
 }
