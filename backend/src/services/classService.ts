@@ -156,6 +156,11 @@ export async function ImportClass(data: StudentRegisterDTO[], id: string) {
 			const studentExists = await studentsTable.findUnique({
 				registration_id: student.registration_id,
 			});
+			const classExist = await classTable.findUnique({id});
+			if (!classExist) throw new AppError(404, 'Class not found.');
+			
+			const studentIsAlreadyInClass = await classStudentsTable.findUnique({})
+			console.log('studentExists:', studentExists);
 
 			// Se o aluno ainda não existir, ele é inserido
 			if (!studentExists) {
