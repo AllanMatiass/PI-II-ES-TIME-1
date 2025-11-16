@@ -1,7 +1,7 @@
 /**
  * Cria e retorna os cabeçalhos padrão para requisições autenticadas.
  */
-export function GetAuthHeaders() {
+export function GetAuthHeaders(includeContentType = true) {
     const token = localStorage.getItem("token");
     
     if (!token) {
@@ -9,9 +9,15 @@ export function GetAuthHeaders() {
         window.location.href = '/frontend/pages/auth/signin.html';
         throw new Error("Usuário não autenticado");
     }
+    if (includeContentType){
+        return {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+        };
+    }
 
     return {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`
+            "Authorization": `Bearer ${token}`
     };
+   
 }   

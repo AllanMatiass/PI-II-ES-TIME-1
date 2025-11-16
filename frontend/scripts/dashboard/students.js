@@ -138,6 +138,47 @@ async function DeleteStudent(registration_id) {
     modal.hide();
 }
 
+$('#import-csv-btn').on('click', async () => {
+    const fileInput = document.getElementById('csv-file');
+
+    if (!fileInput.files.length) {
+        return ShowErrorModal('ERRO AO IMPORTAR CSV', ['Nenhum arquivo selecionado.']);
+    }
+
+    try {
+        const formData = new FormData();
+        formData.append('file', fileInput.files[0]);
+
+        const res = await fetch(`${API_URL}/api/class/${classId}/import`, {
+            method: 'POST',
+            headers: GetAuthHeaders(false),
+            body: formData
+        });
+
+        if (!isValidToken(res)) {
+            window.location.href = '/frontend/pages/auth/signin.html';
+            return;
+        }
+
+        const body = await res.json();
+
+        if (!res.ok) {
+            return ShowErrorModal('ERRO AO IMPORTAR CSV', [body.error]);
+        }
+
+        // Fecha modal
+        const modal = bootstrap.Modal.getInstance($('#import-csv-modal')[0]);
+        modal.hide();
+
+        // Atualiza lista de alunos
+        await FetchStudents();
+        ShowStudents();
+
+    } catch (err) {
+        ShowErrorModal('ERRO AO IMPORTAR CSV', [err.message]);
+    }
+});
+
 async function FetchStudents() {
     try {
         const res = await fetch(`${API_URL}/api/students/${classId}`, {

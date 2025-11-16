@@ -21,6 +21,7 @@ import {
 
 import {
 	DELETE_deleteClass,
+	GET_ExportClass,
 	GET_findAllClasses,
 	GET_findClassByID,
 	GET_findClassesBySubjectId,
@@ -172,7 +173,7 @@ router.post('/class/:id/import', upload.single('file'), async (req, res) => {
 
 router.get('/class/:id/export', async (req, res) => {
 	console.log(`GET /api/class/${req.params.id}/export`);
-	// (futuramente implementar exportação)
+	await GET_ExportClass(req, res);
 });
 
 // ======================================================================

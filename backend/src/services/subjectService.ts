@@ -1,7 +1,7 @@
 // Autor: Cristian Fava
 
 // Importa o tipo do DTO (Data Transfer Object) usado para registrar uma disciplina
-import { SubjectRegisterRequestDTO } from "dtos";
+import { SubjectRegisterRequestDTO, SubjectResponseDTO } from "dtos";
 
 // Importa o cliente de banco de dados que abstrai as operações SQL
 import { DatabaseClient } from "../db/DBClient";
@@ -117,4 +117,14 @@ export async function GetCourseSubjectsByCourseId(course_id: string) {
 
     // Retorna o array de disciplinas
     return subjects;
+}
+
+export async function findSubjectByID(id: string): Promise<SubjectResponseDTO> {
+    const class_ = await subjectTable.findUnique({ id });
+
+    if (!class_) {
+        throw new AppError(404, 'Class not found.');
+    }
+
+    return class_;
 }

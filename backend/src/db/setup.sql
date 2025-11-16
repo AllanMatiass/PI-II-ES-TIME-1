@@ -144,7 +144,6 @@ CREATE TABLE audit_grades (
 
 ## 💾 Procedures e Funções
 
-```sql
 DELIMITER $$
 
 -- PROCEDURE DE AUDITORIA GENÉRICA
@@ -385,7 +384,6 @@ DELIMITER ;
 
 O código abaixo é o que garante o comportamento solicitado: quando a coluna `formula_text` da tabela `subject_final_formula` é alterada, ele dispara o recálculo para **todos os alunos** afetados.
 
-```sql
 DELIMITER $$
 
 DROP TRIGGER IF EXISTS tg_recalc_all_after_formula_update$$
