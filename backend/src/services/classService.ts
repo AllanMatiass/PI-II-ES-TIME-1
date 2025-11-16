@@ -150,7 +150,7 @@ export async function ImportClass(data: StudentRegisterDTO[], id: string) {
 	for (const row of data) {
 		const student = mapCsvRowToStudent(row);
 		if (!student) continue;
-		console.log('st: ', student);
+
 		// Verifica se a linha tem os campos mínimos necessários
 		if (student?.name && student.registration_id) {
 			const studentExists = await studentsTable.findUnique({
@@ -164,9 +164,23 @@ export async function ImportClass(data: StudentRegisterDTO[], id: string) {
 
 			// Se o aluno ainda não existir, ele é inserido
 			if (!studentExists) {
-				console.log(student, 'doesnt exist');
 				await studentsTable.insert(student);
 			}
+
+			const classExist = await classTable.findUnique({id});
+			if (!classExist) throw new AppError(404, 'Class not found.');
+			
+			const studentIsAlreadyInClass = await classStudentsTable.findUnique({
+				student_id: studentExists!.id, 
+				class_id: classExist.id
+			});
+
+			if (studentIsAlreadyInClass) continue;
+			
+			await classStudentsTable.insert({
+				student_id: studentExists!.id, 
+				class_id: classExist.id
+			});
 		}
 	}
 }
