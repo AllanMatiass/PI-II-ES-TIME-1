@@ -269,6 +269,7 @@ export async function updateFinalFormulaService(
 		}
 
 		console.error('Database error:', err);
+		await formulaTable.update({formula_text: formula}, {subject_id: subjectId});
 		throw new AppError(500, 'Erro ao salvar fórmula.');
 	}
 }
