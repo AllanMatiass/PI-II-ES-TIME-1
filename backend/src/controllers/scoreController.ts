@@ -1,57 +1,257 @@
-//Autor: Emilly Morelatto
-import { Request, Response } from "express";
-import { AppError } from "../errors/AppError";
-import{uptadeScoreService, 
-    listScoreService, 
-    defineFormulaService, 
-    calculateFinalGradesService} from "../services/scoreService";
+// Autores originais: Emilly Morelatto e Mateus Campos
+// Versão corrigida por ChatGPT
 
-export async function uptadeScoreController(req: Request, res: Response) {
-    try {
-        const {class_id, componentId}=req.params;
-        const notas=req.body;
+import { Request, Response } from 'express';
+import { AppError } from '../errors/AppError';
+import {
+	updateScoreService,
+	listScoreService,
+	addComponentService,
+	addGradeService,
+	getGradeById,
+	getComponentsBySubjectService,
+	updateComponentService,
+	deleteComponentService,
+	updateFinalFormulaService,
+	getFinalFormulaService,
+} from '../services/scoreService';
 
-        const result= await uptadeScoreService(class_id, componentId, notas);
+import { GradeComponentRequestDTO, ScoreRequestDTO } from 'dtos';
 
-        res.status(200).json({message: 'Grades successfully submitted', data:result});
-    }catch(err: any) {
-        console.error(err);
+// 1. ATUALIZAR NOTAS DOS COMPONENTES
+export async function PUT_UpdateScoreController(req: Request, res: Response) {
+	try {
+		const { subjectId } = req.params;
+
+		if (!subjectId) {
+			throw new AppError(
+				400,
+				'Params must contain: /subject/:subjectId/grades'
+			);
+		}
+
+		const score = req.body as ScoreRequestDTO;
+
+		if (!score.component_id || !score.student_id || score.student_id == undefined) {
+			throw new AppError(400, "Invalid body!");
+		}
+
+		const result = await updateScoreService(subjectId, score, req.user!.id);
+
+		return res.status(200).json({
+			message: 'Grades successfully submitted',
+			data: result,
+		});
+	} catch (err: any) {
+		if (err instanceof AppError) {
+			return res.status(err.code).json({ error: err.message });
+		}
+
+		console.error(err);
+
 		return res.status(500).json({ error: 'Unexpected Error' });
-    }
+	}
 }
-export async function listGrades(req: Request, res: Response) {
-    try {
-        const{class_id}=req.params;
 
-        const result =await listScoreService(class_id);
-        res.status(200).json({message: 'The grades were listed successfully', data:result});
+// 2. LISTAR NOTAS TERCEIRO
+export async function GET_ListGradesController(req: Request, res: Response) {
+	try {
+		const { classId, subjectId } = req.params;
 
-    }catch(err: any) {
-        console.error(err);
-        return res.status(500).json({error: 'Unexpected Error'});
-    }
+		if (!classId || !subjectId) {
+			throw new AppError(
+				400,
+				'Params must follow: /class/:classId/subject/:subjectId/grades'
+			);
+		}
+
+		const result = await listScoreService(classId, subjectId);
+
+		return res.status(200).json({
+			message: 'Grades listed successfully',
+			data: result,
+		});
+	} catch (err: any) {
+		if (err instanceof AppError) {
+			return res.status(err.code).json({ error: err.message });
+		}
+
+		return res.status(500).json({ error: 'Unexpected Error' });
+	}
 }
-export async function defineFormula(req: Request, res: Response) {
-    try {
-        const{subject_id}=req.params;
-        const formula=req.body;
 
-        const result= await defineFormulaService(subject_id, req.body);
-        res.status(200).json({message:'Formula was defined succesfully', data:result});
-    }catch(err:any) {
-        console.error(err);
-        return res.status(500).json({ error:' Unexpected Error'});
-    }
+// 3. CRIAR COMPONENTE DA DISCIPLINA (não envolve aluno)
+export async function POST_AddComponent(req: Request, res: Response) {
+	try {
+		let data = req.body as GradeComponentRequestDTO;
+		data.formula_acronym = data.formula_acronym.toUpperCase();
+
+		const result = await addComponentService(data, req.user!.id);
+
+		return res.status(201).json(result);
+	} catch (error: any) {
+		if (error instanceof AppError) {
+			return res.status(error.code).json({ error: error.message });
+		}
+
+		console.log(error);
+		return res.status(500).json({ error: 'Erro interno do servidor.' });
+	}
 }
-export async function calculateFinalGrades(req: Request, res: Response) {
-    try {
-        const {class_id}=req.params;
 
-        const result= await calculateFinalGradesService(class_id);
-        res.status(500).json({message: 'Final Grades was succesfully calculate', data:result});
-    }catch(err:any) {
-        console.error(err);
-        return res.status(500).json({error: 'Unexpected Error'});
+// 4. CRIAR GRADE (associar aluno à disciplina)
+export async function POST_AddGrade(req: Request, res: Response) {
+	try {
+		const { student_id, subject_id } = req.body;
 
-    }
+		if (!student_id || !subject_id)
+			throw new AppError(400, 'student_id e subject_id são obrigatórios.');
+
+		const creationResult = await addGradeService({
+			student_id,
+			subject_id,
+		});
+
+		const grade = await getGradeById(creationResult.grade_id);
+
+		return res.status(201).json({
+			message: 'Grade created successfully!',
+			grade,
+		});
+	} catch (error: any) {
+		if (error instanceof AppError) {
+			return res.status(error.code).json({ error: error.message });
+		}
+
+		console.error(error);
+		return res.status(500).json({ error: 'Erro interno do servidor.' });
+	}
+}
+
+// 5. LISTAR COMPONENTES DE NOTA
+export async function GET_GetComponentsBySubject(req: Request, res: Response) {
+	try {
+		const subjectId = req.params.subjectId;
+
+		if (!subjectId) {
+			throw new AppError(400, 'Missing param subject id.');
+		}
+
+		const result = await getComponentsBySubjectService(subjectId);
+
+		return res.status(200).json({ data: result });
+	} catch (error: any) {
+		if (error instanceof AppError) {
+			return res.status(error.code).json({ error: error.message });
+		}
+
+		console.error(error);
+		return res.status(500).json({ error: 'Erro interno do servidor.' });
+	}
+}
+
+// 6. ALTERAR COMPONENTES DE NOTA
+export async function PUT_UpdateComponent(req: Request, res: Response) {
+	try {
+		const componentId = req.params.componentId;
+		const data = req.body as Partial<GradeComponentRequestDTO>;
+		
+		if (data.formula_acronym) {
+			data.formula_acronym = data.formula_acronym.toUpperCase();
+		}
+
+		if (!componentId) {
+			throw new AppError(400, 'Missing param component id.');
+		}
+
+		const result = await updateComponentService(componentId, data, req.user!.id);
+
+		return res.status(200).json({ data: result });
+	} catch (error: any) {
+		if (error instanceof AppError) {
+			return res.status(error.code).json({ error: error.message });
+		}
+
+		console.error(error);
+		return res.status(500).json({ error: 'Erro interno do servidor.' });
+	}
+}
+
+// 7. DELETAR COMPONENTE
+export async function DELETE_DeleteComponent(req: Request, res: Response) {
+	try {
+		const componentId = req.params.componentId;
+		const data = req.body as Partial<GradeComponentRequestDTO>;
+
+		if (!componentId) {
+			throw new AppError(400, 'Missing param component id.');
+		}
+
+		const result = await deleteComponentService(componentId, req.user!.id);
+
+		return res.status(200).json({ data: result });
+	} catch (error: any) {
+		if (error instanceof AppError) {
+			return res.status(error.code).json({ error: error.message });
+		}
+
+		console.error(error);
+		return res.status(500).json({ error: 'Erro interno do servidor.' });
+	}
+}
+
+// 8. GET - Obter fórmula final
+export async function GET_FinalFormulaController(req: Request, res: Response) {
+	try {
+		const { subjectId } = req.params;
+
+		if (!subjectId) {
+			throw new AppError(400, 'Missing param subjectId.');
+		}
+
+		const result = await getFinalFormulaService(subjectId);
+
+		return res.status(200).json({
+			message: 'Formula loaded successfully',
+			...result,
+		});
+	} catch (err: any) {
+		if (err instanceof AppError) {
+			return res.status(err.code).json({ error: err.message });
+		}
+
+		return res.status(500).json({ error: 'Unexpected Error' });
+	}
+}
+
+// 9. POST - Criar / Atualizar fórmula final
+export async function POST_UpdateFinalFormulaController(
+	req: Request,
+	res: Response
+) {
+	try {
+		const { subjectId } = req.params;
+		const { formula_text } = req.body;
+
+		if (!subjectId) {
+			throw new AppError(400, 'Missing subjectId.');
+		}
+
+		if (!formula_text) {
+			throw new AppError(400, 'Missing formula_text.');
+		}
+
+		const result = await updateFinalFormulaService(subjectId, formula_text.toUpperCase(), req.user!.id);
+
+		return res.status(201).json({
+			message: result.message,
+			formula_text,
+		});
+	} catch (err: any) {
+		if (err instanceof AppError) {
+			return res.status(err.code).json({ error: err.message });
+		}
+
+		return res.status(500).json({ error: 'Unexpected Error' });
+	}
 }

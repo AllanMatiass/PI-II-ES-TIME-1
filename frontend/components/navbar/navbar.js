@@ -53,11 +53,11 @@ async function UpdateProfileInfo(updatedInfo) {
 
 		const body = await res.json();
 
-		if (res.status != 200) {
-			return ShowErrorModal("ERRO AO ATUALIZAR O PERFIL", [body.error]);
+		if (!res.ok) {
+			return ShowErrorModal('ERRO AO ATUALIZAR O PERFIL', [body.error]);
 		}
 	} catch (err) {
-		ShowErrorModal("ERRO AO ATUALIZAR O PERFIL", [err]);
+		ShowErrorModal('ERRO AO ATUALIZAR O PERFIL', [err]);
 	}
 }
 
@@ -70,12 +70,12 @@ async function FetchProfileInfo() {
 
 		const body = await res.json();
 
-		if (res.status != 200) {
-			return ShowErrorModal("ERRO AO BAIXAR PERFIL", [body.err]);
+		if (!res.ok) {
+			return ShowErrorModal('ERRO AO BAIXAR PERFIL', [body.err]);
 		}
 
 		return body;
 	} catch (err) {
-		ShowErrorModal("ERRO AO BAIXAR PERFIL", [err]);
+		ShowErrorModal('ERRO AO BAIXAR PERFIL', [err]);
 	}
 }

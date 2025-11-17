@@ -32,6 +32,13 @@ export function LoadSubjectsList(list, $table) {
 				.on('click', () => {
 					window.location.href ='/frontend/pages/dashboard/classes.html?subjectId=' + subject.id;
 				});
+			
+			$linha
+				.find('.bi-backpack')
+				.closest('button')
+				.on('click', () => {
+					window.location.href ='/frontend/pages/dashboard/components.html?subjectId=' + subject.id;
+				});
 
 			$linha
 				.find('.bi-pencil')

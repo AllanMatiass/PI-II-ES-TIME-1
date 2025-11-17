@@ -59,117 +59,136 @@ $('#delete-subject-btn').on('click', async () => {
     await DeleteSubject(subjectId);
 });
 
-async function CreateSubject(data) {
-    try {
-        const res = await fetch(`${API_URL}/api/subject`, {
-            method: 'POST',
-            headers: GetAuthHeaders(),
-            body: JSON.stringify({
-                course_id: courseId,
-                name: data.get('subject-name'),
-                code: data.get('subject-code'),
-                acronym: data.get('subject-acronym'),
-                period: parseInt(data.get('subject-period'), 10),
-                start_date: data.get('subject-start'),
-                end_date: data.get('subject-end'),
-            }),
-        });
+// Altera a data final
+$("#subject-start-date").on("change", AlterEndDate);
+$("#subject-period-nb").on("change", AlterEndDate);
 
-        const body = await res.json();
+function AlterEndDate() {
+    const start = new Date($("#subject-start-date").val());
+    const period = parseInt($("#subject-period-nb").val(), 10);
 
-        if (!isValidToken(res)){
-            window.location.href = '/frontend/pages/auth/signin.html';
-            return;
-        }
-
-        if (res.status != 200) {
-            return ShowErrorModal('ERRO AO CRIAR MATÉRIA', [body.error]);
-        }
-
-        subjectsList.push(body.data);
-        ShowSubjects();
-    } catch (err) {
-        ShowErrorModal('ERRO AO CRIAR MATÉRIA', [err.message]);
+    if (isNaN(start.getTime()) || isNaN(period)) {
+        console.warn("Data inicial ou período inválido.");
+        return;
     }
+
+    // Cada período = 6 meses
+    start.setMonth(start.getMonth() + period * 6);
+
+    const formatted = start.toISOString().split("T")[0];
+    $("#subject-end-date").val(formatted);
+}
+async function CreateSubject(data) {
+	try {
+		const res = await fetch(`${API_URL}/api/subject`, {
+			method: 'POST',
+			headers: GetAuthHeaders(),
+			body: JSON.stringify({
+				course_id: courseId,
+				name: data.get('subject-name'),
+				code: data.get('subject-code'),
+				acronym: data.get('subject-acronym'),
+				period: parseInt(data.get('subject-period'), 10),
+				start_date: data.get('subject-start'),
+				end_date: data.get('subject-end'),
+			}),
+		});
+
+		const body = await res.json();
+
+		if (!isValidToken(res)) {
+			window.location.href = '/frontend/pages/auth/signin.html';
+			return;
+		}
+
+		if (!res.ok) {
+			return ShowErrorModal('ERRO AO CRIAR MATÉRIA', [body.error]);
+		}
+
+		subjectsList.push(body.data);
+		ShowSubjects();
+	} catch (err) {
+		ShowErrorModal('ERRO AO CRIAR MATÉRIA', [err.message]);
+	}
 }
 
 async function AlterSubject(id, subjectName) {
-    try {
-        const res = await fetch(`${API_URL}/api/subject/${id}`, {
-            method: 'PUT',
-            headers: GetAuthHeaders(),
-            body: JSON.stringify({
-                name: subjectName
-            }),
-        });
+	try {
+		const res = await fetch(`${API_URL}/api/subject/${id}`, {
+			method: 'PUT',
+			headers: GetAuthHeaders(),
+			body: JSON.stringify({
+				name: subjectName,
+			}),
+		});
 
-        const body = await res.json();
+		const body = await res.json();
 
-        if (!isValidToken(res)){
-            window.location.href = '/frontend/pages/auth/signin.html';
-            return;
-        }
-        
-        if (res.status != 200) {
-            return ShowErrorModal('ERRO AO ALTERAR MATÉRIA', [body.error]);
-        }
+		if (!isValidToken(res)) {
+			window.location.href = '/frontend/pages/auth/signin.html';
+			return;
+		}
 
-        await FetchSubjects();
-    } catch (err) {
-        ShowErrorModal('ERRO AO ALTERAR MATÉRIA', [err.message]);
-    }
+		if (!res.ok) {
+			return ShowErrorModal('ERRO AO ALTERAR MATÉRIA', [body.error]);
+		}
+
+		await FetchSubjects();
+	} catch (err) {
+		ShowErrorModal('ERRO AO ALTERAR MATÉRIA', [err.message]);
+	}
 }
 
 async function DeleteSubject(id) {
-    try {
-        const res = await fetch(`${API_URL}/api/subject/${id}`, {
-            method: 'DELETE',
-            headers: GetAuthHeaders()
-        });
+	try {
+		const res = await fetch(`${API_URL}/api/subject/${id}`, {
+			method: 'DELETE',
+			headers: GetAuthHeaders(),
+		});
 
-        const body = await res.json();
+		const body = await res.json();
 
-        if (!isValidToken(res)){
-            window.location.href = '/frontend/pages/auth/signin.html';
-            return;
-        }
+		if (!isValidToken(res)) {
+			window.location.href = '/frontend/pages/auth/signin.html';
+			return;
+		}
 
-        if (res.status != 200) {
-            return ShowErrorModal('ERRO AO EXCLUIR MATÉRIA', [body.error]);
-        }
+		if (!res.ok) {
+			return ShowErrorModal('ERRO AO EXCLUIR MATÉRIA', [body.error]);
+		}
 
-        await FetchSubjects();
-    } catch (err) {
-        ShowErrorModal('ERRO AO EXCLUIR MATÉRIA', [err.message]);
-    }
+		await FetchSubjects();
+	} catch (err) {
+		ShowErrorModal('ERRO AO EXCLUIR MATÉRIA', [err.message]);
+	}
 
-    const modal = bootstrap.Modal.getInstance($('#delete-subject-modal')[0]);
-    modal.hide();
+	const modal = bootstrap.Modal.getInstance($('#delete-subject-modal')[0]);
+	modal.hide();
 }
 
-async function FetchSubjects() {    
-    try {
-        const res = await fetch(`${API_URL}/api/course/${courseId}/subjects`, {
-            method: 'GET',
-            headers: GetAuthHeaders(),
-        });
+async function FetchSubjects() {
+	try {
+		const res = await fetch(`${API_URL}/api/course/${courseId}/subjects`, {
+			method: 'GET',
+			headers: GetAuthHeaders(),
+		});
 
-        const body = await res.json();
+		const body = await res.json();
 
-        if (!isValidToken(res)){
-            window.location.href = '/frontend/pages/auth/signin.html';
-            return;
-        }
+		if (!isValidToken(res)) {
+			window.location.href = '/frontend/pages/auth/signin.html';
+			return;
+		}
 
-        if (res.status != 200) {
-            return ShowErrorModal('ERRO AO CARREGAR MATÉRIAS', [body.message]);
-        }
+		if (!res.ok) {
+			return ShowErrorModal('ERRO AO CARREGAR MATÉRIAS', [body.message]);
+		}
 
-        subjectsList = body.data;
-        ShowSubjects();
-    } catch (err) {
-        ShowErrorModal('ERRO AO CARREGAR MATÉRIAS', [err.message]);
-    }
+		subjectsList = body.data;
+		ShowSubjects();
+	} catch (err) {
+		ShowErrorModal('ERRO AO CARREGAR MATÉRIAS', [err.message]);
+	}
 }
 
 function ShowSubjects() {

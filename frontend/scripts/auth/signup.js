@@ -16,10 +16,10 @@ cadForm.addEventListener("submit", async (ev) => {
     try {
         // Passa os dados para JSON
         const json = JSON.stringify({
-            name: data.name,
+            name: data.name.trim(),
             phone: data.phone,
-            email: data.email,
-            password: data.password
+            email: data.email.trim(),
+            password: data.password.trim()
         });
 
         // Efetua a requisição de login e aguarda a resposta
@@ -35,12 +35,12 @@ cadForm.addEventListener("submit", async (ev) => {
         const body = await res.json();
         
         // Em caso de erro no servidor, mostra a mensagem.
-        if (res.status != 200) {
-            ShowErrorModal("ERRO AO CADASTRAR CONTA!", [body.error]);
-        } else {
-            // Depois de criar a conta, redireciona para a página de login
-            window.location.href = "/frontend/pages/auth/signin.html";
-        }
+        if (!res.ok) {
+					ShowErrorModal('ERRO AO CADASTRAR CONTA!', [body.error]);
+				} else {
+					// Depois de criar a conta, redireciona para a página de login
+					window.location.href = '/frontend/pages/auth/signin.html';
+				}
 
     } catch (err) {
         ShowErrorModal("ERRO AO CADASTRAR CONTA!", [err]);

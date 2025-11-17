@@ -61,7 +61,6 @@ export async function listStudents(req: Request, res: Response) {
 			return res.status(err.code).json({ error: err.message });
 		}
 
-        // Caso seja outro erro, registra no servidor e retorna erro genérico
 		console.error(err);
 		return res.status(500).json({ error: 'Unexpected Error' });
     }
@@ -72,10 +71,7 @@ export async function listStudents(req: Request, res: Response) {
 export async function removeStudent(req: Request, res: Response) {
     try {
         // Obtém o ID da classe a partir dos parâmetros da rota
-        const classId = req.params.classId;
-
-        // Obtém o registration_id do corpo da requisição
-        const { registration_id } = req.body;
+        const { classId, registration_id } = req.params;
 
         // Se o ID da classe não foi informado, retorna erro
         if (!classId) throw new AppError(404, 'Class not Found.');

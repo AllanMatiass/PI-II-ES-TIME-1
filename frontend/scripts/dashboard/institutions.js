@@ -1,7 +1,7 @@
-// Autor: Murilo Rigoni
+// Autor: Cristian Fava
 
 import { API_URL } from '../utils/config.js';
-import { ShowErrorModal } from "/frontend/components/errors-modal/modal.js";
+import { ShowErrorModal } from '/frontend/components/errors-modal/modal.js';
 import { LoadInstitutionList } from '/frontend/components/institution-table/row.js';
 import { GetAuthHeaders } from '../utils/getAuthHeaders.js';
 import { isValidToken } from '../utils/verifyToken.js';
@@ -43,10 +43,11 @@ $('#save-institution-btn').on('click', async () => {
 });
 
 $('#delete-institution-btn').on('click', async () => {
-	const institutionId = $('#delete-institution-modal').attr('data-institution-id');
+	const institutionId = $('#delete-institution-modal').attr(
+		'data-institution-id'
+	);
 	await DeleteInstitution(institutionId);
 });
-// Abre o modal de criação de instituição
 
 async function CreateInstitution(institutionData) {
 	try {
@@ -58,12 +59,12 @@ async function CreateInstitution(institutionData) {
 
 		const body = await res.json();
 
-		if (!isValidToken(res)){
+		if (!isValidToken(res)) {
 			window.location.href = '/frontend/pages/auth/signin.html';
 			return;
 		}
 
-		if (res.status != 200) {
+		if (!res.ok) {
 			return ShowErrorModal('ERRO AO CRIAR INSTITUIÇÃO', [body.error]);
 		}
 
@@ -84,12 +85,12 @@ async function AlterInstitution(id, data) {
 
 		const body = await res.json();
 
-		if (!isValidToken(res)){
+		if (!isValidToken(res)) {
 			window.location.href = '/frontend/pages/auth/signin.html';
 			return;
 		}
-		
-		if (res.status != 200) {
+
+		if (!res.ok) {
 			return ShowErrorModal('ERRO AO ALTERAR INSTITUIÇÃO', [body.error]);
 		}
 
@@ -103,17 +104,17 @@ async function DeleteInstitution(id) {
 	try {
 		const res = await fetch(`${API_URL}/api/institution/${id}`, {
 			method: 'DELETE',
-			headers: GetAuthHeaders()
+			headers: GetAuthHeaders(),
 		});
 
 		const body = await res.json();
 
-		if (!isValidToken(res)){
+		if (!isValidToken(res)) {
 			window.location.href = '/frontend/pages/auth/signin.html';
 			return;
 		}
 
-		if (res.status != 200) {
+		if (!res.ok) {
 			return ShowErrorModal('ERRO AO EXCLUIR INSTITUIÇÃO', [body.error]);
 		}
 
@@ -135,11 +136,11 @@ async function FetchInstitutions() {
 
 		const body = await res.json();
 
-		if (!isValidToken(res)){
+		if (!isValidToken(res)) {
 			window.location.href = '/frontend/pages/auth/signin.html';
 			return;
 		}
-		if (res.status != 200) {
+		if (!res.ok) {
 			return ShowErrorModal('ERRO AO CARREGAR INSTITUIÇÕES', [body.message]);
 		}
 

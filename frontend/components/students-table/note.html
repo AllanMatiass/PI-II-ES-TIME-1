@@ -1,0 +1,21 @@
+<!-- note-line: wrapper com data-grade-id UNICO (studentId__componentId) -->
+<div class="note-line d-flex align-items-center gap-2 mb-1" data-grade-id="{{grade_key}}">
+    <span><b>{{component_name}}:</b></span>
+
+    <input 
+        type="number" 
+        step="0.01"
+        class="form-control form-control-sm component-grade-input"
+        data-component-id="{{component_id}}"
+        value="{{value}}"
+        disabled
+    />
+
+    <button class="btn btn-sm btn-outline-primary edit-grade-btn" title="Editar">
+        <i class="bi bi-pencil"></i>
+    </button>
+
+    <button class="btn btn-sm btn-success save-grade-btn d-none" title="Salvar">
+        <i class="bi bi-check-lg"></i>
+    </button>
+</div>

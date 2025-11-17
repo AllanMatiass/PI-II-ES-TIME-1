@@ -16,8 +16,8 @@ loginForm.addEventListener('submit', async (ev) => {
 	try {
 		// Passa os dados para JSON
 		const json = JSON.stringify({
-			email: data.email,
-			password: data.password,
+			email: data.email.trim(),
+			password: data.password.trim(),
 		});
 
 		// Efetua a requisição de login e aguarda a resposta
@@ -34,7 +34,7 @@ loginForm.addEventListener('submit', async (ev) => {
 		const body = await res.json();
 
 		// Em caso de erro no servidor, mostra a mensagem.
-        if (res.status !== 200) {
+        if (!res.ok) {
 					return ShowErrorModal('ERRO AO EFETUAR LOGIN!', [body.error]);
 				}
 

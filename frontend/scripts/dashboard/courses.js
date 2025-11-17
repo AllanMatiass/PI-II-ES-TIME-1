@@ -62,130 +62,127 @@ $('#delete-course-btn').on('click', async () => {
 });
 
 async function CreateCourse(courseName) {
-    try {
-        const res = await fetch(`${API_URL}/api/course`, {
-            method: 'POST',
-            headers: GetAuthHeaders(),
-            body: JSON.stringify({
-                name: courseName,
-                institution_id: instituionId
-            })
-        });
+	try {
+		const res = await fetch(`${API_URL}/api/course`, {
+			method: 'POST',
+			headers: GetAuthHeaders(),
+			body: JSON.stringify({
+				name: courseName,
+				institution_id: instituionId,
+			}),
+		});
 
+		const body = await res.json();
 
-        const body = await res.json();
-
-        if (!isValidToken(res)){
+		if (!isValidToken(res)) {
 			window.location.href = '/frontend/pages/auth/signin.html';
 			return;
 		}
 
-        if (res.status != 200) {
-            return ShowErrorModal('ERRO AO CRIAR INSTITUIÇÃO', [body.error]);
-        }
+		if (!res.ok) {
+			return ShowErrorModal('ERRO AO CRIAR INSTITUIÇÃO', [body.error]);
+		}
 
-        coursesList.push(body.data);
-        ShowCourses();
-    } catch (err) {
-        ShowErrorModal('ERRO AO CRIAR INSTITUIÇÃO', [err.message]);
-    }
+		coursesList.push(body.data);
+		ShowCourses();
+	} catch (err) {
+		ShowErrorModal('ERRO AO CRIAR INSTITUIÇÃO', [err.message]);
+	}
 }
 
 async function AlterCourse(id, courseName) {
-    try {
-        const res = await fetch(`${API_URL}/api/course/${id}`, {
-            method: 'PUT',
-            headers: GetAuthHeaders(),
-            body: JSON.stringify({
-                name: courseName
-            }),
-        });
+	try {
+		const res = await fetch(`${API_URL}/api/course/${id}`, {
+			method: 'PUT',
+			headers: GetAuthHeaders(),
+			body: JSON.stringify({
+				name: courseName,
+			}),
+		});
 
+		const body = await res.json();
 
-        const body = await res.json();
-
-        if (!isValidToken(res)){
+		if (!isValidToken(res)) {
 			window.location.href = '/frontend/pages/auth/signin.html';
 			return;
 		}
-        
-        if (res.status != 200) {
-            return ShowErrorModal('ERRO AO ALTERAR INSTITUIÇÃO', [body.error]);
-        }
 
-        await FetchCourses();
-    } catch (err) {
-        ShowErrorModal('ERRO AO ALTERAR INSTITUIÇÃO', [err.message]);
-    }
+		if (!res.ok) {
+			return ShowErrorModal('ERRO AO ALTERAR INSTITUIÇÃO', [body.error]);
+		}
+
+		await FetchCourses();
+	} catch (err) {
+		ShowErrorModal('ERRO AO ALTERAR INSTITUIÇÃO', [err.message]);
+	}
 }
 
 async function DeleteCourse(id) {
-    try {
-        const res = await fetch(`${API_URL}/api/course/${id}`, {
-            method: 'DELETE',
-            headers: GetAuthHeaders()
-        });
+	try {
+		const res = await fetch(`${API_URL}/api/course/${id}`, {
+			method: 'DELETE',
+			headers: GetAuthHeaders(),
+		});
 
+		const body = await res.json();
 
-        const body = await res.json();
-
-        if (!isValidToken(res)){
+		if (!isValidToken(res)) {
 			window.location.href = '/frontend/pages/auth/signin.html';
 			return;
 		}
 
-        if (res.status != 200) {
-            return ShowErrorModal('ERRO AO EXCLUIR INSTITUIÇÃO', [body.error]);
-        }
+		if (!res.ok) {
+			return ShowErrorModal('ERRO AO EXCLUIR INSTITUIÇÃO', [body.error]);
+		}
 
-        await FetchCourses();
-    } catch (err) {
-        ShowErrorModal('ERRO AO EXCLUIR INSTITUIÇÃO', [err.message]);
-    }
+		await FetchCourses();
+	} catch (err) {
+		ShowErrorModal('ERRO AO EXCLUIR INSTITUIÇÃO', [err.message]);
+	}
 
-    const modal = bootstrap.Modal.getInstance($('#delete-course-modal')[0]);
-    modal.hide();
+	const modal = bootstrap.Modal.getInstance($('#delete-course-modal')[0]);
+	modal.hide();
 }
 
 async function FetchCourses() {
-    try {
-        const res = await fetch(`${API_URL}/api/courses/${instituionId}`, {
-            method: 'GET',
-            headers: GetAuthHeaders(),
-        });
-        
-        if (!isValidToken(res)){
-            window.location.href = '/frontend/pages/auth/signin.html';
-            return;
-        }
+	try {
+		const res = await fetch(`${API_URL}/api/courses/${instituionId}`, {
+			method: 'GET',
+			headers: GetAuthHeaders(),
+		});
 
-        const body = await res.json();
+		if (!isValidToken(res)) {
+			window.location.href = '/frontend/pages/auth/signin.html';
+			return;
+		}
 
-        if (res.status != 200) {
-            return ShowErrorModal('ERRO AO CARREGAR CURSOS', [body.message]);
-        }
+		const body = await res.json();
 
-        coursesList = body.data;
-        ShowCourses();
-    } catch (err) {
-        ShowErrorModal('ERRO AO CARREGAR CURSOS', [err.message]);
-    }
+		if (!res.ok) {
+			return ShowErrorModal('ERRO AO CARREGAR CURSOS', [body.message]);
+		}
+
+		coursesList = body.data;
+		ShowCourses();
+	} catch (err) {
+		ShowErrorModal('ERRO AO CARREGAR CURSOS', [err.message]);
+	}
 }
 
 async function CheckInstitutionExists(id) {
-    try {
-        const res = await fetch(`${API_URL}/api/institution/${id}`, {
-            method: 'GET',
-            headers: GetAuthHeaders(),
-        });
-        
-        if (res.status != 200) {
-            window.location.href = '/frontend/pages/dashboard/institutions.html';
-        }
-    } catch (err) {
-        ShowErrorModal('ERRO AO VERIFICAR INSTITUIÇÃO', [err.message]);
-        window.location.href = '/frontend/pages/dashboard/institutions.html';
-    }
+	try {
+		const res = await fetch(`${API_URL}/api/institution/${id}`, {
+			method: 'GET',
+			headers: GetAuthHeaders(),
+		});
+
+		if (!res.ok) {
+			window.location.href = '/frontend/pages/dashboard/institutions.html';
+		}
+	} catch (err) {
+		ShowErrorModal('ERRO AO VERIFICAR INSTITUIÇÃO', [err.message]);
+		window.location.href = '/frontend/pages/dashboard/institutions.html';
+	}
 }
 
 function ShowCourses() {

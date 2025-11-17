@@ -1,4 +1,7 @@
 export function LoadClassesList(list, $table) {
+	const params = new URLSearchParams(window.location.search);
+	const subjectId = params.get("subjectId");
+
 	if (!$table || !$table.length) return;
 
 	for (const _class of list) {
@@ -22,7 +25,7 @@ export function LoadClassesList(list, $table) {
 				.find('.bi-folder2-open')
 				.closest('button')
 				.on('click', () => {
-					window.location.href ='/frontend/pages/dashboard/class.html?classId=' + _class.id;
+					window.location.href =`/frontend/pages/dashboard/students.html?classId=${_class.id}&subjectId=${subjectId}`;
 				});
 
 			$linha

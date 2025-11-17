@@ -8,13 +8,14 @@ import {
 	findAllClasses,
 	findClassByID,
 	findClassBySubjectId,
+	GetClassGradesForExport,
 	ImportClass,
 	insertClass,
 	updateClass,
-	GetClassGradesForExport,
-	GenerateCSVBuffer
 } from '../services/classService';
 import csvParser from 'csv-parser';
+import { Parser as Json2CsvParser } from 'json2csv';
+import { findSubjectByID } from '../services/subjectService';
 
 // Controller responsável por criar uma nova turma
 export async function POST_insertClass(req: Request, res: Response) {
@@ -53,7 +54,6 @@ export async function POST_insertClass(req: Request, res: Response) {
 		// Insere a turma no banco de dados
 		const class_ = await insertClass(sanitizedData);
 
-
 		// Retorna sucesso com os dados da turma criada
 		res.status(200).json({
 			message: 'Class created successfully',
@@ -83,7 +83,7 @@ export async function GET_findClassByID(req: Request, res: Response) {
 		// Busca a turma pelo ID
 		const class_ = await findClassByID(params.id);
 
-		return res.status(200).json({
+		return res.json({
 			messasge: 'Class found.',
 			data: class_,
 		});
@@ -92,6 +92,7 @@ export async function GET_findClassByID(req: Request, res: Response) {
 			return res.status(err.code).json({ error: err.message });
 		}
 
+		console.error(err);
 		return res.status(500).json({ error: 'Unexpected Error' });
 	}
 }
@@ -102,7 +103,7 @@ export async function GET_findAllClasses(req: Request, res: Response) {
 		// Busca todas as turmas cadastradas
 		const class_ = await findAllClasses();
 
-		return res.status(200).json({
+		return res.json({
 			messasge: 'Class found.',
 			data: class_,
 		});
@@ -111,6 +112,7 @@ export async function GET_findAllClasses(req: Request, res: Response) {
 			return res.status(err.code).json({ error: err.message });
 		}
 
+		console.error(err);
 		return res.status(500).json({ error: 'Unexpected Error' });
 	}
 }
@@ -128,7 +130,6 @@ export async function GET_findClassesBySubjectId(req: Request, res: Response) {
 		// Busca as turmas associadas a uma disciplina
 		const classes = await findClassBySubjectId(params.subId);
 
-
 		return res.status(200).json({
 			message: 'Classes by subject ID found.',
 			data: classes,
@@ -138,6 +139,7 @@ export async function GET_findClassesBySubjectId(req: Request, res: Response) {
 			return res.status(err.code).json({ error: err.message });
 		}
 
+		console.error(err);
 		return res.status(500).json({ error: 'Unexpected Error' });
 	}
 }
@@ -147,8 +149,14 @@ export async function PUT_updateClass(req: Request, res: Response) {
 	try {
 		const { params, body } = req;
 
-		if (!params.id) {
+		// Verifica se o ID da turma foi passado
+		if (!params || !params.id) {
 			throw new AppError(400, 'Subject ID must be provided as a parameter.');
+		}
+
+		// Verifica se o corpo da requisição foi enviado
+		if (!body) {
+			throw new AppError(400, 'Body must contain something.');
 		}
 
 		const { name, classroom } = body as ClassRegisterRequestDTO;
@@ -163,7 +171,6 @@ export async function PUT_updateClass(req: Request, res: Response) {
 			classroom,
 		});
 
-
 		return res.status(200).json({
 			message: 'Class updated.',
 			data: class_,
@@ -173,6 +180,7 @@ export async function PUT_updateClass(req: Request, res: Response) {
 			return res.status(err.code).json({ error: err.message });
 		}
 
+		console.error(err);
 		return res.status(500).json({ error: 'Unexpected Error' });
 	}
 }
@@ -224,17 +232,19 @@ export async function POST_ImportClass(req: Request, res: Response) {
 			throw new AppError(400, 'Missing csv file!');
 		}
 
-		await new Promise<void>((resolve, reject) => {
-			fs.createReadStream(filePath)
-				.pipe(csvParser())
-				.on('data', (row) => data.push(row))
-				.on('end', resolve)
-				.on('error', reject);
-		});
-
-		await ImportClass(data);
-
-		return res.status(200).json({ message: 'Class imported successfully.' });
+		// Cria stream para ler o arquivo CSV
+		fs.createReadStream(filePath)
+			.pipe(csvParser())
+			.on('data', (row) => data.push(row))
+			.on('end', async () => {
+				console.log(data);
+				await ImportClass(data, classId);
+				res.sendStatus(200);
+			})
+			.on('error', (err) => {
+				console.error(err);
+				res.status(500).json({ error: 'Erro ao processar CSV' });
+			});
 	} catch (err) {
 		if (err instanceof AppError) {
 			return res.status(err.code).json({ error: err.message });
@@ -247,32 +257,51 @@ export async function POST_ImportClass(req: Request, res: Response) {
 
 export async function GET_ExportClass(req: Request, res: Response) {
 	try {
-		const { classId } = req.params;
+		const { classId, subjectId } = req.params;
+		if (!classId || !subjectId)
+			throw new AppError(404, 'Class or Subject not found.');
 
-		if (!classId) {
-			throw new AppError(400, 'Param class ID is required');
-		}
+		const data = await GetClassGradesForExport(classId, subjectId);
+		if (!data || data.length === 0)
+			throw new AppError(404, 'No grades found to export.');
 
-		// Busca as notas da turma + verifica se está completa
-		const data = await GetClassGradesForExport(classId);
+		// Converte JSON para CSV
+		const fields = [
+			'registration_id',
+			'student_name',
+			'component_name',
+			'grade',
+		];
+		const json2csvParser = new Json2CsvParser({ fields });
+		const csv = json2csvParser.parse(data);
 
-		// Gera CSV em memória
-		const csvBuffer = GenerateCSVBuffer(data);
+		// Busca dados da turma e disciplina para montar o nome do arquivo
+		const cls = await findClassByID(classId);
+		const subject = await findSubjectByID(subjectId);
+		if (!cls || !subject) throw new AppError(404, 'Class or Subject not found');
 
-		// Gera nome do arquivo baseado na data
-		const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-		const fileName = `${timestamp}-turma-${classId}.csv`;
+		// Formata timestamp YYYY-MM-DD_HHmmssms
+		const now = new Date();
+		const pad = (n: number, digits = 2) => n.toString().padStart(digits, '0');
+		const timestamp =
+			`${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}_` +
+			`${pad(now.getHours())}${pad(now.getMinutes())}${pad(
+				now.getSeconds()
+			)}${pad(now.getMilliseconds(), 3)}`;
 
-		// Configura o download
-		res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
-		res.setHeader('Content-Type', 'text/csv');
+		// Monta o nome do arquivo
+		const filename = `${timestamp}-${cls.name}_${subject.acronym}.csv`;
 
-		return res.status(200).send(csvBuffer);
-	} catch (err: any) {
+		// Define headers para download
+		res.header('Content-Type', 'text/csv');
+		res.header('Content-Disposition', `attachment; filename="${filename}"`);
+
+		return res.status(200).send(csv);
+	} catch (err) {
 		if (err instanceof AppError) {
 			return res.status(err.code).json({ error: err.message });
 		}
-		console.error('Erro inesperado ao exportar CSV:', err);
+		console.error(err);
 		return res.status(500).json({ error: 'Unexpected Error' });
 	}
 }
