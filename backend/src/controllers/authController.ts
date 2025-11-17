@@ -1,3 +1,5 @@
+// Autores: Allan Matias e Cristian Fava
+
 import { Request, Response } from 'express';
 import { ProfessorLoginRequestDTO, ProfessorRegisterRequestDTO, ProfessorResponseDTO } from 'dtos';
 import { getLoggedUser, Login, Register } from '../services/auth';
