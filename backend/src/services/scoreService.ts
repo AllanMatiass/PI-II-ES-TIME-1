@@ -447,6 +447,8 @@ export async function deleteComponentService(
         id: formula.id,
       }
     );
+
+    await db.query("CALL recalc_all_final_grades(?)", [component.subject_id]);
   }
 }
 

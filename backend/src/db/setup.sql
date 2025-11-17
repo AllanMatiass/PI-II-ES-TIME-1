@@ -384,11 +384,11 @@ DELIMITER ;
 
 DELIMITER $$
 
-DROP TRIGGER IF EXISTS tg_recalc_all_after_formula_update$$
+DROP PROCEDURE IF EXISTS recalc_all_final_grades$$
 
-CREATE TRIGGER tg_recalc_all_after_formula_update
-AFTER UPDATE ON subject_final_formula
-FOR EACH ROW
+CREATE PROCEDURE recalc_all_final_grades(
+    IN p_subject_id VARCHAR(36)
+)
 BEGIN
     DECLARE done INT DEFAULT FALSE;
     DECLARE st_id VARCHAR(36);
@@ -396,22 +396,20 @@ BEGIN
     DECLARE cur CURSOR FOR
         SELECT student_id
         FROM grades
-        WHERE subject_id = NEW.subject_id;
+        WHERE subject_id = p_subject_id;
 
     DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
 
-    IF OLD.formula_text <> NEW.formula_text THEN
-        OPEN cur;
+    OPEN cur;
 
-        recalc_loop: LOOP
-            FETCH cur INTO st_id;
-            IF done THEN LEAVE recalc_loop; END IF;
+    recalc_loop: LOOP
+        FETCH cur INTO st_id;
+        IF done THEN LEAVE recalc_loop; END IF;
 
-            CALL recalc_student_final_grade(st_id, NEW.subject_id);
-        END LOOP;
+        CALL recalc_student_final_grade(st_id, p_subject_id);
+    END LOOP;
 
-        CLOSE cur;
-    END IF;
+    CLOSE cur;
 END$$
 
 DELIMITER ;
@@ -486,5 +484,3 @@ BEGIN
 END$$
 
 DELIMITER ;
-
-
