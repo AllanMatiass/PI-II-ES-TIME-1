@@ -90,36 +90,6 @@ export async function GET_ListGradesController(req: Request, res: Response) {
   }
 }
 
-// 2. LISTAR NOTAS DE UMA TURMA EM UMA DISCIPLINA
-
-export async function GET_ListGradesController(req: Request, res: Response) {
-	try {
-		const { classId, subjectId } = req.params;
-
-		// Garante que os dois IDs foram passados
-		if (!classId || !subjectId) {
-			throw new AppError(
-				400,
-				'Params must follow: /class/:classId/subject/:subjectId/grades'
-			);
-		}
-
-		// Busca notas pelo serviço
-		const result = await listScoreService(classId, subjectId);
-
-		return res.status(200).json({
-			message: 'Grades listed successfully',
-			data: result,
-		});
-	} catch (err: any) {
-		if (err instanceof AppError) {
-			return res.status(err.code).json({ error: err.message });
-		}
-
-		return res.status(500).json({ error: 'Unexpected Error' });
-	}
-}
-
 // 3. CRIAR COMPONENTE DA DISCIPLINA (não envolve aluno)
 
 export async function POST_AddComponent(req: Request, res: Response) {
