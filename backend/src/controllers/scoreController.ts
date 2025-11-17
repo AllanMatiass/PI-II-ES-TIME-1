@@ -3,8 +3,6 @@
 
 import { Request, Response } from 'express';
 import { AppError } from '../errors/AppError';
-
-// Importa todos os serviços relacionados a notas
 import {
 	updateScoreService,
 	listScoreService,
@@ -56,6 +54,33 @@ export async function PUT_UpdateScoreController(req: Request, res: Response) {
 		}
 
 		console.error(err);
+
+		return res.status(500).json({ error: 'Unexpected Error' });
+	}
+}
+
+// 2. LISTAR NOTAS TERCEIRO
+export async function GET_ListGradesController(req: Request, res: Response) {
+	try {
+		const { classId, subjectId } = req.params;
+
+		if (!classId || !subjectId) {
+			throw new AppError(
+				400,
+				'Params must follow: /class/:classId/subject/:subjectId/grades'
+			);
+		}
+
+		const result = await listScoreService(classId, subjectId);
+
+		return res.status(200).json({
+			message: 'Grades listed successfully',
+			data: result,
+		});
+	} catch (err: any) {
+		if (err instanceof AppError) {
+			return res.status(err.code).json({ error: err.message });
+		}
 
 		return res.status(500).json({ error: 'Unexpected Error' });
 	}
@@ -200,8 +225,7 @@ export async function PUT_UpdateComponent(req: Request, res: Response) {
 	}
 }
 
-// 7. DELETAR COMPONENTE DE NOTA
-
+// 7. DELETAR COMPONENTE
 export async function DELETE_DeleteComponent(req: Request, res: Response) {
 	try {
 		const componentId = req.params.componentId;
