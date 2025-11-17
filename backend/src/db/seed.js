@@ -1,3 +1,4 @@
+// Autor: Allan Matias
 const mysql = require('mysql2/promise');
 const { v4: uuidv4 } = require('uuid');
 
