@@ -88,7 +88,7 @@ async function CreateStudent(studentData) {
 
 async function AlterStudent(id, data) {
     try {
-        const res = await fetch(`${API_URL}/api/student/${classId}`, {
+        const res = await fetch(`${API_URL}/api/student/${id}`, {
             method: 'PUT',
             headers: GetAuthHeaders(),
             body: JSON.stringify(Object.fromEntries(data)),
