@@ -32,7 +32,8 @@ app.use(cors({
         }
     },
 	credentials: true,
-	allowedHeaders: ['Content-Type', 'Authorization'] 
+	allowedHeaders: ['Content-Type', 'Authorization'],
+	exposedHeaders: ['Content-Disposition'] 
 }));
 
 // Inicializa o express-session
