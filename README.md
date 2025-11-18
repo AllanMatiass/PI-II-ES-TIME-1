@@ -103,10 +103,10 @@ PI_II_ES_TIME_1/
 │   └── node_modules/
 │
 ├── docs/
-│   ├── Conceitual PI.brM3
-│   ├── LógicoPI.brM3
-│   ├── MAPA MENTAL - Sistema Nota 10.pdf
-│   └── Requisitos RF PI2 atualizado removidos.pdf
+│ ├── Conceitual PI.brM3
+│ ├── LógicoPI.brM3
+│ ├── MAPA MENTAL - Sistema Nota 10.pdf
+│ └── Requisitos RF PI2 atualizado removidos.pdf
 │
 └── frontend/
     ├── components/
