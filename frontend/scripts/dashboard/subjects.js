@@ -77,8 +77,8 @@ function AlterEndDate() {
 		return;
 	}
 
-	// Cada período = 6 meses
-	start.setMonth(start.getMonth() + 6);
+    // Cada período = 6 meses
+    start.setMonth(start.getMonth() + 6);
 
 	const formatted = start.toISOString().split('T')[0];
 	$('#subject-end-date').val(formatted);
