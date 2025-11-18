@@ -1,48 +1,54 @@
 // Autor: Cristian Fava
 
+/**
+ * @name LoadComponentList
+ * @description Carrega a lista de componentes em um elemento de lista jquery
+ * @param {Object[]} list
+ * @param {HTMLTableElement} $table
+ */
+
 export function LoadComponentList(list, $table) {
     for (const comp of list) {
+        
+        // HTML externo (linha)
+		$.get('/frontend/components/component-table/row.html', (html) => {
+			html = html
+				.replace('{{id}}', comp.id)
+				.replace('{{name}}', comp.name)
+				.replace('{{formula_acronym}}', comp.formula_acronym)
+				.replace('{{description}}', comp.description ?? '');
 
-        $.get('/frontend/components/component-table/row.html', html => {
+			const $row = $(html);
 
-            html = html
-                .replace('{{id}}', comp.id)
-                .replace('{{name}}', comp.name)
-                .replace('{{formula_acronym}}', comp.formula_acronym)
-                .replace('{{description}}', comp.description ?? '');
+			$table.find('tbody').append($row);
 
-            const $row = $(html);
+			// Evento botão alterar componente
+			$row.find('.edit-component-btn').on('click', () => {
+				$('#component-form').attr('data-component-id', comp.id);
 
-            $table.find('tbody').append($row);
+				$('#component-name').val(comp.name);
 
-            // editar
-            $row.find('.edit-component-btn').on('click', () => {
-                $('#component-form').attr('data-component-id', comp.id);
+				$('#component-acronym')
+					.attr('disabled', true)
+					.val(comp.formula_acronym);
 
-                $('#component-name').val(comp.name);
+				$('#component-description').val(comp.description ?? '');
 
-                $('#component-acronym')
-	                .attr('disabled', true)
-                    .val(comp.formula_acronym);
+				$('#component-modal-title').html('ALTERAR COMPONENTE');
 
-                $('#component-description').val(comp.description ?? '');
+				new bootstrap.Modal($('#component-modal')[0]).show();
+			});
 
-                $('#component-modal-title').html('ALTERAR COMPONENTE');
+			// Evento botão excluir componente
+			$row.find('.delete-component-btn').on('click', () => {
+				$('#delete-component-modal').attr('data-component-id', comp.id);
 
-                new bootstrap.Modal($('#component-modal')[0]).show();
-            });
+				$('#delete-component-modal-title').html(
+					`Deseja excluir o componente <b>${comp.name}</b>?`
+				);
 
-            // deletar
-            $row.find('.delete-component-btn').on('click', () => {
-
-                $('#delete-component-modal')
-                    .attr('data-component-id', comp.id);
-
-                $('#delete-component-modal-title')
-                    .html(`Deseja excluir o componente <b>${comp.name}</b>?`);
-
-                new bootstrap.Modal($('#delete-component-modal')[0]).show();
-            });
-        });
-    }
+				new bootstrap.Modal($('#delete-component-modal')[0]).show();
+			});
+		});
+	}
 }

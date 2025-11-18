@@ -1,8 +1,17 @@
+// Autor: Cristian Eduardo Fava
+
+/**
+ * @name LoadInstitutionList
+ * @description Carrega a lista de instituições em um elemento de lista jquery
+ * @param {Object[]} list
+ * @param {HTMLTableElement} $table
+ */
 export function LoadInstitutionList(list, $table) {
 	if (!$table || !$table.length) return;
 
 	for (const institution of list) {
-		// Carrega o HTML do arquivo externo
+
+		// HTML externo (linha)
 		$.get('/frontend/components/institution-table/row.html', (html) => {
 			// Substitui os placeholders pelos dados reais
 			html = html.replace('{{name}}', institution.name);
@@ -13,7 +22,7 @@ export function LoadInstitutionList(list, $table) {
 			// Adiciona a linha ao corpo da tabela
 			$table.find('tbody').append($linha);
 
-			// Liga os eventos dos botões
+			// Evento botão abrir lista de cursos
 			$linha
 				.find('.bi-folder2-open')
 				.closest('button')
@@ -23,6 +32,7 @@ export function LoadInstitutionList(list, $table) {
 						institution.id;
 				});
 
+			// Evento botão alterar instituição
 			$linha
 				.find('.bi-pencil')
 				.closest('button')
@@ -35,6 +45,7 @@ export function LoadInstitutionList(list, $table) {
 					modal.show();
 				});
 
+			// Evento botão excluir instituição
 			$linha
 				.find('.bi-trash')
 				.closest('button')

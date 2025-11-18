@@ -4,7 +4,7 @@ import { ShowErrorModal } from '/frontend/components/errors-modal/modal.js';
 
 const loginForm = document.querySelector('#login-form');
 
-// Coleta a requisição de envio do formulário
+// Evento envio do formulário
 loginForm.addEventListener('submit', async (ev) => {
 	// Torna o padrão
 	ev.preventDefault();
@@ -34,16 +34,16 @@ loginForm.addEventListener('submit', async (ev) => {
 		const body = await res.json();
 
 		// Em caso de erro no servidor, mostra a mensagem.
-        if (!res.ok) {
-					return ShowErrorModal('ERRO AO EFETUAR LOGIN!', [body.error]);
-				}
+		if (!res.ok) {
+			return ShowErrorModal('ERRO AO EFETUAR LOGIN!', [body.error]);
+		}
 
-				// Depois de efetuar login, redireciona para a dashboard
-				localStorage.setItem('token', body.token);
-				localStorage.setItem('userId', body.data.id);
+		// Depois de efetuar login, redireciona para a dashboard
+		localStorage.setItem('token', body.token);
+		localStorage.setItem('userId', body.data.id);
 
-				window.location.href = '/frontend/pages/dashboard/institutions.html';
-    } catch (err) {
-        ShowErrorModal("ERRO AO EFETUAR LOGIN!", [err]);
-    }
+		window.location.href = '/frontend/pages/dashboard/institutions.html';
+	} catch (err) {
+		ShowErrorModal('ERRO AO EFETUAR LOGIN!', [err]);
+	}
 });

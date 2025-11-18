@@ -1,6 +1,15 @@
+// Autor: Cristian Eduardo Fava
+
+/**
+ * @name LoadClassesList
+ * @description Carrega a lista de classes em um elemento de lista jquery
+ * @param {Object[]} list 
+ * @param {HTMLTableElement} $table 
+ */
+
 export function LoadClassesList(list, $table) {
 	const params = new URLSearchParams(window.location.search);
-	const subjectId = params.get("subjectId");
+	const subjectId = params.get('subjectId');
 
 	if (!$table || !$table.length) return;
 
@@ -12,22 +21,23 @@ export function LoadClassesList(list, $table) {
 			// Substitui os placeholders pelos dados reais
 			html = html
 				.replace('{{name}}', _class.name)
-				.replace('{{location}}', _class.classroom)
-                
+				.replace('{{location}}', _class.classroom);
+
 			// Converte o HTML em um elemento jQuery
 			const $linha = $(html);
 
 			// Adiciona a linha ao corpo da tabela
 			$table.find('tbody').append($linha);
 
-			// Liga os eventos dos botões
+			// Evento botão abrir lista de estudantes
 			$linha
 				.find('.bi-folder2-open')
 				.closest('button')
 				.on('click', () => {
-					window.location.href =`/frontend/pages/dashboard/students.html?classId=${_class.id}&subjectId=${subjectId}`;
+					window.location.href = `/frontend/pages/dashboard/students.html?classId=${_class.id}&subjectId=${subjectId}`;
 				});
 
+			// Evento botão editar classe
 			$linha
 				.find('.bi-pencil')
 				.closest('button')
@@ -41,12 +51,15 @@ export function LoadClassesList(list, $table) {
 					modal.show();
 				});
 
+			// Evento botão excluir classe
 			$linha
 				.find('.bi-trash')
 				.closest('button')
 				.on('click', () => {
 					$('#delete-class-modal').attr('data-class-id', _class.id);
-					$('#delete-class-modal-title').html(`DESEJA EXCLUIR A TURMA ${_class.name.toUpperCase()}?`);
+					$('#delete-class-modal-title').html(
+						`DESEJA EXCLUIR A TURMA ${_class.name.toUpperCase()}?`
+					);
 
 					const modal = new bootstrap.Modal($('#delete-class-modal')[0]);
 					modal.show();

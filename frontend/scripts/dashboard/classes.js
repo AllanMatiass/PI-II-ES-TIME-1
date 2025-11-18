@@ -1,7 +1,7 @@
 // Autor: Cristian Fava
 
 import { API_URL } from '../utils/config.js';
-import { ShowErrorModal } from "/frontend/components/errors-modal/modal.js";
+import { ShowErrorModal } from '/frontend/components/errors-modal/modal.js';
 import { LoadClassesList } from '/frontend/components/class-table/row.js';
 import { GetAuthHeaders } from '../utils/getAuthHeaders.js';
 import { isValidToken } from '../utils/verifyToken.js';
@@ -11,56 +11,61 @@ var filter = '';
 
 // Veririfica se o usuário está logado
 if (!localStorage.getItem('token')) {
-    window.location.href = '/frontend/pages/auth/signin.html';
+	window.location.href = '/frontend/pages/auth/signin.html';
 }
 
-// Verifica se o ID da CLASSE está na URL
+// Parâmetros da URL
 const params = new URLSearchParams(window.location.search);
 const subjectId = params.get('subjectId');
 
+// Verifica se o ID da CLASSE está na URL
 if (!subjectId) {
-    window.location.href = '/frontend/pages/dashboard/institutions.html';
+	window.location.href = '/frontend/pages/dashboard/institutions.html';
 }
 
+// Evento barra de busca
 $('#class-search-input').on('keyup', (ev) => {
-    filter = ev.currentTarget.value;
-    ShowClasses();
+	filter = ev.currentTarget.value;
+	ShowClasses();
 });
 
+// Evento botão abrir modal de cadastro
 $('#open-class-modal-btn').on('click', () => {
-    $('#class-form')[0].reset();
-    $('#class-form').removeAttr('data-class-id');
-    $('#class-modal-title').html('CRIAR TURMA');
+	$('#class-form')[0].reset();
+	$('#class-form').removeAttr('data-class-id');
+	$('#class-modal-title').html('CRIAR TURMA');
 
-    const modal = new bootstrap.Modal($('#class-modal')[0]);
-    modal.show();
+	const modal = new bootstrap.Modal($('#class-modal')[0]);
+	modal.show();
 });
 
-$('#return-btn').on('click', () => {
-    window.location.href = `/frontend/pages/dashboard/subjects.html?subjectId=${subjectId}`;
-});
-
+// Evento botão de salvar classe
 $('#save-class-btn').on('click', async () => {
-    const classId = $('#class-form').attr('data-class-id');
-    const formdata = new FormData($('#class-form')[0]);
+	const classId = $('#class-form').attr('data-class-id');
+	const formdata = new FormData($('#class-form')[0]);
 
-    if (!classId) {
-        await CreateClass(formdata);
-    } else {
-        await AlterClass(classId, formdata);
-    }
+	if (!classId) {
+		await CreateClass(formdata);
+	} else {
+		await AlterClass(classId, formdata);
+	}
 
-    const modal = bootstrap.Modal.getInstance($('#class-modal')[0]);
-    modal.hide();
+	const modal = bootstrap.Modal.getInstance($('#class-modal')[0]);
+	modal.hide();
 });
 
+// Evento botão de excluir classe
 $('#delete-class-btn').on('click', async () => {
-    const classId = $('#delete-class-modal').attr('data-class-id');
-    await DeleteClass(classId);
+	const classId = $('#delete-class-modal').attr('data-class-id');
+	await DeleteClass(classId);
 });
 
+// Requisições da API
+
+// Cadastrar classes
 async function CreateClass(formData) {
 	try {
+		// Requisição de cadastro
 		const res = await fetch(`${API_URL}/api/class`, {
 			method: 'POST',
 			headers: GetAuthHeaders(),
@@ -73,6 +78,7 @@ async function CreateClass(formData) {
 
 		const body = await res.json();
 
+		// Verifica se o token é válido
 		if (!isValidToken(res)) {
 			window.location.href = '/frontend/pages/auth/signin.html';
 			return;
@@ -89,8 +95,10 @@ async function CreateClass(formData) {
 	}
 }
 
+// Alterar classe
 async function AlterClass(id, formData) {
 	try {
+		// Requisição de alteração
 		const res = await fetch(`${API_URL}/api/class/${id}`, {
 			method: 'PUT',
 			headers: GetAuthHeaders(),
@@ -117,8 +125,10 @@ async function AlterClass(id, formData) {
 	}
 }
 
+// Excluir classe
 async function DeleteClass(id) {
 	try {
+		// Requisição de exclusão
 		const res = await fetch(`${API_URL}/api/class/${id}`, {
 			method: 'DELETE',
 			headers: GetAuthHeaders(),
@@ -144,8 +154,10 @@ async function DeleteClass(id) {
 	modal.hide();
 }
 
+// Buscar classes
 async function FetchClasses() {
 	try {
+		// Requisição de busca
 		const res = await fetch(`${API_URL}/api/classes/by-subject/${subjectId}`, {
 			method: 'GET',
 			headers: GetAuthHeaders(),
@@ -169,14 +181,14 @@ async function FetchClasses() {
 	}
 }
 
+// Exibir classes na tela
 function ShowClasses() {
-    $('#class-table').find('tbody').html('');
+	$('#class-table').find('tbody').html('');
 
-    const filteredList = classsList.filter((c) =>
-        c.name.toLowerCase().startsWith(filter.toLowerCase())
-    );
-    LoadClassesList(filteredList, $('#class-table'));
+	const filteredList = classsList.filter((c) =>
+		c.name.toLowerCase().startsWith(filter.toLowerCase())
+	);
+	LoadClassesList(filteredList, $('#class-table'));
 }
 
 FetchClasses();
-ShowClasses();

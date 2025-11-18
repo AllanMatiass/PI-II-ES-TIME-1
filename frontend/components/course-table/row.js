@@ -1,8 +1,17 @@
+// Autor: Cristian Eduardo Fava
+
+/**
+ * @name LoadCoursesList
+ * @description Carrega a lista de cursos em um elemento de lista jquery
+ * @param {Object[]} list
+ * @param {HTMLTableElement} $table
+ */
+
 export function LoadCoursesList(list, $table) {
 	if (!$table || !$table.length) return;
 
 	for (const course of list) {
-		// Carrega o HTML do arquivo externo
+		// HTML extorno (linha)
 		$.get('/frontend/components/course-table/row.html', (html) => {
 			// Substitui os placeholders pelos dados reais
 			html = html.replace('{{name}}', course.name);
@@ -13,7 +22,7 @@ export function LoadCoursesList(list, $table) {
 			// Adiciona a linha ao corpo da tabela
 			$table.find('tbody').append($linha);
 
-			// Liga os eventos dos botões
+			// Evento botão abrir lista de matérias
 			$linha
 				.find('.bi-folder2-open')
 				.closest('button')
@@ -22,6 +31,7 @@ export function LoadCoursesList(list, $table) {
 						'/frontend/pages/dashboard/subjects.html?courseId=' + course.id;
 				});
 
+			// Evento botão alterar curso
 			$linha
 				.find('.bi-pencil')
 				.closest('button')
@@ -34,6 +44,7 @@ export function LoadCoursesList(list, $table) {
 					modal.show();
 				});
 
+			// Evento botão excluir curso
 			$linha
 				.find('.bi-trash')
 				.closest('button')
