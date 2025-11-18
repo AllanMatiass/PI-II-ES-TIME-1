@@ -1,9 +1,12 @@
+// Autores: Allan Matias e Cristian Fava
+
 declare module 'dataModels' {
 
     // ===============================================
     // ENTIDADES EXISTENTES
     // ===============================================
 
+    // Dados do professor no sistema
     interface ProfessorDataModel {
         id: string;
         name: string;
@@ -13,23 +16,27 @@ declare module 'dataModels' {
         created_at: Date;
     }
 
+    // Dados de uma instituição
     interface InstitutionDataModel {
         id: string;
         name: string;
     }
 
+    // Relação entre professor e instituição
     interface ProfessorInstitutionDataModel {
         id: string;
         institution_id: string;
         professor_id: string;
     }
 
+    // Dados de um curso
     interface CourseDataModel {
         id: string;
         institution_id: string;
         name: string;
     }
 
+    // Dados de uma disciplina dentro de um curso
     interface SubjectDataModel {
         id: string;
         course_id: string;
@@ -41,6 +48,7 @@ declare module 'dataModels' {
         end_date: Date;
     }
 
+    // Dados de uma turma
     interface ClassDataModel {
         id: string;
         subject_id: string;
@@ -48,12 +56,14 @@ declare module 'dataModels' {
         classroom: string;
     }
 
+    // Dados de um aluno
     interface StudentDataModel {
         id: string;
         name: string;
         registration_id: string;
     }
 
+    // Relação entre aluno e turma
     interface ClassStudentsDataModel {
         id: string;
         class_id: string;

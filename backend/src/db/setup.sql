@@ -142,8 +142,6 @@ CREATE TABLE audit_grades (
 
 ---
 
-## 💾 Procedures e Funções
-
 DELIMITER $$
 
 -- PROCEDURE DE AUDITORIA GENÉRICA
@@ -182,7 +180,7 @@ BEGIN
     VALUES (UUID(), NOW(), p_student_id, p_subject_id, p_component_id, p_old_value, p_new_value, formattedMsg);
 END$$
 
--- PROCEDURE DE VALIDAÇÃO DE FÓRMULA (MANTIDA ORIGINALMENTE)
+-- PROCEDURE DE VALIDAÇÃO DE FÓRMULA
 CREATE PROCEDURE validate_formula(
     IN p_subject_id VARCHAR(36),
     IN p_formula TEXT
@@ -220,11 +218,12 @@ BEGIN
     component_loop: LOOP
         FETCH cur INTO cmp;
         IF done THEN LEAVE component_loop; END IF;
-        IF INSTR(p_formula, cmp) = 0 THEN
-            SET msg = CONCAT('Erro: A fórmula não contém o componente obrigatório: ', cmp);
-            CLOSE cur;
-            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = msg;
-        END IF;
+        IF NOT p_formula REGEXP CONCAT('(^|[^A-Za-z0-9_])', cmp, '([^A-Za-z0-9_]|$)') THEN
+			SET msg = CONCAT('Erro: A fórmula não contém o componente obrigatório: ', cmp);
+			CLOSE cur;
+			SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = msg;
+		END IF;
+
     END LOOP;
     CLOSE cur;
 
@@ -237,8 +236,11 @@ BEGIN
             IF buffer <> '' THEN
                 SET token = buffer;
                 IF token NOT REGEXP '^[0-9]+$' THEN
-                    SELECT COUNT(*) INTO validComponent FROM grade_components
-                    WHERE subject_id = p_subject_id AND formula_acronym = token;
+                    SELECT COUNT(*) INTO validComponent
+					FROM grade_components
+					WHERE subject_id = p_subject_id
+					  AND BINARY formula_acronym = token;
+
                     IF validComponent = 0 THEN
                         SET msg = CONCAT('Erro: A fórmula contém um componente inexistente: ', token);
                         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = msg;
@@ -263,7 +265,7 @@ BEGIN
     END IF;
 END$$
 
--- PROCEDURE PARA CALCULAR UMA NOTA FINAL (Sem Update, apenas retorna)
+-- PROCEDURE PARA CÁLCULO DE NOTA FINAL (apenas retorna)
 DROP PROCEDURE IF EXISTS calculate_final_grade$$
 
 CREATE PROCEDURE calculate_final_grade(
@@ -313,7 +315,7 @@ BEGIN
     END main_block;
 END$$
 
--- PROCEDURE CRÍTICA: RECÁLCULO E UPDATE DA NOTA FINAL
+-- PROCEDURE DE RECÁLCULO E UPDATE DA NOTA
 DROP PROCEDURE IF EXISTS recalc_student_final_grade$$
 
 CREATE PROCEDURE recalc_student_final_grade(
@@ -360,7 +362,6 @@ BEGIN
         END LOOP;
         CLOSE cur;
 
-        -- Avaliar a expressão montada
         SET @expr := tmp_formula;
         SET @q := CONCAT('SELECT (', @expr, ') INTO @res;');
         PREPARE stmt FROM @q;
@@ -369,7 +370,6 @@ BEGIN
 
         SET calc_result = @res;
 
-        -- **ATUALIZA A NOTA FINAL**
         UPDATE grades
         SET final_grade = calc_result
         WHERE student_id = p_student_id AND subject_id = p_subject_id;
@@ -380,57 +380,47 @@ DELIMITER ;
 
 ---
 
-## 🚀 O Gatilho de Recálculo (A Solução)
-
-O código abaixo é o que garante o comportamento solicitado: quando a coluna `formula_text` da tabela `subject_final_formula` é alterada, ele dispara o recálculo para **todos os alunos** afetados.
+## TRIGGER
 
 DELIMITER $$
 
-DROP TRIGGER IF EXISTS tg_recalc_all_after_formula_update$$
+DROP PROCEDURE IF EXISTS recalc_all_final_grades$$
 
-CREATE TRIGGER tg_recalc_all_after_formula_update
-AFTER UPDATE ON subject_final_formula
-FOR EACH ROW
+CREATE PROCEDURE recalc_all_final_grades(
+    IN p_subject_id VARCHAR(36)
+)
 BEGIN
-    -- Declares
     DECLARE done INT DEFAULT FALSE;
     DECLARE st_id VARCHAR(36);
 
-    -- Cursor listando alunos que têm nota na disciplina cuja fórmula foi alterada
     DECLARE cur CURSOR FOR
         SELECT student_id
         FROM grades
-        WHERE subject_id = NEW.subject_id;
+        WHERE subject_id = p_subject_id;
 
     DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
 
-    -- **Ação principal: se a fórmula mudou, inicia o recálculo**
-    IF OLD.formula_text <> NEW.formula_text THEN
-        
-        -- Inserir uma auditoria se necessário (opcional)
-        -- CALL create_audit(NULL, CONCAT('Fórmula da disciplina ', NEW.subject_id, ' alterada de ', OLD.formula_text, ' para ', NEW.formula_text, '. Recalculando notas.'));
+    OPEN cur;
 
-        OPEN cur;
+    recalc_loop: LOOP
+        FETCH cur INTO st_id;
+        IF done THEN LEAVE recalc_loop; END IF;
 
-        recalc_loop: LOOP
-            FETCH cur INTO st_id;
-            IF done THEN LEAVE recalc_loop; END IF;
+        CALL recalc_student_final_grade(st_id, p_subject_id);
+    END LOOP;
 
-            -- Chama a procedure que calcula a nota final e a salva na tabela grades
-            CALL recalc_student_final_grade(st_id, NEW.subject_id);
-        END LOOP;
-
-        CLOSE cur;
-    END IF;
+    CLOSE cur;
 END$$
 
 DELIMITER ;
 
+---
+
+## PROCEDURE audit_event
+
 DELIMITER $$
 
 DROP PROCEDURE IF EXISTS audit_event$$
-
-DELIMITER $$
 
 CREATE PROCEDURE audit_event(
     IN p_professor_id VARCHAR(36),
@@ -438,8 +428,8 @@ CREATE PROCEDURE audit_event(
     IN p_student_id VARCHAR(36),
     IN p_subject_id VARCHAR(36),
     IN p_component_id VARCHAR(36),
-    IN p_old_value VARCHAR(255),   -- MUDOU
-    IN p_new_value VARCHAR(255)    -- MUDOU
+    IN p_old_value VARCHAR(255),
+    IN p_new_value VARCHAR(255)
 )
 BEGIN
     INSERT INTO audit_grades (
@@ -471,73 +461,26 @@ END$$
 
 DELIMITER ;
 
-    -- ---------------------------
-    -- Montar mensagens
-    -- ---------------------------
-    CASE p_action_type
+DELIMITER $$
 
-        WHEN 'GRADE_UPDATE' THEN
-            SET msg = CONCAT(
-                dt, ' - (Aluno ', studentName, ') - Nota de ',
-                COALESCE(p_old_value, 'NULL'), ' para ',
-                COALESCE(p_new_value, 'NULL'), ' modificada e salva.'
-            );
+CREATE TRIGGER trg_validate_formula_before_insert
+BEFORE INSERT ON subject_final_formula
+FOR EACH ROW
+BEGIN
+    CALL validate_formula(NEW.subject_id, NEW.formula_text);
+END$$
 
-        WHEN 'GRADE_INSERT' THEN
-            SET msg = CONCAT(
-                dt, ' - (Aluno ', studentName, ') - Nota criada com valor ',
-                COALESCE(p_new_value, 'NULL'), '.'
-            );
+DELIMITER ;
 
-        WHEN 'GRADE_DELETE' THEN
-            SET msg = CONCAT(
-                dt, ' - (Aluno ', studentName, ') - Nota ',
-                COALESCE(p_old_value, 'NULL'), ' removida.'
-            );
+DELIMITER $$
 
-        WHEN 'COMPONENT_INSERT' THEN
-            SET msg = CONCAT(
-                dt, ' - Componente "', componentName,
-                '" (', acr, ') criado.'
-            );
-
-        WHEN 'COMPONENT_UPDATE' THEN
-            SET msg = CONCAT(
-                dt, ' - Componente "', componentName,
-                '" atualizado.'
-            );
-
-        WHEN 'COMPONENT_DELETE' THEN
-            SET msg = CONCAT(
-                dt, ' - Componente "', componentName,
-                '" (', acr, ') removido.'
-            );
-
-        ELSE
-            SET msg = CONCAT(dt, ' - Evento não reconhecido.');
-    END CASE;
-
-    -- salvar no audit_grades
-    INSERT INTO audit_grades (
-        id,
-        created_at,
-        student_id,
-        subject_id,
-        component_id,
-        old_value,
-        new_value,
-        message
-    )
-    VALUES (
-        UUID(),
-        NOW(),
-        p_student_id,
-        p_subject_id,
-        p_component_id,
-        p_old_value,
-        p_new_value,
-        msg
-    );
+CREATE TRIGGER trg_validate_formula_before_update
+BEFORE UPDATE ON subject_final_formula
+FOR EACH ROW
+BEGIN
+    IF NEW.formula_text <> OLD.formula_text THEN
+        CALL validate_formula(NEW.subject_id, NEW.formula_text);
+    END IF;
 END$$
 
 DELIMITER ;

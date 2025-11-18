@@ -88,7 +88,7 @@ async function CreateStudent(studentData) {
 
 async function AlterStudent(id, data) {
     try {
-        const res = await fetch(`${API_URL}/api/student/${classId}`, {
+        const res = await fetch(`${API_URL}/api/student/${id}`, {
             method: 'PUT',
             headers: GetAuthHeaders(),
             body: JSON.stringify(Object.fromEntries(data)),
@@ -178,6 +178,60 @@ $('#import-csv-btn').on('click', async () => {
         ShowErrorModal('ERRO AO IMPORTAR CSV', [err.message]);
     }
 });
+
+
+$('#export-csv-btn').on('click', async () => {
+    try {
+        const res = await fetch(`${API_URL}/api/class/${classId}/subject/${subjectId}/export`, {
+            method: 'GET',
+            headers: GetAuthHeaders(false)
+        });
+
+        if (!isValidToken(res)) {
+            window.location.href = '/frontend/pages/auth/signin.html';
+            return;
+        }
+
+        if (!res.ok) {
+            const body = await res.json();
+            return ShowErrorModal('ERRO AO EXPORTAR CSV', [body.error]);
+        }
+
+        // Lê CSV como blob
+        const blob = await res.blob();
+
+        // Pega nome do arquivo do header
+        const disposition = res.headers.get("Content-Disposition");
+        let fileName = "export.csv";
+
+        if (disposition && disposition.includes("filename=")) {
+            fileName = disposition.split("filename=")[1].replace(/"/g, "");
+        }
+
+        // Baixa arquivo
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(url);
+
+        // Fecha modal
+        const modal = bootstrap.Modal.getInstance($('#export-csv-modal')[0]);
+        modal.hide();
+
+        // Atualiza lista de alunos
+        await FetchStudents();
+        ShowStudents();
+
+    } catch (err) {
+        ShowErrorModal('ERRO AO EXPORTAR CSV', [err.message]);
+    }
+});
+
+
 
 async function FetchStudents() {
     try {

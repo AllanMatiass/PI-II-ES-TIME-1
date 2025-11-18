@@ -1,13 +1,17 @@
+// Autores : Allan Matias e Cristian Fava
+
 declare module 'dtos' {
 	// ===============================================
 	// LOGIN & PROFESSOR
 	// ===============================================
 
+	// Dados enviados para fazer login
 	interface ProfessorLoginRequestDTO {
 		email: string;
 		password: string;
 	}
 
+	// Dados enviados para registrar um professor
 	interface ProfessorRegisterRequestDTO {
 		name: string;
 		phone: string;
@@ -16,6 +20,7 @@ declare module 'dtos' {
 		confirmPassword: string;
 	}
 
+	// Dados devolvidos quando um professor é consultado
 	interface ProfessorResponseDTO {
 		id: string;
 		name: string;
@@ -28,25 +33,30 @@ declare module 'dtos' {
 	// INSTITUIÇÃO / CURSO / DISCIPLINA / TURMA
 	// ===============================================
 
+	// Dados para registrar uma instituição
 	interface InstitutionRegisterRequestDTO {
 		name: string;
 	}
 
+	// Dados devolvidos sobre uma instituição
 	interface InstitutionResponseDTO {
 		id: string;
 		name: string;
 	}
 
+	// Instituição + lista de professores associados
 	interface InstitutionWithProfessorsResponseDTO {
 		institution: InstitutionResponseDTO;
 		professors: ProfessorResponseDTO[];
 	}
 
+	// Dados para registrar um curso
 	interface CourseRegisterRequestDTO {
 		name: string;
 		institution_id: string;
 	}
 
+	// Dados para registrar uma disciplina
 	interface SubjectRegisterRequestDTO {
 		course_id: string;
 		name: string;
@@ -57,12 +67,14 @@ declare module 'dtos' {
 		end_date: Date;
 	}
 
+	// Dados para registrar uma turma
 	interface ClassRegisterRequestDTO {
 		subject_id: string;
 		name: string;
 		classroom: string;
 	}
 
+	// Dados retornados sobre uma turma
 	interface ClassResponseDTO {
 		id: string;
 		subject_id: string;
@@ -74,11 +86,13 @@ declare module 'dtos' {
 	// ALUNOS
 	// ===============================================
 
+	// Dados para registrar um aluno
 	interface StudentRegisterDTO {
 		name: string;
 		registration_id: string;
 	}
 
+	// Dados devolvidos sobre um aluno
 	interface StudentResponseDTO {
 		id: string;
 		name: string;
@@ -96,6 +110,7 @@ declare module 'dtos' {
 		grade_value: number;
 	}
 
+	// Retorno após salvar a nota
 	interface ScoreResponseDto {
 		student_id: string;
 		component_id: string;
@@ -110,6 +125,7 @@ declare module 'dtos' {
 		description: string;
 	}
 
+	// Dados devolvidos do componente criado
 	interface GradeComponentResponseDTO {
 		id: string;
 		subject_id: string;
@@ -138,12 +154,14 @@ declare module 'dtos' {
 		formula_text: string;
 	}
 
+	// Dados devolvidos com a fórmula salva
 	interface FormulaResponseDTO {
 		id: string;
 		subject_id: string;
 		formula_text: string;
 	}
 
+	// Dados completos da disciplina
 	interface SubjectResponseDTO {
 		id: string;
 		course_id: string;

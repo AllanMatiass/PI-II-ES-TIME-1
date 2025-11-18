@@ -73,7 +73,7 @@ function AlterEndDate() {
     }
 
     // Cada período = 6 meses
-    start.setMonth(start.getMonth() + period * 6);
+    start.setMonth(start.getMonth() + 6);
 
     const formatted = start.toISOString().split("T")[0];
     $("#subject-end-date").val(formatted);
@@ -112,14 +112,20 @@ async function CreateSubject(data) {
 	}
 }
 
-async function AlterSubject(id, subjectName) {
+async function AlterSubject(id, formdata) {
 	try {
 		const res = await fetch(`${API_URL}/api/subject/${id}`, {
 			method: 'PUT',
 			headers: GetAuthHeaders(),
 			body: JSON.stringify({
-				name: subjectName,
-			}),
+				course_id: courseId,
+                name: formdata.get("subject-name"),
+                code: formdata.get("subject-code"),
+                acronym: formdata.get("subject-acronym"),
+                period: Number(formdata.get("subject-period")),
+                start_date: formdata.get("subject-start"),
+                end_date: formdata.get("subject-end"),
+            }),
 		});
 
 		const body = await res.json();
