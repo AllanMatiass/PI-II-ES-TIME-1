@@ -202,8 +202,8 @@ router.post("/class/:id/import", upload.single("file"), async (req, res) => {
 });
 
 // Exporta dados da turma
-router.get("/class/:id/export", async (req, res) => {
-  console.log(`GET /api/class/${req.params.id}/export`);
+router.get("/class/:classId/subject/:subjectId/export", async (req, res) => {
+  console.log(`GET /api/class/${req.params.classId}/subject/${req.params.subjectId}/export`);
   await GET_ExportClass(req, res);
 });
 
