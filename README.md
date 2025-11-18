@@ -87,33 +87,33 @@ Iniciar pelo Liver Server
 PI_II_ES_TIME_1/
 │
 ├── backend/
-│   ├── src/
-│   │   ├── controllers/
-│   │   ├── db/
-│   │   ├── errors/
-│   │   ├── middlewares/
-│   │   ├── routes/
-│   │   ├── services/
-│   │   ├── tests/
-│   │   ├── types/
-│   │
-│   ├── uploads/
-│   ├── dist/
-│   ├── node_modules/
+│ ├── src/
+│ │ ├── controllers/
+│ │ ├── db/
+│ │ ├── errors/
+│ │ ├── middlewares/
+│ │ ├── routes/
+│ │ ├── services/
+│ │ ├── tests/
+│ │ ├── types/
+│ │
+│ ├── uploads/
+│ ├── dist/
+│ ├── node_modules/
 │
 ├── docs/
-│   ├── Conceitual PI.brM3
-│   ├── LógicoPI.brM3
-│   ├── MAPA MENTAL - Sistema Nota 10.pdf
-│   └── Requisitos RF PI2 atualizado removidos.pdf
+│ ├── Conceitual PI.brM3
+│ ├── LógicoPI.brM3
+│ ├── MAPA MENTAL - Sistema Nota 10.pdf
+│ └── Requisitos RF PI2 atualizado removidos.pdf
 │
 ├── frontend/
-│   ├── components/
-│   ├── fonts/
-│   ├── node_modules/
-│   ├── pages/
-│   ├── scripts/
-│   ├── styles/
+│ ├── components/
+│ ├── fonts/
+│ ├── node_modules/
+│ ├── pages/
+│ ├── scripts/
+│ ├── styles/
 
 ## 📝 Regras do Projeto
 - Nome do repositório: PI_II_ES_TIME_1  

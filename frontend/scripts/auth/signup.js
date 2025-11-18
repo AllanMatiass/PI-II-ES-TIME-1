@@ -4,7 +4,7 @@ import { ShowErrorModal } from "/frontend/components/errors-modal/modal.js";
 
 const cadForm = document.querySelector("#register-form");
 
-// Coleta a requisição de envio do formulário
+// Evento envio do formulário
 cadForm.addEventListener("submit", async (ev) => {
     // Torna o padrão
     ev.preventDefault();

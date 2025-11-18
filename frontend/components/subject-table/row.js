@@ -1,3 +1,11 @@
+/**
+ * @name LoadStudentsList
+ * @description Carrega a lista de matérias em um elemento de lista jquery
+ * @param {object[]} list 
+ * @param {HTMLTableElement} $table 
+ * @returns 
+ */
+
 export function LoadSubjectsList(list, $table) {
 	if (!$table || !$table.length) return;
 
@@ -5,10 +13,11 @@ export function LoadSubjectsList(list, $table) {
 	
 	for (const subject of list) {
 
+		// Converte as datas de string para objeto Date
 		const startDate = new Date(subject.start_date);
 		const endDate = new Date(subject.end_date);
 
-		// Carrega o HTML do arquivo externo
+		// HTML externo (linha)
 		$.get('/frontend/components/subject-table/row.html', (html) => {
 			// Substitui os placeholders pelos dados reais
 			html = html
@@ -25,7 +34,7 @@ export function LoadSubjectsList(list, $table) {
 			// Adiciona a linha ao corpo da tabela
 			$table.find('tbody').append($linha);
 
-			// Liga os eventos dos botões
+			// Botão abrir lista de classes
 			$linha
 				.find('.bi-folder2-open')
 				.closest('button')
@@ -33,6 +42,7 @@ export function LoadSubjectsList(list, $table) {
 					window.location.href ='/frontend/pages/dashboard/classes.html?subjectId=' + subject.id;
 				});
 			
+			// Botão abrir lista de componentes de nota
 			$linha
 				.find('.bi-backpack')
 				.closest('button')
@@ -40,6 +50,7 @@ export function LoadSubjectsList(list, $table) {
 					window.location.href ='/frontend/pages/dashboard/components.html?subjectId=' + subject.id;
 				});
 
+			// Botão alterar matéria
 			$linha
 				.find('.bi-pencil')
 				.closest('button')
@@ -58,6 +69,7 @@ export function LoadSubjectsList(list, $table) {
 					modal.show();
 				});
 
+			// Botão excluir matéria
 			$linha
 				.find('.bi-trash')
 				.closest('button')

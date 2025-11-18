@@ -1,7 +1,7 @@
 // Autor: Cristian Fava
 
 import { API_URL } from '../utils/config.js';
-import { ShowErrorModal } from "/frontend/components/errors-modal/modal.js";
+import { ShowErrorModal } from '/frontend/components/errors-modal/modal.js';
 import { LoadSubjectsList } from '/frontend/components/subject-table/row.js';
 import { GetAuthHeaders } from '../utils/getAuthHeaders.js';
 import { isValidToken } from '../utils/verifyToken.js';
@@ -11,75 +11,85 @@ var filter = '';
 
 // Veririfica se o usuário está logado
 if (!localStorage.getItem('token')) {
-    window.location.href = '/frontend/pages/auth/signin.html';
+	window.location.href = '/frontend/pages/auth/signin.html';
 }
 
-// Verifica se o ID da MATÉRIA está na URL
+// Parâmetros da URL
 const params = new URLSearchParams(window.location.search);
 const courseId = params.get('courseId');
 
+// Verifica se o ID da matéria está na URL
 if (!courseId) {
-    window.location.href = '/frontend/pages/dashboard/institutions.html';
+	window.location.href = '/frontend/pages/dashboard/institutions.html';
 }
 
+// Evento barra de busca
 $('#subject-search-input').on('keyup', (ev) => {
-    filter = ev.currentTarget.value;
-    ShowSubjects();
+	filter = ev.currentTarget.value;
+	ShowSubjects();
 });
 
+// Evento abrir modal de cadastro de matérias
 $('#open-subject-modal-btn').on('click', () => {
-    $('#subject-form')[0].reset();
-    $('#subject-form').removeAttr('data-subject-id');
-    $('#subject-modal-title').html('CRIAR DISCIPLINA');
+	// Limpa o formulário
+	$('#subject-form')[0].reset();
+	$('#subject-form').removeAttr('data-subject-id');
+	$('#subject-modal-title').html('CRIAR DISCIPLINA');
 
-    const modal = new bootstrap.Modal($('#subject-modal')[0]);
-    modal.show();
+	// Abre o modal
+	const modal = new bootstrap.Modal($('#subject-modal')[0]);
+	modal.show();
 });
 
-$('#return-btn').on('click', () => {
-    window.location.href = `/frontend/pages/dashboard/courses.html?courseId=${courseId}`;
-});
-
+// Evento botão de salvar matéria
 $('#save-subject-btn').on('click', async () => {
-    const subjectId = $('#subject-form').attr('data-subject-id');
-    const formdata = new FormData($('#subject-form')[0]);
+	const subjectId = $('#subject-form').attr('data-subject-id');
+	const formdata = new FormData($('#subject-form')[0]);
 
-    if (!subjectId) {
-        await CreateSubject(formdata);
-    } else {
-        await AlterSubject(subjectId, formdata);
-    }
+	if (!subjectId) {
+		await CreateSubject(formdata);
+	} else {
+		await AlterSubject(subjectId, formdata);
+	}
 
-    const modal = bootstrap.Modal.getInstance($('#subject-modal')[0]);
-    modal.hide();
+	// Fecha o modal
+	const modal = bootstrap.Modal.getInstance($('#subject-modal')[0]);
+	modal.hide();
 });
 
+// Evento botão de excluir matéria
 $('#delete-subject-btn').on('click', async () => {
-    const subjectId = $('#delete-subject-modal').attr('data-subject-id');
-    await DeleteSubject(subjectId);
+	const subjectId = $('#delete-subject-modal').attr('data-subject-id');
+	await DeleteSubject(subjectId);
 });
 
-// Altera a data final
-$("#subject-start-date").on("change", AlterEndDate);
-$("#subject-period-nb").on("change", AlterEndDate);
+// Eventos inputs de data
+$('#subject-start-date').on('change', AlterEndDate);
+$('#subject-period-nb').on('change', AlterEndDate);
 
+// Alterção da data final
 function AlterEndDate() {
-    const start = new Date($("#subject-start-date").val());
-    const period = parseInt($("#subject-period-nb").val(), 10);
+	const start = new Date($('#subject-start-date').val());
+	const period = parseInt($('#subject-period-nb').val(), 10);
 
-    if (isNaN(start.getTime()) || isNaN(period)) {
-        console.warn("Data inicial ou período inválido.");
-        return;
-    }
+	if (isNaN(start.getTime()) || isNaN(period)) {
+		console.warn('Data inicial ou período inválido.');
+		return;
+	}
 
-    // Cada período = 6 meses
-    start.setMonth(start.getMonth() + 6);
+	// Cada período = 6 meses
+	start.setMonth(start.getMonth() + 6);
 
-    const formatted = start.toISOString().split("T")[0];
-    $("#subject-end-date").val(formatted);
+	const formatted = start.toISOString().split('T')[0];
+	$('#subject-end-date').val(formatted);
 }
+
+// Chamadas da API
+
+// Cadastrar matéria
 async function CreateSubject(data) {
 	try {
+		// Requisição de cadastro
 		const res = await fetch(`${API_URL}/api/subject`, {
 			method: 'POST',
 			headers: GetAuthHeaders(),
@@ -96,43 +106,43 @@ async function CreateSubject(data) {
 
 		const body = await res.json();
 
+		// Veririfica se o token é válido
 		if (!isValidToken(res)) {
 			window.location.href = '/frontend/pages/auth/signin.html';
-			return;
 		}
 
 		if (!res.ok) {
 			return ShowErrorModal('ERRO AO CRIAR MATÉRIA', [body.error]);
 		}
 
-		subjectsList.push(body.data);
-		ShowSubjects();
+		await FetchSubjects();
 	} catch (err) {
 		ShowErrorModal('ERRO AO CRIAR MATÉRIA', [err.message]);
 	}
 }
 
+// Alterar matéria
 async function AlterSubject(id, formdata) {
 	try {
+		// Requisição de alteração
 		const res = await fetch(`${API_URL}/api/subject/${id}`, {
 			method: 'PUT',
 			headers: GetAuthHeaders(),
 			body: JSON.stringify({
 				course_id: courseId,
-                name: formdata.get("subject-name"),
-                code: formdata.get("subject-code"),
-                acronym: formdata.get("subject-acronym"),
-                period: Number(formdata.get("subject-period")),
-                start_date: formdata.get("subject-start"),
-                end_date: formdata.get("subject-end"),
-            }),
+				name: formdata.get('subject-name'),
+				code: formdata.get('subject-code'),
+				acronym: formdata.get('subject-acronym'),
+				period: Number(formdata.get('subject-period')),
+				start_date: formdata.get('subject-start'),
+				end_date: formdata.get('subject-end'),
+			}),
 		});
 
 		const body = await res.json();
 
 		if (!isValidToken(res)) {
 			window.location.href = '/frontend/pages/auth/signin.html';
-			return;
 		}
 
 		if (!res.ok) {
@@ -145,8 +155,10 @@ async function AlterSubject(id, formdata) {
 	}
 }
 
+// Excluir matéria
 async function DeleteSubject(id) {
 	try {
+		// Requisição de exclusão
 		const res = await fetch(`${API_URL}/api/subject/${id}`, {
 			method: 'DELETE',
 			headers: GetAuthHeaders(),
@@ -156,7 +168,6 @@ async function DeleteSubject(id) {
 
 		if (!isValidToken(res)) {
 			window.location.href = '/frontend/pages/auth/signin.html';
-			return;
 		}
 
 		if (!res.ok) {
@@ -172,8 +183,10 @@ async function DeleteSubject(id) {
 	modal.hide();
 }
 
+// Buscar matérias
 async function FetchSubjects() {
 	try {
+		// Requisição de busca
 		const res = await fetch(`${API_URL}/api/course/${courseId}/subjects`, {
 			method: 'GET',
 			headers: GetAuthHeaders(),
@@ -183,7 +196,6 @@ async function FetchSubjects() {
 
 		if (!isValidToken(res)) {
 			window.location.href = '/frontend/pages/auth/signin.html';
-			return;
 		}
 
 		if (!res.ok) {
@@ -197,14 +209,14 @@ async function FetchSubjects() {
 	}
 }
 
+// Exibe as matérias na tela
 function ShowSubjects() {
-    $('#subject-table').find('tbody').html('');
+	$('#subject-table').find('tbody').html('');
 
-    const filteredList = subjectsList.filter((c) =>
-        c.name.toLowerCase().startsWith(filter.toLowerCase())
-    );
-    LoadSubjectsList(filteredList, $('#subject-table'));
+	const filteredList = subjectsList.filter((c) =>
+		c.name.toLowerCase().startsWith(filter.toLowerCase())
+	);
+	LoadSubjectsList(filteredList, $('#subject-table'));
 }
 
 FetchSubjects();
-ShowSubjects();

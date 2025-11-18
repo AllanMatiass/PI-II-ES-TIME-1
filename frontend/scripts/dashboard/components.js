@@ -6,21 +6,25 @@ import { isValidToken } from '../utils/verifyToken.js';
 import { ShowErrorModal } from '/frontend/components/errors-modal/modal.js';
 import { LoadComponentList } from '/frontend/components/component-table/row.js';
 
+// Lista de componentes e filtro
 let componentsList = [];
 let filter = '';
 
+// Parâmetros da URL
 const params = new URLSearchParams(window.location.search);
 const subjectId = params.get('subjectId');
 
+// ID da matéria
 if (!subjectId) {
 	window.location.href = '/frontend/pages/dashboard/institutions.html';
 }
 
+// Veririfica se o usuário está logado
 if (!localStorage.getItem('token')) {
 	window.location.href = '/frontend/pages/auth/signin.html';
 }
 
-// Buscar na tabela
+// Evento da barra de busca
 $('#component-search-input').on('keyup', (e) => {
 	filter = e.currentTarget.value;
 	ShowComponents();
@@ -29,11 +33,14 @@ $('#component-search-input').on('keyup', (e) => {
 // Abrir modal e carregar fórmula
 $('#open-formula-modal-btn').on('click', async () => {
 	try {
+
+		// Pesquisa a formula ja existente
 		const res = await fetch(`${API_URL}/api/subject/${subjectId}/final-formula`, {
-				method: 'GET',
-				headers: GetAuthHeaders(),
+			method: 'GET',
+			headers: GetAuthHeaders(),
 		});
 
+		// Verifica se o token é válido
 		if (!isValidToken(res)) {
 			return window.location.href = '/frontend/pages/auth/signin.html';
 		}
@@ -46,6 +53,7 @@ $('#open-formula-modal-btn').on('click', async () => {
 
 		$('#final-formula-input').val(body.formula_text);
 
+		// Abre o modal de formula
 		const modal = new bootstrap.Modal($('#formula-modal')[0]);
 		modal.show();
 	} catch (err) {
@@ -53,7 +61,7 @@ $('#open-formula-modal-btn').on('click', async () => {
 	}
 });
 
-// Salvar fórmula
+// Evento salvar fórmula
 $('#save-formula-btn').on('click', async () => {
 	const formula = $('#final-formula-input').val();
 
@@ -64,8 +72,9 @@ $('#save-formula-btn').on('click', async () => {
 	SaveFormula(formula);
 });
 
-// Abrir modal criar
+// Evento abrir modal criação
 $('#open-component-modal-btn').on('click', () => {
+	// Limpa o modal
 	$('#component-form')[0].reset();
 	$('#component-acronym').attr('disabled', false);
 	$('#component-form').removeAttr('data-component-id');
@@ -74,7 +83,7 @@ $('#open-component-modal-btn').on('click', () => {
 	new bootstrap.Modal($('#component-modal')[0]).show();
 });
 
-// Salvar criar/editar
+// Evento salvar
 $('#save-component-btn').on('click', async () => {
 	const componentId = $('#component-form').attr('data-component-id');
 	const fd = Object.fromEntries(new FormData($('#component-form')[0]));
@@ -88,15 +97,18 @@ $('#save-component-btn').on('click', async () => {
 	bootstrap.Modal.getInstance($('#component-modal')[0]).hide();
 });
 
-// Excluir
+// Evento excluir
 $('#delete-component-btn').on('click', async () => {
 	const id = $('#delete-component-modal').attr('data-component-id');
 	await DeleteComponent(id);
 });
 
 // FUNÇÕES API
+
+// Salva a formula
 async function SaveFormula(formula) {
 	try {
+		// Salva a formula
 		const res = await fetch(`${API_URL}/api/subject/${subjectId}/final-formula`, {
 			method: 'POST',
 			headers: GetAuthHeaders(),
@@ -105,6 +117,7 @@ async function SaveFormula(formula) {
 
 		const body = await res.json();
 
+		// Verifica o token
 		if (!isValidToken(res)) {
 			window.location.href = '/frontend/pages/auth/signin.html';
 		}
@@ -115,6 +128,7 @@ async function SaveFormula(formula) {
 			]);
 		}
 
+		// Fecha o modal
 		const modal = bootstrap.Modal.getInstance($('#formula-modal')[0]);
 		modal.hide();
 	} catch (err) {
@@ -122,8 +136,10 @@ async function SaveFormula(formula) {
 	}
 }
 
+// Busca os componentes
 async function FetchComponents() {
 	try {
+		// Requisição de busca
 		const res = await fetch(`${API_URL}/api/subject/${subjectId}/components`, {
 			headers: GetAuthHeaders(),
 		});
@@ -145,8 +161,10 @@ async function FetchComponents() {
 	}
 }
 
+// Cadastrar um componente
 async function CreateComponent(data) {
 	try {
+		// Requisição de cadastro
 		const res = await fetch(`${API_URL}/api/subject/${subjectId}/component`, {
 			method: 'POST',
 			headers: GetAuthHeaders(),
@@ -174,8 +192,10 @@ async function CreateComponent(data) {
 	}
 }
 
+// Altera um componente
 async function AlterComponent(id, data) {
 	try {
+		// Requisiçao de alteração
 		const res = await fetch(`${API_URL}/api/component/${id}`, {
 			method: 'PUT',
 			headers: GetAuthHeaders(),
@@ -203,6 +223,7 @@ async function AlterComponent(id, data) {
 	}
 }
 
+// Requisição de exclusão
 async function DeleteComponent(id) {
 	try {
 		const res = await fetch(`${API_URL}/api/component/${id}`, {

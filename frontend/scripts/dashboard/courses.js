@@ -6,6 +6,7 @@ import { LoadCoursesList } from '/frontend/components/course-table/row.js';
 import { GetAuthHeaders } from '../utils/getAuthHeaders.js';
 import { isValidToken } from '../utils/verifyToken.js';
 
+// Lista de cursos e filtro
 var coursesList = [];
 var filter = '';
 
@@ -14,21 +15,24 @@ if (!localStorage.getItem('token')) {
 	window.location.href = '/frontend/pages/auth/signin.html';
 }
 
-// Verifica se o ID da instituição está na URL
+// Parâmetros da URL
 const params = new URLSearchParams(window.location.search);
 const instituionId = params.get('institutionId');
 
+// Verifica se o ID da instituição está na URL
 if (!instituionId) {
 	window.location.href = '/frontend/pages/dashboard/institutions.html';
 } else {
     CheckInstitutionExists(instituionId);
 }
 
+// Evento da barra de busca
 $('#course-search-input').on('keyup', (ev) => {
     filter = ev.currentTarget.value;
     ShowCourses();
 });
 
+// Evento abrir modal de cadastro
 $('#open-course-modal-btn').on('click', () => {
     $('#course-form')[0].reset();
     $('#course-form').removeAttr('data-course-id');
@@ -38,10 +42,7 @@ $('#open-course-modal-btn').on('click', () => {
     modal.show();
 });
 
-$('#return-btn').on('click', () => {
-    window.location.href = `/frontend/pages/dashboard/institutions.html`;
-});
-
+// Evento botão de salvar
 $('#save-course-btn').on('click', async () => {
     const courseId = $('#course-form').attr('data-course-id');
     const formdata = new FormData($('#course-form')[0]);
@@ -56,13 +57,18 @@ $('#save-course-btn').on('click', async () => {
     modal.hide();
 });
 
+// Evento botão de exclusão
 $('#delete-course-btn').on('click', async () => {
     const courseId = $('#delete-course-modal').attr('data-course-id');
     await DeleteCourse(courseId);
 });
 
+// REQUISIÇÕES API
+
+// Cadastro de cursos
 async function CreateCourse(courseName) {
 	try {
+		// Requisição de cadastro
 		const res = await fetch(`${API_URL}/api/course`, {
 			method: 'POST',
 			headers: GetAuthHeaders(),
@@ -74,6 +80,7 @@ async function CreateCourse(courseName) {
 
 		const body = await res.json();
 
+		// Verifica o token
 		if (!isValidToken(res)) {
 			window.location.href = '/frontend/pages/auth/signin.html';
 			return;
@@ -90,8 +97,10 @@ async function CreateCourse(courseName) {
 	}
 }
 
+// Alteração de cursos
 async function AlterCourse(id, courseName) {
 	try {
+		// Requisição de alteração
 		const res = await fetch(`${API_URL}/api/course/${id}`, {
 			method: 'PUT',
 			headers: GetAuthHeaders(),
@@ -117,8 +126,10 @@ async function AlterCourse(id, courseName) {
 	}
 }
 
+// Exclusão de cursos
 async function DeleteCourse(id) {
 	try {
+		// Requisição de exclusão
 		const res = await fetch(`${API_URL}/api/course/${id}`, {
 			method: 'DELETE',
 			headers: GetAuthHeaders(),
@@ -144,8 +155,10 @@ async function DeleteCourse(id) {
 	modal.hide();
 }
 
+// Busca de cursos
 async function FetchCourses() {
 	try {
+		// Requisição de busca
 		const res = await fetch(`${API_URL}/api/courses/${instituionId}`, {
 			method: 'GET',
 			headers: GetAuthHeaders(),
@@ -169,8 +182,10 @@ async function FetchCourses() {
 	}
 }
 
+// Checagem de ID da instituição
 async function CheckInstitutionExists(id) {
 	try {
+		// Requisição de checagem
 		const res = await fetch(`${API_URL}/api/institution/${id}`, {
 			method: 'GET',
 			headers: GetAuthHeaders(),
@@ -185,6 +200,7 @@ async function CheckInstitutionExists(id) {
 	}
 }
 
+// Exibe os cursos na tela
 function ShowCourses() {
     $('#course-table').find('tbody').html('');
 
@@ -195,4 +211,3 @@ function ShowCourses() {
 }
 
 FetchCourses();
-ShowCourses();

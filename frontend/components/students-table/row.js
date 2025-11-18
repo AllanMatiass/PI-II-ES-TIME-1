@@ -1,4 +1,4 @@
-// Autor Cristian e Allan Matias
+// Autores: Cristian Fava e Allan Matias
 
 import { API_URL } from '/frontend/scripts/utils/config.js';
 import { ShowErrorModal } from '/frontend/components/errors-modal/modal.js';
@@ -13,8 +13,10 @@ const params = new URLSearchParams(window.location.search);
 const subjectId = params.get('subjectId');
 
 /**
- * Substitui várias chaves do template.
- * map = { key: value } para substituir {{key}} -> value
+ * @name fill
+ * @description Substitui várias chaves do template.
+ * @param {string} template
+ * @param {Object} map
  */
 function fill(template, map) {
 	let out = template;
@@ -26,9 +28,11 @@ function fill(template, map) {
 }
 
 /**
- * studentsList: array de alunos
- * gradesList: array retornado pela API (cada item: { student_id, components: [...], final_grade })
- * $table: jQuery table element
+ * @name LoadStudentsList
+ * @description Carrega a lista de cursos em um elemento de lista jquery
+ * @param {object[]} studentsList
+ * @param {object[]} gradesList
+ * @param {HTMLTableElement} $table
  */
 export async function LoadStudentsList(studentsList, gradesList, $table) {
 	if (!$table || !$table.length) return;
@@ -39,7 +43,8 @@ export async function LoadStudentsList(studentsList, gradesList, $table) {
 
 	// Carrega templates apenas uma vez
 	if (!rowTemplate) {
-		// caminhos conforme sua estrutura
+
+		// HTMLs externos (linha principal, modelo de nota e nota final)
 		rowTemplate = await $.get('/frontend/components/students-table/row.html');
 		noteTemplate = await $.get('/frontend/components/students-table/note.html');
 		finalNoteTemplate = await $.get(
@@ -50,12 +55,12 @@ export async function LoadStudentsList(studentsList, gradesList, $table) {
 	// Para cada aluno
 	for (const student of studentsList) {
 
-		// encontra info de notas do aluno
+		// Encontra info de notas do aluno
 		const gradeInfo = (gradesList || []).find((g) => g.student_id === student.id) || {};
 		const components = gradeInfo.components || [];
 		const finalGrade = gradeInfo.final_grade ?? '-';
 
-		// monta linha
+		// Cria a linha referente ao aluno 
 		const rowHtml = fill(rowTemplate, {
 			student_id: student.id,
 			registration_id: student.registration_id ?? '',
@@ -64,12 +69,14 @@ export async function LoadStudentsList(studentsList, gradesList, $table) {
 
 		const $linha = $(rowHtml);
 
-		// preencher notas (cada note terá grade_key = studentId__componentId)
+		// Preenche as notas
 		const $notesCell = $linha.find('.notes-cell');
 
+		// Para cadas componente da disciplina
 		for (const comp of components) {
 			const gradeKey = `${student.id}__${comp.component_id}`;
 
+			// Cria o HTML seguindo o modelo
 			const noteHtml = fill(noteTemplate, {
 				grade_key: gradeKey,
 				component_id: comp.component_id,
@@ -77,27 +84,32 @@ export async function LoadStudentsList(studentsList, gradesList, $table) {
 				value: comp.grade_value === 0 ? '0' : comp.grade_value ?? '-',
 			});
 
+			// Adiciona o HTML na celula de notas
 			const $note = $(noteHtml);
 			$notesCell.append($note);
 		}
 
-		// nota final
+		// HTML nota final
 		const $final = $(fill(finalNoteTemplate, { value: finalGrade }));
 		$notesCell.append($final);
 
-		// append linha
+		// Append linha
 		$tbody.append($linha);
 
-		// bind de eventos por linha (delegation local)	
-		attachRowHandlers($linha, student);
+		// Bind de eventos por linha
+		AttachRowHandlers($linha, student);
 	}
 }
 
 /**
- * Anexa handlers DELEGADOS ao $linha para evitar múltiplas binding e garantir escopo.
+ * @name AttachRowHandlers
+ * @description Anexa os eventos necessários em cada linha da tabela
+ * @param {HTMLTableRowElement} $linha 
+ * @param {object} student 
  */
-function attachRowHandlers($linha, student) {
-	// editar aluno / deletar
+function AttachRowHandlers($linha, student) {
+
+	// Evento botão editar aluno
 	$linha
 		.find('.edit-student-btn')
 		.off('click')
@@ -107,10 +119,14 @@ function attachRowHandlers($linha, student) {
 			$('#student-registration-id-txt')
 				.val(student.registration_id)
 				.attr('disabled', true);
+			
 			$('#student-modal-title').html('ALTERAR ALUNO');
-			new bootstrap.Modal($('#student-modal')[0]).show();
+
+			const modal = new bootstrap.Modal($('#student-modal')[0]);
+			modal.show();
 		});
 
+	// Evento botão excluir aluno
 	$linha
 		.find('.delete-student-btn')
 		.off('click')
@@ -119,16 +135,19 @@ function attachRowHandlers($linha, student) {
 				'data-student-id',
 				student.registration_id
 			);
+
 			$('#delete-student-modal-title').html(
 				`DESEJA EXCLUIR O ESTUDANTE ${student.name.toUpperCase()}?`
 			);
-			new bootstrap.Modal($('#delete-student-modal')[0]).show();
+			
+			const modal = new bootstrap.Modal($('#delete-student-modal')[0]);
+			modal.show();
 		});
 
-	// controle de edição por linha
+	// Flag de edição por linha
 	let editingKey = null;
 
-	// ===== ABRIR EDIÇÃO =====
+	// ===== EVENTO BOTÃO ABRIR EDIÇÃO =====
 	$linha
 		.off('click', '.edit-grade-btn')
 		.on('click', '.edit-grade-btn', function () {
@@ -145,7 +164,7 @@ function attachRowHandlers($linha, student) {
 			$noteLine.find('input.component-grade-input').prop('disabled', false);
 		});
 
-	// ===== SALVAR =====
+	// ===== EVENTO BOTÃO SALVAR =====
 	$linha
 		.off('click', '.save-grade-btn')
 		.on('click', '.save-grade-btn', async function () {
@@ -163,6 +182,7 @@ function attachRowHandlers($linha, student) {
 			const [student_id, component_id] = String(gradeKey).split('__');
 
 			try {
+				// Requisição salvar nota
 				const res = await fetch(`${API_URL}/api/subject/${subjectId}/grades`, {
 					method: 'POST',
 					headers: GetAuthHeaders(),
@@ -181,12 +201,14 @@ function attachRowHandlers($linha, student) {
 					);
 				}
 
+				// Desabilita a edição
 				$input.prop('disabled', true);
 				$noteLine.find('.save-grade-btn').addClass('d-none');
 				$noteLine.find('.edit-grade-btn').removeClass('d-none');
 
 				editingKey = null;
 
+				// Verifica se existe nota final
 				if (body.data.final_grade !== undefined) {
 					$linha.find('.final-grade-input').val(body.data.final_grade);
 				}
