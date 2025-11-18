@@ -1,50 +1,55 @@
 // Autor: Cristian Fava
 
-import { GetAuthHeaders } from "/frontend/scripts/utils/getAuthHeaders.js";
-import { API_URL } from "/frontend/scripts/utils/config.js";
-import { ShowErrorModal } from "/frontend/components/errors-modal/modal.js";
+import { GetAuthHeaders } from '/frontend/scripts/utils/getAuthHeaders.js';
+import { API_URL } from '/frontend/scripts/utils/config.js';
+import { ShowErrorModal } from '/frontend/components/errors-modal/modal.js';
 
+// HTML externo (Navbar)
 $.get('/frontend/components/navbar/navbar.html', (html) => {
 	const $navbar = $(html);
 
 	$(document.body).prepend($navbar);
 
-	$navbar.find('#open-profile-btn')
-		.on('click', async () => {
-			const profile = await FetchProfileInfo();
-			if (!profile) return;
+	// Evento botão abrir perfil
+	$navbar.find('#open-profile-btn').on('click', async () => {
+		const profile = await FetchProfileInfo();
+		if (!profile) return;
 
-			$navbar.find('#nomeTxt').val(profile.data.name);
-			$navbar.find('#emailTxt').val(profile.data.email);
-			$navbar.find('#telefoneTxt').val(profile.data.phone);
+		$navbar.find('#nomeTxt').val(profile.data.name);
+		$navbar.find('#emailTxt').val(profile.data.email);
+		$navbar.find('#telefoneTxt').val(profile.data.phone);
 
-			const modal = new bootstrap.Modal($navbar.find('#profile-modal')[0]);
-			modal.show();
-		});
-	
-	// Botões do modal de perfil
-	$navbar.find('#save-changes-btn')
-		.on('click', async () => {
-			const formdata = new FormData($navbar.find('#profile-form')[0]);
+		const modal = new bootstrap.Modal($navbar.find('#profile-modal')[0]);
+		modal.show();
+	});
 
-			await UpdateProfileInfo(formdata);
+	// Evento botão salvar perfil
+	$navbar.find('#save-changes-btn').on('click', async () => {
+		const formdata = new FormData($navbar.find('#profile-form')[0]);
 
-			const modal = bootstrap.Modal.getInstance($navbar.find('#profile-modal')[0]);
-			modal.hide();
-		});
-	
-	$navbar.find('#logout-btn')
-		.on('click', () => {
-			window.localStorage.removeItem('token');
-			window.localStorage.removeItem('userId');
-			window.location.href = '/frontend/pages/auth/signin.html';
-		});
+		await UpdateProfileInfo(formdata);
+
+		const modal = bootstrap.Modal.getInstance(
+			$navbar.find('#profile-modal')[0]
+		);
+		modal.hide();
+	});
+
+	$navbar.find('#logout-btn').on('click', () => {
+		window.localStorage.removeItem('token');
+		window.localStorage.removeItem('userId');
+		window.location.href = '/frontend/pages/auth/signin.html';
+	});
 });
 
+// Chamadas da API
+
+// Atualizar perfil
 async function UpdateProfileInfo(updatedInfo) {
 	const professorId = window.localStorage.getItem('userId');
 
 	try {
+		// Requisição de alteração
 		const res = await fetch(`${API_URL}/api/professor/${professorId}`, {
 			method: 'PUT',
 			headers: GetAuthHeaders(),
@@ -61,8 +66,10 @@ async function UpdateProfileInfo(updatedInfo) {
 	}
 }
 
+// Buscar perfil
 async function FetchProfileInfo() {
 	try {
+		// Requisição de busca
 		const res = await fetch(`${API_URL}/api/profile`, {
 			method: 'GET',
 			headers: GetAuthHeaders(),

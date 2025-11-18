@@ -14,11 +14,13 @@ if (!localStorage.getItem('token')) {
 	window.location.href = '/frontend/pages/auth/signin.html';
 }
 
+// Evento barra de busca
 $('#institution-search-input').on('keyup', (ev) => {
 	filter = ev.currentTarget.value;
 	ShowInstitutions();
 });
 
+// Evento botçao de abrir modal de cadastro
 $('#open-institution-modal-btn').on('click', () => {
 	$('#institution-form')[0].reset();
 	$('#institution-form').removeAttr('data-institution-id');
@@ -28,6 +30,7 @@ $('#open-institution-modal-btn').on('click', () => {
 	modal.show();
 });
 
+// Evento botão de salvar instituição
 $('#save-institution-btn').on('click', async () => {
 	const institutionId = $('#institution-form').attr('data-institution-id');
 	const formdata = new FormData($('#institution-form')[0]);
@@ -42,6 +45,7 @@ $('#save-institution-btn').on('click', async () => {
 	modal.hide();
 });
 
+// Evento botão de excluir institução
 $('#delete-institution-btn').on('click', async () => {
 	const institutionId = $('#delete-institution-modal').attr(
 		'data-institution-id'
@@ -49,8 +53,12 @@ $('#delete-institution-btn').on('click', async () => {
 	await DeleteInstitution(institutionId);
 });
 
+// Requisições da API
+
+// Cadastrar instituições
 async function CreateInstitution(institutionData) {
 	try {
+		// Requisição de cadastro
 		const res = await fetch(`${API_URL}/api/institution`, {
 			method: 'POST',
 			headers: GetAuthHeaders(),
@@ -58,7 +66,8 @@ async function CreateInstitution(institutionData) {
 		});
 
 		const body = await res.json();
-
+	
+		// Verifica se o token é válido
 		if (!isValidToken(res)) {
 			window.location.href = '/frontend/pages/auth/signin.html';
 			return;
@@ -75,8 +84,10 @@ async function CreateInstitution(institutionData) {
 	}
 }
 
+// Alterar instituição
 async function AlterInstitution(id, data) {
 	try {
+		// Requisição de alteração
 		const res = await fetch(`${API_URL}/api/institution/${id}`, {
 			method: 'PUT',
 			headers: GetAuthHeaders(),
@@ -100,8 +111,10 @@ async function AlterInstitution(id, data) {
 	}
 }
 
+// Excluir instituição
 async function DeleteInstitution(id) {
 	try {
+		// Requisição de exclusão
 		const res = await fetch(`${API_URL}/api/institution/${id}`, {
 			method: 'DELETE',
 			headers: GetAuthHeaders(),
@@ -127,8 +140,10 @@ async function DeleteInstitution(id) {
 	modal.hide();
 }
 
+// Buscar instituições
 async function FetchInstitutions() {
 	try {
+		// Requisição de busca
 		const res = await fetch(`${API_URL}/api/institution/all`, {
 			method: 'GET',
 			headers: GetAuthHeaders(),
@@ -144,6 +159,7 @@ async function FetchInstitutions() {
 			return ShowErrorModal('ERRO AO CARREGAR INSTITUIÇÕES', [body.message]);
 		}
 
+		// Separa as instituições por ID de professor
 		let dataSet = body.data.filter((data) =>
 			data.professors.find((prof) => prof.id == localStorage.getItem('userId'))
 		);
@@ -155,6 +171,7 @@ async function FetchInstitutions() {
 	}
 }
 
+// Exibe as instituições
 function ShowInstitutions() {
 	$('#institution-table').find('tbody').html('');
 
@@ -165,4 +182,3 @@ function ShowInstitutions() {
 }
 
 FetchInstitutions();
-ShowInstitutions();
