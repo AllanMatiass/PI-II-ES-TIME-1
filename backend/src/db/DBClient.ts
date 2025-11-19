@@ -1,4 +1,4 @@
-// Autor: Allan Giovanni Matias Paes & Cristian Eduardo Fava
+// Autor: Allan Giovanni Matias Paes
 import mysql from 'mysql2/promise';
 import { v4 as uuidv4 } from 'uuid';
 

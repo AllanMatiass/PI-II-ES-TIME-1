@@ -1,3 +1,5 @@
+// Autoes: Allan Matias e Murilo Rigoni
+
 import { Router } from "express";
 // Importa os controladores responsáveis por login e registro
 import { loginController, registerController } from "../controllers/authController";

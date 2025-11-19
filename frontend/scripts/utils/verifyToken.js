@@ -1,3 +1,5 @@
+// Autor: Allan Matias
+
 export function isValidToken(res) {
 	// Se a resposta da API retornar status 401,
 	// significa que o token não é mais válido.
