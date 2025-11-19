@@ -1,3 +1,5 @@
+// Autor: Allan Matias
+
 /**
  * Cria e retorna os cabeçalhos padrão para requisições autenticadas.
  */

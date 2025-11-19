@@ -1,5 +1,4 @@
 // Autores originais: Emilly Morelatto e Mateus Campos
-// Versão corrigida por ChatGPT
 
 import { Request, Response } from "express";
 import { AppError } from "../errors/AppError";

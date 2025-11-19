@@ -1,3 +1,5 @@
+-- Autores: Allan Matias e Cristian Fava
+
 DROP DATABASE IF EXISTS nota_dez_db;
 CREATE DATABASE nota_dez_db;
 USE nota_dez_db;

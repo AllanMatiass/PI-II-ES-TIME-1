@@ -1,4 +1,4 @@
-// Autor: Cristian Fava
+// Autor: Cristian Fava e 
 
 import { API_URL } from '../utils/config.js';
 import { ShowErrorModal } from "/frontend/components/errors-modal/modal.js";
